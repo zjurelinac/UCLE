@@ -1,0 +1,4 @@
+#ifndef _CORE_INCLUDE_SIMULATOR_H_
+#define _CORE_INCLUDE_SIMULATOR_H_
+
+#endif
