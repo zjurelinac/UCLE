@@ -142,7 +142,7 @@ void frisc_hls::_execute_single() {
 
         dest = src;
 
-    // ALU operation
+    // Arithmetical-logical operation
     } else if (opcode >= 0b00001 && opcode <= 0b01100) {
         word &dest = R[(instr & (0b111 << 23)) >> 23];
         word src1 = R[(instr & (0b111 << 20)) >> 20];
@@ -278,7 +278,7 @@ void frisc_hls::_execute_single() {
         }
 
     // Control operation
-    } else if (opcode) {
+    } else if (opcode >= 0b11000 && opcode <= 0b11111) {
         unsigned cond = (instr & (0b1111 << 22)) >> 22;
 
         switch (opcode) {
