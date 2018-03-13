@@ -3,15 +3,15 @@
 //
 //  Desired features in productin version:
 //      - register<size> type
-//      - signed_cast
-//      - fixed-size types (int16, int32...) -> exist in C++11
+//      - signed_cast -> exists, std::make_unsigned, std::make_signed
+//      - fixed-size types (int16, int32...) -> exists in C++11
 //      - uniform HLS interface
 //      - header file
 //      - OO inheritance
 //      - binary util library
 //      - info and status queries
 //      - policy-based execution?
-//      - SR-flags class - mapping between flags and status register bits
+//      - SR-flags class - mapping between flags and status register bits -> modified std::bitset?
 //      - memory class - test overflows and sigsegvs
 //      - exceptions/expecteds
 //******************************************************************************
@@ -24,11 +24,11 @@
 
 #include "clargs.h"
 
-using byte = unsigned char;
-using half = unsigned short;
-using word = unsigned int;
-using longword = unsigned long long;
-using size_t = unsigned long;
+using byte = uint8_t;
+using half = uint16_t;
+using word = uint32_t;
+using longword = uint64_t;
+// using size_t = uint32_t;
 
 using cv_flags = std::pair<bool, bool>;
 
@@ -133,6 +133,7 @@ void frisc_hls::print_reg_state() {
     for (int i = 0; i < 8; ++i)
         printf("R%d: %08X\n", i, R[i]);
     printf("\nPC: %08X\nSR: %08X\nIIF = %d\n", PC, SR, IIF);
+    printf("Z=%d, V=%d, C=%d, N=%d\n", !!(SR & 8), !!(SR & 4), !!(SR & 2), !!(SR & 1));
     puts("------------");
 }
 
@@ -142,7 +143,7 @@ void frisc_hls::_execute_single() {
     unsigned opcode = (instr & 0xF8000000) >> 27;
     unsigned fn = (instr & (1 << 26)) >> 26;
 
-    printf("%08X: Executing %08X = %08X %0X, operands = %08X %08X\n", PC, instr, opcode, fn);
+    printf("%08X: Executing %08X = %08X %0X\n", PC, instr, opcode, fn);
 
     PC += 4;
 
@@ -160,7 +161,7 @@ void frisc_hls::_execute_single() {
         *dest = src;
 
     // Arithmetical-logical operation
-    } else if (opcode >= 0b00001 && opcode <= 0b01100) {
+    } else if (opcode >= 0b00001 && opcode <= 0b01101) {
         word &dest = R[(instr & (0b111 << 23)) >> 23];
         word src1 = R[(instr & (0b111 << 20)) >> 20];
         word src2 = fn ? sign_extend20(instr & 0x000FFFFF) : R[(instr & (0b111 << 17)) >> 17];
@@ -229,8 +230,9 @@ void frisc_hls::_execute_single() {
                 nC = src1 & (1 << (src2 - 1));
                 break;
             } case 0b01101: {  // CMP
-                unsigned res = src1 - src2;
-                auto cv = calc_add_flags(src1, ~src2);
+                printf("Comparing: %d and %d\n", src1, src2);
+                unsigned res = src1 + ~src2 + 1;
+                auto cv = calc_add_flags(src1, ~src2 + 1);
                 nC = cv.first; nV = cv.second;
                 nN = res & (1UL << 31);
                 nZ = res == 0;
@@ -328,6 +330,9 @@ void frisc_hls::_execute_single() {
                     break;
             }
         }
+    } else {
+        fprintf(stderr, "Unknown operation: %04X!\n", opcode);
+        _state = hls_state::exception;
     }
 
     // test for interrupts
@@ -342,7 +347,8 @@ int main(int, char* argv[]) {
 
 cv_flags calc_add_flags(word src1, word src2) {
     bool C = (((longword) src1) + src2) & (1ULL << 32);
-    bool V = C ^ (((src1 & 0x7FFFFFFF) + (src2 & 0x7FFFFFFF)) & (1U << 31));
+    bool C1 = ((src1 & 0x7FFFFFFF) + (src2 & 0x7FFFFFFF)) & (1U << 31);
+    bool V = C ^ C1;
     return {C, V};
 }
 
