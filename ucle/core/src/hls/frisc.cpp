@@ -22,8 +22,6 @@
 #include <fstream>
 #include <string>
 
-#include "clargs.h"
-
 using byte = uint8_t;
 using half = uint16_t;
 using word = uint32_t;
