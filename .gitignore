@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# SCons files
+.sconsign.*
+
+# Build folder
+build

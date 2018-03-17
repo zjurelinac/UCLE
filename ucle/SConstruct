@@ -1,0 +1,27 @@
+libraries 		= []
+library_paths 	= ''
+cppDefines 		= {}
+cppFlags 		= ['-Wall', '-Wextra']  #, '-Werror']
+cxxFlags 		= ['-std=c++17']
+
+common = Environment()
+
+common['CXX'] = 'g++-7'
+
+common.Append(LIBS 			= libraries)
+common.Append(LIBPATH 		= library_paths)
+common.Append(CPPDEFINES 	= cppDefines)
+common.Append(CPPFLAGS 		= cppFlags)
+common.Append(CXXFLAGS 		= cxxFlags)
+
+release = common.Clone()
+release.Append(CPPDEFINES=['RELEASE'])
+release.VariantDir('build/release', '.', duplicate=0)
+# release_env.VariantDir('build/release/test', 'test', duplicate=0)
+
+debug = common.Clone()
+debug.Append(CPPDEFINES=['DEBUG'], CCFLAGS=['-g'])
+debug.VariantDir('build/debug', '.', duplicate=0)
+# debug_env.VariantDir('build/debug/test', 'test', duplicate=0)
+
+SConscript('build/debug/core/SConscript', exports='debug release')

@@ -1,7 +1,8 @@
-#ifndef _CORE_UTIL_BASE_H_
-#define _CORE_UTIL_BASE_H_
+#ifndef _CORE_COMMON_BASE_H_
+#define _CORE_COMMON_BASE_H_
 
 #include <cstdint>
+#include <utility>
 
 namespace ucle {
 
@@ -19,7 +20,14 @@ namespace ucle {
 
     using address_t = uint32_t;
 
+    struct address_range {
+        address_t lower_bound, upper_bound;
+
+        bool contains(address_t location) const { return lower_bound <= location && location <= upper_bound; }
+    };
+
+
 }
 
 
-#endif  // _CORE_SIMULATOR_H_
+#endif  // _CORE_COMMON_BASE_H_

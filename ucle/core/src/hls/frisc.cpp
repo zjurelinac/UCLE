@@ -141,7 +141,7 @@ void frisc_hls::_execute_single() {
     unsigned opcode = (instr & 0xF8000000) >> 27;
     unsigned fn = (instr & (1 << 26)) >> 26;
 
-    printf("%08X: Executing %08X = %08X %0X\n", PC, instr, opcode, fn);
+    // printf("%08X: Executing %08X = %08X %0X\n", PC, instr, opcode, fn);
 
     PC += 4;
 
@@ -228,7 +228,7 @@ void frisc_hls::_execute_single() {
                 nC = src1 & (1 << (src2 - 1));
                 break;
             } case 0b01101: {  // CMP
-                printf("Comparing: %d and %d\n", src1, src2);
+                // printf("Comparing: %d and %d\n", src1, src2);
                 unsigned res = src1 + ~src2 + 1;
                 auto cv = calc_add_flags(src1, ~src2 + 1);
                 nC = cv.first; nV = cv.second;
@@ -340,7 +340,8 @@ void frisc_hls::_execute_single() {
 int main(int, char* argv[]) {
     frisc_hls simulator(4096);
     simulator.load_program(argv[1]);
-    std::cout << simulator.run(true) << "\n";
+    std::cout << simulator.run(false) << "\n";
+    simulator.print_reg_state();
 }
 
 cv_flags calc_add_flags(word src1, word src2) {

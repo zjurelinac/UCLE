@@ -1,0 +1,5 @@
+Import('debug release')
+
+
+
+debug.Program('frisc-hls', 'src/hls/frisc.cpp')
