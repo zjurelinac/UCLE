@@ -201,14 +201,14 @@ void frisc_hls::_execute_single() {
                 auto cv = calc_add_flags(src1, ~(src2 + C) + 1);
                 nC = cv.first; nV = cv.second;
                 break;
-            } case 0b01000: {
+            } case 0b01000: {  // ROTL, TODO: Optimize
                 src2 &= 0x1F;  // (% 32)
                 word wrap_mask = ((1 << src2) - 1) << (32 - src2);
                 word wrap_bits = (src1 & wrap_mask) >> (32 - src2);
                 dest = (src1 << src2) | wrap_bits;
                 nC = wrap_bits & 1;
                 break;
-            } case 0b01001: {
+            } case 0b01001: {  // ROTR, TODO: Optimize
                 src2 &= 0x1F;  // (% 32)
                 word wrap_mask = (1 << src2) - 1;
                 word wrap_bits = (src1 & wrap_mask);

@@ -13,7 +13,8 @@
                 "${workspaceRoot}/ucle/core/include",
                 "/home/iota/Projects/ucle/ucle/core/include",
                 "/usr/include/linux",
-                "/usr/include/c++/7"
+                "/usr/include/c++/7",
+                "/usr/lib/llvm-5.0/lib/clang/5.0.1/include"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
