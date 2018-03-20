@@ -57,14 +57,11 @@ namespace ucle {
     template <typename Result, typename Error>
     Error get_error(outcome<Result, Error> out) { return std::get<Error>(out); }
 
-    enum class success_t { SUCCESS };
+    enum class success { ok };
 
-    /*struct memory_access_error : public std::exception {
-        memory_access_error(address_t location, const char* msg) { sprintf(msg_, "Memory access error [@%08X]: %s", location, msg); }
-        virtual const char* what() const noexcept override { return msg_; }
-        private: char msg_[64];
-    };*/
+    enum class error { invalid_state, invalid_range, invalid_address, runtime_exception, nonexistent_entry };
 
+    using status_t = outcome<success, error>;
 }
 
 
