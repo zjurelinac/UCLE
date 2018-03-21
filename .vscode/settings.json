@@ -47,6 +47,5 @@
         "fstream": "cpp",
         "iostream": "cpp",
         "streambuf": "cpp"
-    },
-    "C_Cpp.errorSquiggles": "Disabled"
+    }
 }

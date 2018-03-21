@@ -1,10 +1,9 @@
-#ifndef _CORE_COMMON_BASE_H_
-#define _CORE_COMMON_BASE_H_
+#ifndef _CORE_COMMON_TYPES_HPP_
+#define _CORE_COMMON_TYPES_HPP_
 
 #include <cstdint>
 #include <cstdlib>
 #include <cstdio>
-#include <exception>
 #include <utility>
 #include <variant>
 
@@ -27,6 +26,17 @@ namespace ucle {
     using address_t = uint32_t;
     using size_t = uint32_t;
 
+    using identifier_t = uint32_t;
+    using priority_t = uint32_t;
+
+    enum class success { ok };
+    enum class error { invalid_state, invalid_address_range, invalid_identifier, runtime_exception, filesystem_error };
+
+    using status_t = std::variant<success, error>;
+
+    inline bool is_success(status_t status) { return std::holds_alternative<success>(status); }
+    inline bool is_error(status_t status) { return std::holds_alternative<error>(status); }
+
     struct address_range {
         address_t low_addr, high_addr;
 
@@ -44,27 +54,7 @@ namespace ucle {
     };
 
     struct arith_flags { bool C, V, N, Z; };
-
-    /*** Run-utility types ***/
-
-    template <typename Result, typename Error>
-    using outcome = std::variant<Result, Error>;
-
-    template <typename Result, typename Error>
-    bool is_successful(outcome<Result, Error> out) { return std::holds_alternative<Result>(out); }
-
-    template <typename Result, typename Error>
-    Result get_result(outcome<Result, Error> out) { return std::get<Result>(out); }
-
-    template <typename Result, typename Error>
-    Error get_error(outcome<Result, Error> out) { return std::get<Error>(out); }
-
-    enum class success { ok };
-
-    enum class error { invalid_state, invalid_range, invalid_address, runtime_exception, nonexistent_entry };
-
-    using status_t = outcome<success, error>;
 }
 
 
-#endif  // _CORE_COMMON_BASE_H_
+#endif  /* _CORE_COMMON_TYPES_HPP_ */

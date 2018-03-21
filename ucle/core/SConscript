@@ -2,7 +2,7 @@ libraries 		= []
 library_paths 	= ''
 cpp_defines 	= {}
 cpp_paths       = ['include']
-cpp_flags 		= [] # ['-Wall', '-Wextra']  #, '-Werror']
+cpp_flags 		= ['-Wall', '-Wextra']  #, '-Werror']
 cxx_flags 		= ['-std=c++17']
 
 common = Environment()
@@ -25,6 +25,6 @@ debug = common.Clone()
 debug.Append(CPPDEFINES=['DEBUG'], CCFLAGS=['-g'])
 debug.VariantDir('../build/debug', '.', duplicate=0)
 
-debug.Program('../build/debug/core/functional-test', ['src/simulators/functional/functional.cpp'])
-# debug.Program('../build/debug/core/frisc-fnsim', ['src/simulators/functional/frisc.cpp', 'src/simulators/functional/functional.cpp'])
+# debug.Program('../build/debug/core/functional-test', ['src/simulators/functional/functional.cpp'])
+debug.Program('../build/debug/core/frisc-fnsim', ['src/simulators/functional/frisc.cpp', 'src/simulators/functional/functional.cpp'])
 # debug.Program('frisc-hls', 'src/ls/frisc.cpp')

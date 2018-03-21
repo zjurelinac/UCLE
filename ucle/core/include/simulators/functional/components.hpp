@@ -8,13 +8,14 @@
 #include <cstring>
 #include <memory>
 #include <vector>
+#include <set>
 
 #include <common/types.hpp>
+#include <common/exceptions.hpp>
 
 /*
     TODO:
     - Variable address_t size
-    - 
 */
 
 
@@ -22,7 +23,6 @@ namespace ucle::fnsim {
 
     /*** Registers ***/
 
-    // Helper templated class for representing processor registers
     template<typename ValueType>
     class reg_inst_ {
         public:
@@ -41,19 +41,16 @@ namespace ucle::fnsim {
                 { if (this != &other) value_ = other.value; return *this; }
 
             void set(value_type value) { value_ = value; }
-            value_type get() { return value_; }
+            value_type get() const { return value_; }
 
         protected:
             value_type value_;
     };
 
-    // Class representing a processor register
     template<unsigned bits> class reg {};
-    template<>              class reg<8>  : public reg_inst_<byte_t> { using reg_inst_<byte_t>::operator=; };
-    template<>              class reg<16> : public reg_inst_<half_t> { using reg_inst_<half_t>::operator=; };
-    template<>              class reg<32> : public reg_inst_<word_t> { using reg_inst_<word_t>::operator=; };
-
-    // Flags register
+    template<>              class reg<8>  : public reg_inst_<byte_t> { public: using reg_inst_<byte_t>::operator=; };
+    template<>              class reg<16> : public reg_inst_<half_t> { public: using reg_inst_<half_t>::operator=; };
+    template<>              class reg<32> : public reg_inst_<word_t> { public: using reg_inst_<word_t>::operator=; };
 
     template <unsigned bits>
     class flags_reg {
@@ -61,24 +58,25 @@ namespace ucle::fnsim {
 
     };
 
-    // Abstract base class for all processor register files
     class register_file {
-        public: virtual void clear() = 0;
+        // Abstract base class for all processor register files
+
+        public:
+            virtual void clear() = 0;
     };
 
     /*** Devices ***/
 
-    // Memory layout enum - options are LittleEndian and BigEndian
     enum class endianness { LE, BE };
 
-    // Device mapping type enum - options are Memory-Mapped and Port-Mapped
-    enum class mapping_type { MEMORY, PORT };
+    enum class mapping_type { DEFAULT, MEMORY, PORT, NONE };
 
-    // Device status enum - TODO: Select possible options
+    // TODO: Select possible options
     enum class device_status {};
 
-    // Abstract base class for all devices, both memory-mapped and isolated
     class device {
+        // Abstract base class for all devices, both memory-mapped and isolated
+
         public:
             virtual void work() = 0;
             virtual void status() = 0;
@@ -86,7 +84,6 @@ namespace ucle::fnsim {
     };
 
     using device_ptr = std::shared_ptr<device>;
-    using device_id = uint32_t;
 
     // Abstract base class for all memory-mapped devices
 
@@ -129,34 +126,34 @@ namespace ucle::fnsim {
     // Little-endian memory block device specialization
 
     template<>
-    byte_t memory_block_device<endianness::LE>::read_byte(address_t location) {
+    inline byte_t memory_block_device<endianness::LE>::read_byte(address_t location) {
         return data_[location];
     }
 
     template<>
-    half_t memory_block_device<endianness::LE>::read_half(address_t location) {
+    inline half_t memory_block_device<endianness::LE>::read_half(address_t location) {
         return (data_[location + 1] << 8) | data_[location];
     }
 
     template<>
-    word_t memory_block_device<endianness::LE>::read_word(address_t location) {
+    inline word_t memory_block_device<endianness::LE>::read_word(address_t location) {
         return (data_[location + 3] << 24) | (data_[location + 2] << 16) |
                (data_[location + 1] << 8)  | (data_[location]);
     }
 
     template<>
-    void memory_block_device<endianness::LE>::write_byte(address_t location, byte_t value) {
+    inline void memory_block_device<endianness::LE>::write_byte(address_t location, byte_t value) {
         data_[location] = value;
     }
-    
+
     template<>
-    void memory_block_device<endianness::LE>::write_half(address_t location, half_t value) {
+    inline void memory_block_device<endianness::LE>::write_half(address_t location, half_t value) {
         data_[location + 1] = value >> 8;
         data_[location]     = value & 0xFF;
     }
 
     template<>
-    void memory_block_device<endianness::LE>::write_word(address_t location, word_t value) {
+    inline void memory_block_device<endianness::LE>::write_word(address_t location, word_t value) {
         data_[location + 3] = value >> 24;
         data_[location + 2] = (value >> 16) & 0xFF;
         data_[location + 1] = (value >> 8) & 0xFF;
@@ -166,34 +163,34 @@ namespace ucle::fnsim {
     // Big-endian memory block device specialization
 
     template<>
-    byte_t memory_block_device<endianness::BE>::read_byte(address_t location) {
+    inline byte_t memory_block_device<endianness::BE>::read_byte(address_t location) {
         return data_[location];
     }
 
     template<>
-    half_t memory_block_device<endianness::BE>::read_half(address_t location) {
+    inline half_t memory_block_device<endianness::BE>::read_half(address_t location) {
         return (data_[location] << 8) | data_[location + 1];
     }
 
     template<>
-    word_t memory_block_device<endianness::BE>::read_word(address_t location) {
+    inline word_t memory_block_device<endianness::BE>::read_word(address_t location) {
         return (data_[location] << 24)    | (data_[location + 1] << 16) |
                (data_[location + 2] << 8) | (data_[location + 3]);
     }
 
     template<>
-    void memory_block_device<endianness::BE>::write_byte(address_t location, byte_t value) {
+    inline void memory_block_device<endianness::BE>::write_byte(address_t location, byte_t value) {
         data_[location] = value;
     }
-    
+
     template<>
-    void memory_block_device<endianness::BE>::write_half(address_t location, half_t value) {
+    inline void memory_block_device<endianness::BE>::write_half(address_t location, half_t value) {
         data_[location]     = value >> 8;
         data_[location + 1] = value & 0xFF;
     }
 
     template<>
-    void memory_block_device<endianness::BE>::write_word(address_t location, word_t value) {
+    inline void memory_block_device<endianness::BE>::write_word(address_t location, word_t value) {
         data_[location] = value >> 24;
         data_[location + 1] = (value >> 16) & 0xFF;
         data_[location + 2] = (value >> 8) & 0xFF;
@@ -212,11 +209,15 @@ namespace ucle::fnsim {
     };
 
 
-    // Basic RAM memory device representation - TODO: Endianness support?
+    // Basic RAM memory device representation
 
     template<endianness layout_type = endianness::LE>
     class memory : public memory_block_device<layout_type> {
-        public: virtual void work() override {}
+        using memory_block_device<layout_type>::memory_block_device;
+
+        public:
+            virtual void work() override {}
+            virtual void status() override {}
     };
 
     // Generic address space impl - does the mapping of memory operations to corresponding devices
@@ -229,49 +230,41 @@ namespace ucle::fnsim {
         public:
             address_space(address_range total_range) : total_range_(total_range) {}
 
-            status_t register_device(device_ptr dev_ptr, address_range range) {
-                if (!total_range_.contains(range)) return error::invalid_range;
+            void register_device(device_ptr dev_ptr, address_range range) {
+                if (!total_range_.contains(range))
+                    throw invalid_address_range("Device address range overflows the available address space.");
 
                 devices_.emplace(range, dev_ptr);
-                return success::ok;
             }
-
-            status_t unregister_device(device_ptr dev_ptr) {
+            void unregister_device(device_ptr dev_ptr) {
                 auto dev_it = std::find_if(devices_.cbegin(), devices_.cend(),
                     [dev_ptr](auto mapped){ return mapped.second == dev_ptr; });
 
-                if (dev_it == devices_.cend()) return error::nonexistent_entry;
+                if (dev_it == devices_.cend())
+                    throw invalid_identifier("This device wasn't registered in the address space.");
 
                 devices_.erase(dev_it);
-                return success::ok;
             }
 
-            // TODO read/write
+            byte_t read_byte(address_t location) { auto dev_ptr = find_device_(location); return dev_ptr->read_byte(location); }
+            half_t read_half(address_t location) { auto dev_ptr = find_device_(location); return dev_ptr->read_half(location); }
+            word_t read_word(address_t location) { auto dev_ptr = find_device_(location); return dev_ptr->read_word(location); }
 
-            /*template <typename T>
-            outcome<T, error> read(address_t location) {
-                auto dev_it = std::find_if(devices_.cbegin(), devices_.cend(),
-                    [location](auto mapped){ return mapped.first.contains(location); });
-
-                if (dev_it == devices_.cend()) return error::invalid_address;
-
-                auto [range, dev_ptr] = *dev_it;
-                return dev_ptr->get(location - range.low_addr);
-            }*/
-
-            /*template <typename T>
-            status_t write(address_t location, T value) {
-                auto dev_it = std::find_if(devices_.cbegin(), devices_.cend(),
-                    [location](auto mapped){ return mapped.first.contains(location); });
-
-                if (dev_it == devices_.cend()) return error::invalid_address;
-
-                auto [range, dev_ptr] = *dev_it;
-                dev_ptr->set(location - range.low_addr, value);
-                return success::ok;
-            }*/
+            void write_byte(address_t location, byte_t value) { auto dev_ptr = find_device_(location); dev_ptr->write_byte(location, value); }
+            void write_half(address_t location, half_t value) { auto dev_ptr = find_device_(location); dev_ptr->write_half(location, value); }
+            void write_word(address_t location, word_t value) { auto dev_ptr = find_device_(location); dev_ptr->write_word(location, value); }
 
         protected:
+            device_ptr find_device_(address_t location) {
+                auto dev_it = std::find_if(devices_.cbegin(), devices_.cend(),
+                    [location](auto mapped){ return mapped.first.contains(location); });
+
+                if (dev_it != devices_.cend())
+                    return dev_it->second;
+                else
+                    throw invalid_memory_access("No memory/device mapped to this address!");
+            }
+
             address_range total_range_;
             std::set<mapped_device> devices_;
     };
@@ -281,7 +274,7 @@ namespace ucle::fnsim {
     template <unsigned num_levels>
     class interrupt_lines {
         public:
-            
+
     };
 
 }
