@@ -276,6 +276,14 @@ namespace ucle::fnsim {
             std::set<mapped_device> devices_;
     };
 
+    // Interrupt lines
+
+    template <unsigned num_levels>
+    class interrupt_lines {
+        public:
+            
+    };
+
 }
 
 #endif  /* _UCLE_CORE_SIMULATORS_FUNCTIONAL_COMPONENTS_HPP_ */

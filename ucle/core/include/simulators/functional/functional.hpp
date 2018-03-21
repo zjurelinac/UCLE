@@ -14,6 +14,21 @@ namespace ucle::fnsim {
     // Defines all possible states of a functional simulator
     enum class simulator_state { initialized, loaded, running, stopped, exception, terminated };
 
+    // Basic simulator config parameters
+    struct simulator_config {
+        size_t          memory_size;
+        address_range   memory_addr_range = {0, 0xFFFFFFFF};
+        endianness      memory_layout = endianness::LE;
+
+        mapping_type    device_mapping = mapping_type::MEMORY;
+        address_range   devices_addr_range = {0, 0};
+    };
+
+    // Basic device config parameters 
+    struct device_config {
+
+    };
+
     // Abstract class which defines functional simulator interface
     class functional_simulator {
         public:
@@ -40,10 +55,8 @@ namespace ucle::fnsim {
             // TODO: Implement
 
             // Devices
-            outcome<device_id, error> add_memory_mapped_device(device_ptr dev_ptr, address_range range) { return add_mem_device_(dev_ptr, range); }
-            outcome<device_id, error> add_port_mapped_device(device_ptr dev_ptr, address_range range) { return add_port_device_(dev_ptr, range); }
-            status_t remove_mem_device(device_id dev_id) { return remove_mem_device_(dev_id); }
-            status_t remove_port_device(device_id dev_id) { return remove_port_device_(dev_id); }
+            outcome<device_id, error> add_device(device_ptr dev_ptr, device_config cfg) { return add_device_(dev_ptr, cfg); }
+            status_t remove_device(device_id dev_id) { return remove_device_(dev_id); }
 
             // Runtime info
             // state_info
@@ -59,10 +72,8 @@ namespace ucle::fnsim {
             virtual status_t execute_single_() = 0;
             virtual void reset_() = 0;
 
-            virtual outcome<device_id, error> add_mem_device_(device_ptr dev_ptr, address_range range) = 0;
-            virtual outcome<device_id, error> add_port_device_(device_ptr dev_ptr, address_range range) = 0;
-            virtual status_t remove_mem_device_(device_id dev_id) = 0;
-            virtual status_t remove_port_device_(device_id dev_id) = 0;
+            virtual outcome<device_id, error> add_device_(device_ptr dev_ptr, device_config cfg) = 0;
+            virtual status_t remove_device_(device_id dev_id) = 0;
 
             // TODO: Rename
             // virtual void store_bytes_(byte_t* bytes, address_t location, size_t amount) = 0;
@@ -78,16 +89,6 @@ namespace ucle::fnsim {
             simulator_state state_ = simulator_state::initialized;
             std::set<address_t> breakpts_;          // User-defined breakpoints
             std::set<address_t> tmp_breakpts_;      // Temporary internal breakpoints
-    };
-
-    // Basic simulator config parameters
-    struct simulator_config {
-        size_t          memory_size;
-        address_range   memory_addr_range = {0, 0xFFFFFFFF};
-        endianness      memory_layout = endianness::LE;
-
-        mapping_type    device_mapping = mapping_type::MEMORY;
-        address_range   devices_addr_range = {0, 0};
     };
 
     // Base class for all functional simulator implementations
@@ -113,42 +114,27 @@ namespace ucle::fnsim {
             // Key implementations methods - generic
             virtual void reset_() override {
                 regs_.clear();
-                for (const auto& [_, dev_ptr]: mem_devs_) dev_ptr->reset();
-                for (const auto& [_, dev_ptr]: port_devs_) dev_ptr->reset();
+                // TODO devices
             }
 
             // Key implementation methods - devices
-            virtual outcome<device_id, error> add_mem_device_(device_ptr dev_ptr, address_range range) override {
-                auto res = mem_sp_.register_device(dev_ptr, range);
-                if (!is_successful(res)) return get_error(res);
+            virtual outcome<device_id, error> add_device_(device_ptr dev_ptr, device_config cfg) override {
+                /*auto res = mem_sp_.register_device(dev_ptr, range);
+                if (!is_successful(res)) return get_error(res);*/
+                
 
-                device_id dev_id = mem_sp_.size() + 1;
-                mem_sp_[dev_id] = dev_ptr;
 
-                return dev_id;
+                /*mem_sp_[++max_cur_id_] = dev_ptr;
+                return max_cur_id_;*/
             }
 
-            virtual outcome<device_id, error> add_port_device_(device_ptr dev_ptr, address_range range) override {
-                auto res = dev_sp_.register_device(dev_ptr, range);
-                if (!is_successful(res)) return get_error(res);
-
-                device_id dev_id = dev_sp_.size() + 1;
-                dev_sp_[dev_id] = dev_ptr;
-
-                return dev_id;
-            }
-
-            virtual status_t remove_mem_device_(device_id dev_id) override {
-                mem_sp_.unregister_device(mem_devs_[dev_id]);
+            virtual status_t remove_device_(device_id dev_id) override {
+                /*mem_sp_.unregister_device(mem_devs_[dev_id]);
                 mem_devs_.erase(dev_id);
-                return success::ok;
+                return success::ok;*/
             }
 
-            virtual status_t remove_port_device_(device_id dev_id) override {
-                dev_sp_.unregister_device(port_devs_[dev_id]);
-                port_devs_.erase(dev_id);
-                return success::ok;
-            }
+            /* virtual void store_bytes_(byte_t* bytes, address_t location, size_t amount) override {} */
 
             // Fields
             config_type cfg_;           // Simulator config parameters
@@ -160,9 +146,11 @@ namespace ucle::fnsim {
             memptr_type mem_ptr_;       // Internal memory device pointer
             device_id mem_id_;          // Internal memory device ID
 
-            std::unordered_map<device_id, device_ptr> mem_devs_;
-            std::unordered_map<device_id, device_ptr> port_devs_;
-            /* virtual void store_bytes_(byte_t* bytes, address_t location, size_t amount) override {} */
+            device_id max_cur_id_;      // 
+
+            std::unordered_map<device_id, device_ptr> devs_;
+
+            // Interrupt handling
     };
 
 }
