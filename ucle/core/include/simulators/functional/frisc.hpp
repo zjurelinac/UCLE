@@ -5,16 +5,13 @@ namespace ucle {
 namespace fnsim {
 
     struct frisc_register_file : register_file {
-        register_inst<32> R[8];
-        register_inst<32>& SP = R[7];
+        reg<32> R[8];
+        reg<32>& SP = R[7];
 
-        register_inst<32> PC;
-        register_inst<32> SR;  // TODO: A flags register!
+        reg<32> PC;
+        reg<32> SR;  // TODO: A flags register!
 
-        void clear() override {
-            PC = 0; SR = 0;
-            for (int i = 0; i < 8; ++i) R[i] = 0;
-        }
+        void clear() override { PC = 0; SR = 0; R = {0}; }
     };
 
     class frisc_simulator : public functional_simulator_impl<frisc_register_file, address_space<>, memory> {

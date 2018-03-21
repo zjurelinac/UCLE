@@ -162,9 +162,7 @@ namespace ucle::fnsim {
 
             std::unordered_map<device_id, device_ptr> mem_devs_;
             std::unordered_map<device_id, device_ptr> port_devs_;
-        /*
-            virtual void store_bytes_(byte_t* bytes, address_t location, size_t amount) override {}
-        */
+            /* virtual void store_bytes_(byte_t* bytes, address_t location, size_t amount) override {} */
     };
 
 }

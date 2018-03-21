@@ -32,6 +32,33 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             }
+        },
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:/MinGW/mingw64/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++",
+                "C:/MinGW/mingw64/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++/x86_64-w64-mingw32",
+                "C:/MinGW/mingw64/x86_64-w64-mingw32/include",
+                "${workspaceRoot}",
+                "${workspaceRoot}/ucle/core/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "intelliSenseMode": "msvc-x64",
+            "browse": {
+                "path": [
+                    "C:/MinGW/mingw64/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++",
+                    "C:/MinGW/mingw64/lib/gcc/x86_64-w64-mingw32/7.2.0/include/c++/x86_64-w64-mingw32",
+                    "C:/MinGW/mingw64/x86_64-w64-mingw32/include",
+                    "${workspaceRoot}",
+                    "${workspaceRoot}/ucle/core/include"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
         }
     ],
     "version": 3

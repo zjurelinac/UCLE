@@ -38,6 +38,15 @@
         "typeinfo": "cpp",
         "utility": "cpp",
         "*.ipp": "cpp",
-        "variant": "cpp"
-    }
+        "variant": "cpp",
+        "optional": "cpp",
+        "string_view": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "bitset": "cpp",
+        "fstream": "cpp",
+        "iostream": "cpp",
+        "streambuf": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
 }
