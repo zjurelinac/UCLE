@@ -3,8 +3,9 @@
 
 #include <array>
 
-#include <simulators/functional/components.hpp>
-#include <simulators/functional/functional.hpp>
+#include <fnsim/components.hpp>
+#include <fnsim/register.hpp>
+#include <fnsim/simulator.hpp>
 
 namespace ucle::fnsim {
 

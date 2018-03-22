@@ -6,7 +6,7 @@
 #include <string>
 
 #include <common/types.hpp>
-#include <simulators/functional/components.hpp>
+#include <fnsim/components.hpp>
 
 
 namespace ucle::fnsim {
@@ -178,7 +178,7 @@ namespace ucle::fnsim {
             using config_type = Config;
 
             functional_simulator_impl(config_type cfg)
-                    : cfg_(cfg), mem_asp_(cfg.memory_addr_range), dev_asp_(cfg.devices_addr_range)
+                : cfg_(cfg), mem_asp_(cfg.memory_addr_range), dev_asp_(cfg.devices_addr_range)
             {
                 if (cfg.memory_layout == endianness::LE)
                     mem_ptr_ = std::make_shared<memory_type<endianness::LE>>(cfg.memory_size);

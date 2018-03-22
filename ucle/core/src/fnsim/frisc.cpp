@@ -1,4 +1,4 @@
-#include <simulators/functional/frisc.hpp>
+#include <fnsim/frisc.hpp>
 
 ucle::status_t ucle::fnsim::frisc_simulator::execute_single_() {
     return success::ok;
