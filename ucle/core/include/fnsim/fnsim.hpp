@@ -161,7 +161,8 @@ namespace ucle::fnsim {
             std::set<address_t> breakpts_;                          /* User-defined breakpoints */
             std::set<address_t> tmp_breakpts_;                      /* Temporary internal breakpoints */
             std::set<address_t> watches_;                           /* Memory location watches */
-            // ...                                                  /* Call frame info */
+            // TODO: Annotations (ASM & C source lines)
+            // TODO: Call frame info
     };
 
 }

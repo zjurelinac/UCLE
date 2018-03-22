@@ -1,1 +1,1 @@
-SConscript('core/SConscript')
+SConscript('core/SConscript', variant_dir='build/core', duplicate=0)

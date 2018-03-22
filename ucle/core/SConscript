@@ -23,8 +23,8 @@ common.Append(CXXFLAGS 		= cxx_flags)
 
 debug = common.Clone()
 debug.Append(CPPDEFINES=['DEBUG'], CCFLAGS=['-g'])
-debug.VariantDir('../build/debug', '.', duplicate=0)
+debug.VariantDir('debug', 'src', duplicate=0)
 
 # debug.Program('../build/debug/core/functional-test', ['src/simulators/fnsim.cpp'])
-debug.Program('../build/debug/core/frisc-fnsim', ['src/fnsim/frisc.cpp', 'src/fnsim/fnsim.cpp'])
+debug.Program('debug/frisc-fnsim', ['debug/fnsim/frisc.cpp', 'debug/fnsim/fnsim.cpp'])
 # debug.Program('frisc-hls', 'src/ls/frisc.cpp')

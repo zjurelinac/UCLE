@@ -26,6 +26,8 @@ namespace ucle::fnsim {
                 void set(value_type value) { value_ = value; }
                 value_type get() const { return value_; }
 
+                // TODO: Bitrange
+
             protected:
                 value_type value_;
         };
