@@ -16,17 +16,33 @@ namespace ucle::fnsim {
                 reg_inst_(const reg_inst_<value_type>& other) : value_(other.value_) {}
                 reg_inst_(reg_inst_<value_type>&& other) : value_(other.value_) {}
 
-                reg_inst_<value_type>& operator=(const value_type& value)
+                reg_inst_<value_type>& operator=(value_type value)
                     { value_ = value; return *this; }
                 reg_inst_<value_type>& operator=(const reg_inst_<value_type>& other)
-                    { if (this != &other) value_ = other.value; return *this; }
+                    { if (this != &other) value_ = other.value_; return *this; }
                 reg_inst_<value_type>& operator=(reg_inst_<value_type>&& other)
-                    { if (this != &other) value_ = other.value; return *this; }
+                    { if (this != &other) value_ = other.value_; return *this; }
+
+                value_type operator value_type() const { return value_; }
+
+                value_type operator[](const bitrange br) const
+                    { return (value_ >> br.shift()) & br.mask(); }
+
+                value_type operator+=(value_type v) { return value_ += v; }
+                value_type operator-=(value_type v) { return value_ -= v; }
+                value_type operator&=(value_type v) { return value_ &= v; }
+                value_type operator|=(value_type v) { return value_ |= v; }
+                value_type operator^=(value_type v) { return value_ ^= v; }
+
+                bool operator<(value_type v) const { return value_ < v; }
+                bool operator>(value_type v) const { return value_ > v; }
+                bool operator<=(value_type v) const { return value_ <= v; }
+                bool operator>=(value_type v) const { return value_ >= v; }
+                bool operator==(value_type v) const { return value_ == v; }
+                bool operator!=(value_type v) const { return value_ != v; }
 
                 void set(value_type value) { value_ = value; }
                 value_type get() const { return value_; }
-
-                // TODO: Bitrange
 
             protected:
                 value_type value_;

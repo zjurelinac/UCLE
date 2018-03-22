@@ -19,10 +19,11 @@ namespace ucle::fnsim {
         reg<32> PC;
         reg<32> SR;  // TODO: A flags register!
 
+        reg<32> IR;
+
         void clear() override
         {
-            PC = 0;
-            SR = 0;
+            PC = SR = IR = 0;
 
             for (auto i = 0u; i < R.size(); ++i)
                 R[i] = 0;

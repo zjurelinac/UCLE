@@ -97,7 +97,7 @@ status_t ucle::fnsim::functional_simulator::load_pfile(std::string filename, add
         // Store the annotation
 
         while (iss >> byte) {
-            printf("%08X %02X\n", address, byte);
+            // printf("%08X %02X\n", address, byte);
             write_byte_(address++, byte);
         }
     }

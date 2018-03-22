@@ -25,6 +25,7 @@ namespace ucle {
 
     using address_t = uint32_t;
     using size_t = uint32_t;
+    using index_t = uint32_t;
 
     using identifier_t = uint32_t;
     using priority_t = uint32_t;
@@ -54,6 +55,15 @@ namespace ucle {
     };
 
     struct arith_flags { bool C, V, N, Z; };
+
+    struct bitrange {
+        index_t low, high;
+
+        bitrange(index_t hi, index_t lo) : low(lo), high(hi) {}
+        constexpr auto mask() const { return (1 << (high - low + 1)) - 1; }
+        constexpr auto shift() const { return low; }
+        constexpr auto fullmask() const { return mask() << low; }
+    };
 }
 
 
