@@ -1,6 +1,8 @@
 #ifndef _UCLE_CORE_SIMULATORS_FUNCTIONAL_REGISTER_HPP_
 #define _UCLE_CORE_SIMULATORS_FUNCTIONAL_REGISTER_HPP_
 
+#include <common/types.hpp>
+
 namespace ucle::fnsim {
 
     namespace detail {
@@ -31,15 +33,15 @@ namespace ucle::fnsim {
 
     template<unsigned bits> class reg {};
 
-    template<> class reg<8>  : public detail::reg_inst_<byte_t> { 
+    template<> class reg<8>  : public detail::reg_inst_<byte_t> {
         public: using detail::reg_inst_<byte_t>::operator=;
     };
 
-    template<> class reg<16> : public detail::reg_inst_<half_t> { 
+    template<> class reg<16> : public detail::reg_inst_<half_t> {
         public: using detail::reg_inst_<half_t>::operator=;
     };
 
-    template<> class reg<32> : public detail::reg_inst_<word_t> { 
+    template<> class reg<32> : public detail::reg_inst_<word_t> {
         public: using detail::reg_inst_<word_t>::operator=;
     };
 

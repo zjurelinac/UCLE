@@ -1,4 +1,4 @@
-#include <fnsim/simulator.hpp>
+#include <fnsim/fnsim.hpp>
 
 #include <cstdio>
 #include <fstream>

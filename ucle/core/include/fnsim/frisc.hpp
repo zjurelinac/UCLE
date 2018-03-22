@@ -3,8 +3,11 @@
 
 #include <array>
 
-#include <fnsim/components.hpp>
-#include <fnsim/register.hpp>
+#include <common/types.hpp>
+#include <fnsim/fnsim.hpp>
+#include <fnsim/address_space.hpp>
+#include <fnsim/basic_devices.hpp>
+#include <fnsim/registers.hpp>
 #include <fnsim/simulator.hpp>
 
 namespace ucle::fnsim {
@@ -26,8 +29,8 @@ namespace ucle::fnsim {
         }
     };
 
-    class frisc_simulator : public functional_simulator_impl<frisc_register_file, address_space<>, memory> {
-        using functional_simulator_impl<frisc_register_file, address_space<>, memory>::functional_simulator_impl;
+    class frisc_simulator : public functional_simulator_impl<frisc_register_file, address_space<mapped_device_ptr>, memory> {
+        using functional_simulator_impl<frisc_register_file, address_space<mapped_device_ptr>, memory>::functional_simulator_impl;
 
         protected:
             virtual address_t get_program_counter_() const override { return regs_.PC.get(); };

@@ -1,17 +1,16 @@
-#ifndef _UCLE_CORE_SIMULATORS_FUNCTIONAL_COMPONENTS_HPP_
-#define _UCLE_CORE_SIMULATORS_FUNCTIONAL_COMPONENTS_HPP_
+#ifndef _UCLE_CORE_FNSIM_BASIC_DEVICES_HPP_
+#define _UCLE_CORE_FNSIM_BASIC_DEVICES_HPP_
 
-#include <algorithm>
 #include <array>
-#include <bitset>
 #include <cassert>
 #include <cstring>
 #include <memory>
-#include <vector>
-#include <set>
 
-#include <common/types.hpp>
 #include <common/exceptions.hpp>
+#include <common/types.hpp>
+#include <fnsim/fnsim.hpp>
+#include <fnsim/address_space.hpp>
+#include <fnsim/registers.hpp>
 
 /*
     TODO: Variable address_t size
@@ -20,29 +19,7 @@
 
 namespace ucle::fnsim {
 
-    /*** Devices ***/
-
-    enum class endianness { LE, BE };
-
-    enum class mapping_type { DEFAULT, MEMORY, PORT, NONE };
-
-    // TODO: Select possible options
-    enum class device_status {};
-
-    class device {
-        // Abstract base class for all devices, both memory-mapped and isolated
-
-        public:
-            virtual void work() = 0;
-            virtual void status() = 0;
-            virtual void reset() = 0;
-    };
-
-    using device_ptr = std::shared_ptr<device>;
-
-    // Abstract base class for all memory-mapped devices
-
-    class memory_mapped_device : public device {
+    class mapped_device : public device {
         public:
             virtual byte_t read_byte(address_t location) = 0;
             virtual half_t read_half(address_t location) = 0;
@@ -53,12 +30,10 @@ namespace ucle::fnsim {
             virtual void write_word(address_t location, word_t value) = 0;
     };
 
-    using memory_mapped_device_ptr = std::shared_ptr<memory_mapped_device>;
-
-    // Generic memory-block based device
+    using mapped_device_ptr = std::shared_ptr<mapped_device>;
 
     template<endianness layout_type>
-    class memory_block_device : public memory_mapped_device {
+    class memory_block_device : public mapped_device {
          public:
             memory_block_device(size_t memory_size) : size_(memory_size) { data_ = new byte_t[size_]; reset(); }
             ~memory_block_device() { delete[] data_; }
@@ -152,10 +127,9 @@ namespace ucle::fnsim {
         data_[location + 3] = value & 0xFF;
     }
 
-    // Generic register-group based device
 
     template<size_t reg_num, size_t reg_size = 32>
-    class register_group_device : public memory_mapped_device {
+    class register_group_device : public mapped_device {
         public:
             // TODO read/write
 
@@ -163,8 +137,6 @@ namespace ucle::fnsim {
             std::array<reg<reg_size>, reg_num> registers_;
     };
 
-
-    // Basic RAM memory device representation
 
     template<endianness layout_type = endianness::LE>
     class memory : public memory_block_device<layout_type> {
@@ -175,55 +147,6 @@ namespace ucle::fnsim {
             virtual void status() override {}
     };
 
-    // Generic address space impl - does the mapping of memory operations to corresponding devices
-
-    template <typename DevicePtr = memory_mapped_device_ptr>
-    class address_space {
-        using device_ptr = DevicePtr;
-        using mapped_device = std::pair<address_range, device_ptr>;
-
-        public:
-            address_space(address_range total_range) : total_range_(total_range) {}
-
-            void register_device(device_ptr dev_ptr, address_range range) {
-                if (!total_range_.contains(range))
-                    throw invalid_address_range("Device address range overflows the available address space.");
-
-                devices_.emplace(range, dev_ptr);
-            }
-            void unregister_device(device_ptr dev_ptr) {
-                auto dev_it = std::find_if(devices_.cbegin(), devices_.cend(),
-                    [dev_ptr](auto mapped){ return mapped.second == dev_ptr; });
-
-                if (dev_it == devices_.cend())
-                    throw invalid_identifier("This device wasn't registered in the address space.");
-
-                devices_.erase(dev_it);
-            }
-
-            byte_t read_byte(address_t location) { auto dev_ptr = find_device_(location); return dev_ptr->read_byte(location); }
-            half_t read_half(address_t location) { auto dev_ptr = find_device_(location); return dev_ptr->read_half(location); }
-            word_t read_word(address_t location) { auto dev_ptr = find_device_(location); return dev_ptr->read_word(location); }
-
-            void write_byte(address_t location, byte_t value) { auto dev_ptr = find_device_(location); dev_ptr->write_byte(location, value); }
-            void write_half(address_t location, half_t value) { auto dev_ptr = find_device_(location); dev_ptr->write_half(location, value); }
-            void write_word(address_t location, word_t value) { auto dev_ptr = find_device_(location); dev_ptr->write_word(location, value); }
-
-        protected:
-
-            device_ptr find_device_(address_t location) {
-                auto dev_it = std::find_if(devices_.cbegin(), devices_.cend(),
-                    [location](auto mapped){ return mapped.first.contains(location); });
-
-                if (dev_it != devices_.cend())
-                    return dev_it->second;
-                else
-                    throw invalid_memory_access("No memory/device mapped to this address!");
-            }
-
-            address_range total_range_;
-            std::set<mapped_device> devices_;
-    };
 
     // Interrupt lines
 
@@ -235,4 +158,4 @@ namespace ucle::fnsim {
 
 }
 
-#endif  /* _UCLE_CORE_SIMULATORS_FUNCTIONAL_COMPONENTS_HPP_ */
+#endif  /* _UCLE_CORE_FNSIM_BASIC_DEVICES_HPP_ */
