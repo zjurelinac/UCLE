@@ -8,15 +8,38 @@
 
 namespace ucle::util {
 
-    // inline word_t word_from_bytes__le(byte_t B[]) { return (B[3] << 24) | (B[2] << 16) | (B[1] << 8) | B[0]; }
-    // inline word_t word_from_bytes__be(byte_t B[]) { return (B[0] << 24) | (B[1] << 16) | (B[2] << 8) | B[3]; }
-
     template <typename T>
     struct const_bit_util {
         static constexpr auto bitsize() { return 8 * sizeof(T); }
-        static constexpr T highest_bit() { return static_cast<T>(1) << bitsize() - 1; }
-        static constexpr T all_but_highest_bit() { return ~highest_bit(); }
+        static constexpr auto highest_bit() { return static_cast<T>(1) << bitsize() - 1; }
+        static constexpr auto nth_bit(size_t n) { return static_cast<T>(1) << n; }
+        static constexpr auto all_but_highest_bit() { return ~highest_bit(); }
         static constexpr auto rot_mask() { return bitsize() - 1; }
+        static constexpr auto clear_topn_mask(size_t n) { return (static_cast<T>(1) << n) - 1; }
+        static constexpr auto set_topn_mask(size_t n) { return ~clear_topn_mask(n); }
+    };
+
+    template <typename ValueType>
+    struct unop {
+        using value_type = ValueType;
+        using cbu = const_bit_util<value_type>;
+
+        public:
+            static constexpr value_type invert(value_type op)
+            {
+                return ~op;
+            }
+
+            static constexpr value_type negate(value_type op)
+            {
+                return ~op + 1;
+            }
+
+            static constexpr value_type sign_extend(value_type op, size_t from)
+            {
+                auto ext_num = cbu::bitsize() - from;
+                return (op & cbu::nth_bit(from)) ? (op | cbu::set_topn_mask(ext_num)) : (op & cbu::clear_topn_mask(ext_num));
+            }
     };
 
     template <typename ValueType>
@@ -26,78 +49,77 @@ namespace ucle::util {
         using cbu = const_bit_util<value_type>;
 
         public:
-
-            static res_t op_add(value_type op1, value_type op2, arith_flags)
+            static constexpr res_t op_add(value_type op1, value_type op2, arith_flags)
             {
                 auto result = op1 + op2;
                 return { result, determine_add_flags_(op1, op2, result) };
             }
 
-            static res_t op_adc(value_type op1, value_type op2, arith_flags fs)
+            static constexpr res_t op_adc(value_type op1, value_type op2, arith_flags fs)
             {
                 auto result = op1 + op2 + fs.C;
                 return { result, determine_addcarry_flags_(op1, op2, result, fs) };
             }
 
-            static res_t op_sub(value_type op1, value_type op2, arith_flags)
+            static constexpr res_t op_sub(value_type op1, value_type op2, arith_flags)
             {
                 op2 = ~op2 + 1;
                 auto result = op1 + op2;
                 return { result, determine_add_flags_(op1, op2, result) };
             }
 
-            static res_t op_sbc(value_type op1, value_type op2, arith_flags fs)
+            static constexpr res_t op_sbc(value_type op1, value_type op2, arith_flags fs)
             {
                 op2 = ~op2 + 1;
                 auto result = op1 + op2 - fs.C;
                 return { result, determine_addcarry_flags_(op1, op2, result, fs) };
             }
 
-            static res_t op_cmp(value_type op1, value_type op2, arith_flags)
+            static constexpr res_t op_cmp(value_type op1, value_type op2, arith_flags)
             {
                 op2 = ~op2 + 1;
                 return { 0, determine_add_flags_(op1, op2, op1 + op2) };
             }
 
-            static res_t op_and(value_type op1, value_type op2, arith_flags) {
+            static constexpr res_t op_and(value_type op1, value_type op2, arith_flags) {
                 auto result = op1 & op2;
                 return { result, determine_axor_flags(result) };
             }
 
-            static res_t op_or(value_type op1, value_type op2, arith_flags)
+            static constexpr res_t op_or(value_type op1, value_type op2, arith_flags)
             {
                 auto result = op1 | op2;
                 return { result, determine_axor_flags(result) };
             }
-            
-            static res_t op_xor(value_type op1, value_type op2, arith_flags)
+
+            static constexpr res_t op_xor(value_type op1, value_type op2, arith_flags)
             {
                 auto result = op1 ^ op2;
                 return { result, determine_axor_flags(result) };
             }
 
-            static res_t op_shl(value_type op1, value_type op2, arith_flags)
+            static constexpr res_t op_shl(value_type op1, value_type op2, arith_flags)
             {
                 auto result = op1 << op2;
-                arith_flags nfs = { op1 & (cbu::bitsize() + 1 - op2), 0, result & cbu::highest_bit(), result == 0 }
+                arith_flags nfs = { op1 & (cbu::bitsize() + 1 - op2), 0, result & cbu::highest_bit(), result == 0 };
                 return { result, nfs };
             }
 
-            static res_t op_shr(value_type op1, value_type op2, arith_flags)
+            static constexpr res_t op_shr(value_type op1, value_type op2, arith_flags)
             {
                 auto result = op1 >> op2;
-                arith_flags nfs = { op1 & (op2 - 1), 0, result & cbu::highest_bit(), result == 0 }
+                arith_flags nfs = { op1 & (op2 - 1), 0, result & cbu::highest_bit(), result == 0 };
                 return { result, nfs };
             }
 
-            static res_t op_asr(value_type op1, value_type op2, arith_flags)
+            static constexpr res_t op_asr(value_type op1, value_type op2, arith_flags)
             {
                 auto result = std::make_signed(op1) >> op2;
-                arith_flags nfs = { op1 & op1 & (op2 - 1), 0, result & cbu::highest_bit(), result == 0 }
+                arith_flags nfs = { op1 & op1 & (op2 - 1), 0, result & cbu::highest_bit(), result == 0 };
                 return { result, nfs };
             }
 
-            static res_t op_rtl(value_type op1, value_type op2, arith_flags fs)
+            static constexpr res_t op_rtl(value_type op1, value_type op2, arith_flags fs)
             {
                 op2 &= cbu::rot_mask();
                 auto shift = cbu::bitsize() - op2;
@@ -106,7 +128,7 @@ namespace ucle::util {
                 return { result, nfs };
             }
 
-            static res_t op_rtr(value_type op1, value_type op2, arith_flags fs)
+            static constexpr res_t op_rtr(value_type op1, value_type op2, arith_flags fs)
             {
                 op2 &= cbu::rot_mask();
                 auto result = (op1 << (cbu::bitsize() - op2)) | (op1 >> op2);
@@ -115,7 +137,7 @@ namespace ucle::util {
             }
 
         private:
-            arith_flags determine_add_flags_(value_type op1, value_type op2, value_type result)
+            static constexpr arith_flags determine_add_flags_(value_type op1, value_type op2, value_type result)
             {   // TODO: Optimize if possible!
                 auto hi_bit = cbu::highest_bit();
                 auto oth_bits = cbu::all_but_highest_bit();
@@ -124,7 +146,7 @@ namespace ucle::util {
                 return { C, C ^ C1, result & hi_bit, result == 0 };
             }
 
-            arith_flags determine_addcarry_flags_(value_type op1, value_type op2, value_type result, arith_flags old))
+            static constexpr arith_flags determine_addcarry_flags_(value_type op1, value_type op2, value_type result, arith_flags old)
             {   // TODO: Optimize if possible!
                 auto hi_bit = cbu::highest_bit();
                 auto oth_bits = cbu::all_but_highest_bit();
@@ -133,10 +155,10 @@ namespace ucle::util {
                 return { C, C ^ C1, result & hi_bit, result == 0 };
             }
 
-            arith_flags determine_axor_flags(value_type result) {
+            static constexpr arith_flags determine_axor_flags(value_type result) {
                 return { 0, 0, result & cbu::highest_bit(), result == 0 };
             }
-        
+
         // Additional binary AL operations, if required -> bitset, bitclear...
     };
 }

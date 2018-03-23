@@ -31,7 +31,14 @@ namespace ucle {
     using priority_t = uint32_t;
 
     enum class success { ok };
-    enum class error { invalid_state, invalid_address_range, invalid_identifier, runtime_exception, filesystem_error };
+    enum class error {
+        invalid_state,
+        invalid_address_range,
+        invalid_identifier,
+        invalid_instruction,
+        runtime_exception,
+        filesystem_error
+    };
 
     using status_t = std::variant<success, error>;
 
@@ -59,7 +66,12 @@ namespace ucle {
     struct bitrange {
         index_t low, high;
 
-        bitrange(index_t hi, index_t lo) : low(lo), high(hi) {}
+        constexpr bitrange(index_t hi, index_t lo) : low(lo), high(hi) {
+            if (lo > hi) {
+                low = hi;
+                high = lo;
+            }
+        }
         constexpr auto mask() const { return (1 << (high - low + 1)) - 1; }
         constexpr auto shift() const { return low; }
         constexpr auto fullmask() const { return mask() << low; }

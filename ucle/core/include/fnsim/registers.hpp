@@ -23,10 +23,12 @@ namespace ucle::fnsim {
                 reg_inst_<value_type>& operator=(reg_inst_<value_type>&& other)
                     { if (this != &other) value_ = other.value_; return *this; }
 
-                value_type operator value_type() const { return value_; }
+                explicit operator value_type() const { return value_; }
 
                 value_type operator[](const bitrange br) const
                     { return (value_ >> br.shift()) & br.mask(); }
+                bool operator[](const index_t i) const
+                    { return value_ & (static_cast<index_t>(1) << i); }
 
                 value_type operator+=(value_type v) { return value_ += v; }
                 value_type operator-=(value_type v) { return value_ -= v; }
@@ -52,15 +54,21 @@ namespace ucle::fnsim {
     template<unsigned bits> class reg {};
 
     template<> class reg<8>  : public detail::reg_inst_<byte_t> {
-        public: using detail::reg_inst_<byte_t>::operator=;
+        public:
+            using detail::reg_inst_<byte_t>::reg_inst_;
+            using detail::reg_inst_<byte_t>::operator=;
     };
 
     template<> class reg<16> : public detail::reg_inst_<half_t> {
-        public: using detail::reg_inst_<half_t>::operator=;
+        public:
+            using detail::reg_inst_<half_t>::reg_inst_;
+            using detail::reg_inst_<half_t>::operator=;
     };
 
     template<> class reg<32> : public detail::reg_inst_<word_t> {
-        public: using detail::reg_inst_<word_t>::operator=;
+        public:
+            using detail::reg_inst_<word_t>::reg_inst_;
+            using detail::reg_inst_<word_t>::operator=;
     };
 
     template <unsigned bits>
