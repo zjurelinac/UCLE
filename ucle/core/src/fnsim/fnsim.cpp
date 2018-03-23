@@ -107,29 +107,3 @@ status_t ucle::fnsim::functional_simulator::load_pfile(std::string filename, add
 
     return success::ok;
 }
-
-// Internals
-
-void ucle::fnsim::functional_simulator::step_() {
-    auto status = execute_single_();
-
-    if (is_error(status)) {
-        state_ = simulator_state::exception;
-    } else {
-        auto pc = get_program_counter_();
-
-        if (is_breakpoint_(pc)) {
-            state_ = simulator_state::stopped;
-            clear_tmp_breakpoints_(pc);
-        }
-    }
-}
-
-status_t ucle::fnsim::functional_simulator::run_() {
-    do { step_(); } while (state_ == simulator_state::running);
-
-    if (state_ == simulator_state::exception)
-        return error::runtime_exception;
-    else
-        return success::ok;
-}

@@ -99,12 +99,12 @@ namespace ucle::fnsim {
                 // return success::ok;
             }
             virtual byte_t read_byte_(address_t location) override { return mem_asp_.read_byte(location); }
-            virtual half_t read_half_(address_t location) override { return mem_asp_.read_half(location); }
-            virtual word_t read_word_(address_t location) override { return mem_asp_.read_word(location); }
+            virtual half_t read_half_(address_t location) override { return mem_asp_.read_half(location & ~0b1); }
+            virtual word_t read_word_(address_t location) override { return mem_asp_.read_word(location & ~0b11); }
 
             virtual void write_byte_(address_t location, byte_t value) override { mem_asp_.write_byte(location, value); }
-            virtual void write_half_(address_t location, half_t value) override { mem_asp_.write_half(location, value); }
-            virtual void write_word_(address_t location, word_t value) override { mem_asp_.write_word(location, value); }
+            virtual void write_half_(address_t location, half_t value) override { mem_asp_.write_half(location & ~0b1, value); }
+            virtual void write_word_(address_t location, word_t value) override { mem_asp_.write_word(location & ~0b11, value); }
 
             // Fields
 

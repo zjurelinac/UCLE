@@ -149,8 +149,36 @@ namespace ucle::fnsim {
 
             // Utility methods
 
-            void step_();
-            status_t run_();
+            void step_()
+            {
+                auto status = execute_single_();
+
+                if (is_error(status)) {
+                    state_ = simulator_state::exception;
+                } else {
+                    auto pc = get_program_counter_();
+
+                    if (is_breakpoint_(pc)) {
+                        state_ = simulator_state::stopped;
+                        clear_tmp_breakpoints_(pc);
+                    }
+                }
+            }
+
+            status_t run_()
+            {
+                do { step_(); } while (state_ == simulator_state::running);
+
+                if (state_ == simulator_state::exception)
+                    return error::runtime_exception;
+                else
+                    return success::ok;
+            }
+
+            void terminate_()
+            {
+                state_ = simulator_state::terminated;
+            }
 
             bool is_breakpoint_(address_t location) const { return breakpts_.count(location) || tmp_breakpts_.count(location); }
             void clear_tmp_breakpoints_(address_t location) { tmp_breakpts_.erase(location); }
