@@ -14,7 +14,8 @@ namespace ucle::util {
     template <typename T>
     struct const_bit_util {
         static constexpr auto bitsize() { return 8 * sizeof(T); }
-        static constexpr T highest_bit() { return 1 << bitsize<T>()); }
+        static constexpr T highest_bit() { return static_cast<T>(1) << bitsize() - 1; }
+        static constexpr T all_but_highest_bit() { return ~highest_bit(); }
         static constexpr auto rot_mask() { return bitsize() - 1; }
     };
 
@@ -34,9 +35,8 @@ namespace ucle::util {
 
             static res_t op_adc(value_type op1, value_type op2, arith_flags fs)
             {
-                op2 += fs.C;
-                auto result = op1 + op2;
-                return { result, determine_add_flags_(op1, op2, result) };
+                auto result = op1 + op2 + fs.C;
+                return { result, determine_addcarry_flags_(op1, op2, result, fs) };
             }
 
             static res_t op_sub(value_type op1, value_type op2, arith_flags)
@@ -48,9 +48,9 @@ namespace ucle::util {
 
             static res_t op_sbc(value_type op1, value_type op2, arith_flags fs)
             {
-                op2 = ~op2 + 1 - fs.C;
-                auto result = op1 + op2;
-                return { result, determine_add_flags_(op1, op2, result) };
+                op2 = ~op2 + 1;
+                auto result = op1 + op2 - fs.C;
+                return { result, determine_addcarry_flags_(op1, op2, result, fs) };
             }
 
             static res_t op_cmp(value_type op1, value_type op2, arith_flags)
@@ -100,39 +100,37 @@ namespace ucle::util {
             static res_t op_rtl(value_type op1, value_type op2, arith_flags fs)
             {
                 op2 &= cbu::rot_mask();
-                // auto result = ;
-                /*
-                src2 &= 0x1F;  // (% 32)
-                word wrap_mask = ((1 << src2) - 1) << (32 - src2);
-                word wrap_bits = (src1 & wrap_mask) >> (32 - src2);
-                dest = (src1 << src2) | wrap_bits;
-                nC = wrap_bits & 1;
-                */
-                return {};
+                auto shift = cbu::bitsize() - op2;
+                auto result = (op1 << op2) | (op1 >> shift);
+                arith_flags nfs = { op1 & (1 << shift), 0, result & cbu::highest_bit(), result == 0 };
+                return { result, nfs };
             }
 
             static res_t op_rtr(value_type op1, value_type op2, arith_flags fs)
             {
                 op2 &= cbu::rot_mask();
-                // auto result = ;
-                /*
-                src2 &= 0x1F;  // (% 32)
-                word wrap_mask = (1 << src2) - 1;
-                word wrap_bits = (src1 & wrap_mask);
-                dest = (src1 >> src2) | (wrap_bits << (32 - src2));
-                nC = wrap_bits & 1;
-                */
-                return {};
+                auto result = (op1 << (cbu::bitsize() - op2)) | (op1 >> op2);
+                arith_flags nfs = { op1 & (1 << op2 - 1), 0, result & cbu::highest_bit(), result == 0 };
+                return { result, nfs };
             }
 
         private:
             arith_flags determine_add_flags_(value_type op1, value_type op2, value_type result)
-            {
-            /*
-                bool C = (((longword) src1) + src2) & (1ULL << 32);
-                bool C1 = ((src1 & 0x7FFFFFFF) + (src2 & 0x7FFFFFFF)) & (1U << 31);
-                bool V = C ^ C1;
-            */
+            {   // TODO: Optimize if possible!
+                auto hi_bit = cbu::highest_bit();
+                auto oth_bits = cbu::all_but_highest_bit();
+                bool C = ((op1 >> 1) + (op2 >> 1) + ((op1 & 1) + (op2 & 1))) & hi_bit;
+                bool C1 = ((op1 & oth_bits) + (op2 & oth_bits)) & hi_bit;
+                return { C, C ^ C1, result & hi_bit, result == 0 };
+            }
+
+            arith_flags determine_addcarry_flags_(value_type op1, value_type op2, value_type result, arith_flags old))
+            {   // TODO: Optimize if possible!
+                auto hi_bit = cbu::highest_bit();
+                auto oth_bits = cbu::all_but_highest_bit();
+                bool C = ((op1 >> 1) + (op2 >> 1) + ((op1 & 1) + (op2 & 1))) & hi_bit;
+                bool C1 = ((op1 & oth_bits) + (op2 & oth_bits)) & hi_bit;
+                return { C, C ^ C1, result & hi_bit, result == 0 };
             }
 
             arith_flags determine_axor_flags(value_type result) {
