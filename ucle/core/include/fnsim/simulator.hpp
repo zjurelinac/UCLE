@@ -1,15 +1,15 @@
 #ifndef _UCLE_CORE_SIMULATORS_FUNCTIONAL_FUNCTIONAL_HPP_
 #define _UCLE_CORE_SIMULATORS_FUNCTIONAL_FUNCTIONAL_HPP_
 
-#include <unordered_map>
-#include <set>
-#include <string>
-
 #include <common/types.hpp>
+
 #include <fnsim/fnsim.hpp>
 #include <fnsim/address_space.hpp>
 #include <fnsim/basic_devices.hpp>
 
+#include <set>
+#include <string>
+#include <unordered_map>
 
 namespace ucle::fnsim {
 

@@ -1,16 +1,16 @@
 #ifndef _UCLE_CORE_FNSIM_BASIC_DEVICES_HPP_
 #define _UCLE_CORE_FNSIM_BASIC_DEVICES_HPP_
 
-#include <array>
-#include <cassert>
-#include <cstring>
-#include <memory>
-
 #include <common/exceptions.hpp>
 #include <common/types.hpp>
+
 #include <fnsim/fnsim.hpp>
 #include <fnsim/address_space.hpp>
 #include <fnsim/registers.hpp>
+
+#include <array>
+#include <cstring>
+#include <memory>
 
 /*
     TODO: Variable address_t size

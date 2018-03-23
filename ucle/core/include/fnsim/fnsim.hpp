@@ -1,11 +1,11 @@
 #ifndef _UCLE_CORE_FNSIM_FNSIM_HPP_
 #define _UCLE_CORE_FNSIM_FNSIM_HPP_
 
-#include <memory>
-#include <set>
-
 #include <common/exceptions.hpp>
 #include <common/types.hpp>
+
+#include <memory>
+#include <set>
 
 namespace ucle::fnsim {
 

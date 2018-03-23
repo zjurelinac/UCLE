@@ -1,5 +1,5 @@
-#ifndef _CORE_UTIL_STRING_H_
-#define _CORE_UTIL_STRING_H_
+#ifndef _CORE_UTIL_STRING_HPP_
+#define _CORE_UTIL_STRING_HPP_
 
 #include <algorithm>
 #include <cctype>
@@ -53,4 +53,4 @@ namespace ucle::util {
 
 }
 
-#endif  /* _CORE_UTIL_STRING_H_ */
+#endif  /* _CORE_UTIL_STRING_HPP_ */

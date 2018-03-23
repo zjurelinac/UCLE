@@ -2,8 +2,8 @@
 #define _CORE_COMMON_TYPES_HPP_
 
 #include <cstdint>
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 #include <utility>
 #include <variant>
 

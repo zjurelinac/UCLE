@@ -1,5 +1,6 @@
-#include <common/types.hpp>
 #include <fnsim/frisc.hpp>
+
+#include <common/types.hpp>
 
 #include <iostream>
 

@@ -1,15 +1,17 @@
 #ifndef _UCLE_CORE_SIMULATORS_FUNCTIONAL_FRISC_HPP_
 #define _UCLE_CORE_SIMULATORS_FUNCTIONAL_FRISC_HPP_
 
-#include <array>
-
 #include <common/types.hpp>
+
 #include <fnsim/fnsim.hpp>
 #include <fnsim/address_space.hpp>
 #include <fnsim/basic_devices.hpp>
 #include <fnsim/registers.hpp>
 #include <fnsim/simulator.hpp>
+
 #include <util/binary.hpp>
+
+#include <array>
 
 namespace ucle::fnsim {
 

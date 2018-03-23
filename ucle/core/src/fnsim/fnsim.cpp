@@ -1,4 +1,5 @@
 #include <fnsim/fnsim.hpp>
+
 #include <util/string.hpp>
 
 #include <cstdio>
@@ -7,12 +8,7 @@
 #include <string>
 #include <sstream>
 
-using namespace ucle;
-
-
-// Basic simulation functionality
-
-status_t ucle::fnsim::functional_simulator::start(address_t start_location) {
+ucle::status_t ucle::fnsim::functional_simulator::start(address_t start_location) {
     if (state_ != simulator_state::loaded) return error::invalid_state;
 
     state_ = simulator_state::stopped;
@@ -21,7 +17,7 @@ status_t ucle::fnsim::functional_simulator::start(address_t start_location) {
     return success::ok;
 }
 
-status_t ucle::fnsim::functional_simulator::run(address_t start_location) {
+ucle::status_t ucle::fnsim::functional_simulator::run(address_t start_location) {
     if (state_ != simulator_state::loaded) return error::invalid_state;
 
     state_ = simulator_state::running;
@@ -30,7 +26,7 @@ status_t ucle::fnsim::functional_simulator::run(address_t start_location) {
     return run_();
 }
 
-status_t ucle::fnsim::functional_simulator::cont() {
+ucle::status_t ucle::fnsim::functional_simulator::cont() {
      if (state_ != simulator_state::stopped) return error::invalid_state;
 
     state_ = simulator_state::running;
@@ -38,7 +34,7 @@ status_t ucle::fnsim::functional_simulator::cont() {
     return run_();
 }
 
-status_t ucle::fnsim::functional_simulator::step() {
+ucle::status_t ucle::fnsim::functional_simulator::step() {
     if (state_ != simulator_state::stopped) return error::invalid_state;
 
     state_ = simulator_state::running;
@@ -48,7 +44,7 @@ status_t ucle::fnsim::functional_simulator::step() {
     else                                      return success::ok;
 }
 
-status_t ucle::fnsim::functional_simulator::until(address_t location) {
+ucle::status_t ucle::fnsim::functional_simulator::until(address_t location) {
      if (state_ != simulator_state::stopped) return error::invalid_state;
 
     state_ = simulator_state::running;
@@ -57,20 +53,18 @@ status_t ucle::fnsim::functional_simulator::until(address_t location) {
     return run_();
 }
 
-status_t ucle::fnsim::functional_simulator::reset() {
+ucle::status_t ucle::fnsim::functional_simulator::reset() {
     reset_();
     state_ = simulator_state::initialized;
     return success::ok;
 }
 
-status_t ucle::fnsim::functional_simulator::quit() {
+ucle::status_t ucle::fnsim::functional_simulator::quit() {
     state_ = simulator_state::terminated;
     return success::ok;
 }
 
-// Program loading
-
-status_t ucle::fnsim::functional_simulator::load_pfile(std::string filename, address_t start_location) {
+ucle::status_t ucle::fnsim::functional_simulator::load_pfile(std::string filename, address_t start_location) {
     constexpr int pf_line_bound = 21;
 
     std::ifstream pfile(filename);

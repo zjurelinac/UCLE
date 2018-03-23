@@ -5,7 +5,6 @@
 
 #include <type_traits>
 
-
 namespace ucle::util {
 
     template <typename T>
