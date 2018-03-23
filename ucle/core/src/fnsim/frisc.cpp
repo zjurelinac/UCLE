@@ -114,37 +114,37 @@ ucle::status_t ucle::fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn
     switch (opcode) {
         case 0b10000:
             std::cout << "POP" << "\n";
-            // reg = read_word(regs_.SP.get());
-            // regs_.SP += 4;
+            reg = read_word_(regs_.SP.get());
+            regs_.SP += 4;
             break;
         case 0b10001:
             std::cout << "PUSH" << "\n";
-            // regs_.SP -= 4;
-            // write_word(regs_.SP.get(), reg);
+            regs_.SP -= 4;
+            write_word_(regs_.SP.get(), reg.get());
             break;
         case 0b10010:
             std::cout << "LOADB" << "\n";
-            // reg = read_byte(addr);
+            reg = read_byte_(addr);
             break;
         case 0b10011:
             std::cout << "STOREB" << "\n";
-            // write_byte(addr, reg.get());  // TODO: get_byte?
+            write_byte_(addr, reg.get());  // TODO: get_byte?
             break;
         case 0b10100:
             std::cout << "LOADH" << "\n";
-            // reg = read_half(addr);
+            reg = read_half_(addr);
             break;
         case 0b10101:
             std::cout << "STOREH" << "\n";
-            // write_half(addr, reg.get());  // TODO: get_half?
+            write_half_(addr, reg.get());  // TODO: get_half?
             break;
         case 0b10110:
             std::cout << "LOAD" << "\n";
-            // reg = read_word(addr);
+            reg = read_word_(addr);
             break;
         case 0b10111:
             std::cout << "STORE" << "\n";
-            // write_word(addr, reg.get());
+            write_word_(addr, reg.get());
             break;
     }
 
@@ -161,23 +161,23 @@ ucle::status_t ucle::fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool f
     switch (opcode) {
         case 0b11000:
             std::cout << "JP" << "\n";
-            // regs_.PC = addr;
+            regs_.PC = addr;
             break;
         case 0b11001:
             std::cout << "CALL" << "\n";
-            // regs_.SP -= 4;
-            // write_word(regs_.SP.get(), regs_.PC.get())
-            // regs_.PC = addr;
+            regs_.SP -= 4;
+            write_word_(regs_.SP.get(), regs_.PC.get());
+            regs_.PC = addr;
             break;
         case 0b11010:
             std::cout << "JR" << "\n";
-            // regs_.SP += addr;
+            regs_.SP += addr;
             break;
         case 0b11011: {
             std::cout << "RETX" << "\n";
-            // auto rtcode = IR[{1, 0}];
-            // regs_.PC = read_word(regs_.SP.get());
-            // regs_.SP += 4;
+            auto rtcode = IR[{1, 0}];
+            regs_.PC = read_word_(regs_.SP.get());
+            regs_.SP += 4;
             // if (rtcode == 0b01)      /* RETI */
             //      /* set GIE = 1 */
             // else if (rtcode == 0b11) /* RETN */
@@ -201,7 +201,7 @@ constexpr bool ucle::fnsim::frisc_simulator::eval_cond_(word_t) const
 }
 
 ucle::status_t ucle::fnsim::frisc_simulator::execute_single_() {
-    reg<32> IR = read_word(address_t(regs_.PC));
+    reg<32> IR = read_word_(address_t(regs_.PC));
     std::cout << regs_.PC.get() << ": ";
 
     auto opcode = IR[{31, 27}];
