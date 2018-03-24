@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <set>
+#include <vector>
 
 namespace ucle::fnsim {
 
@@ -53,6 +54,20 @@ namespace ucle::fnsim {
             // Program loading
 
             status_t load_pfile(std::string filename, address_t start_location = 0);   // TODO: Start location? What if code not PIC?
+
+            // Memory
+            auto get_memory_contents(address_t location, size_t amount)
+            {
+                std::vector<byte_t> contents;
+                while (amount--)
+                    contents.push_back(get_byte_(location++));
+                return contents;
+            }
+            void set_memory_contents(address_t location, std::vector<byte_t>& bytes)
+            {
+                for (auto byte : bytes)
+                    set_byte_(location++, byte);
+            }
 
             // Breakpoints
 
@@ -115,10 +130,6 @@ namespace ucle::fnsim {
                 }
             }
 
-            byte_t read_byte(address_t location) { return read_byte_(location); }
-            half_t read_half(address_t location) { return read_half_(location); }
-            word_t read_word(address_t location) { return read_word_(location); }
-
             // Runtime info
 
             // state_info
@@ -136,16 +147,11 @@ namespace ucle::fnsim {
             virtual status_t execute_single_() = 0;
             virtual void reset_() = 0;
 
+            virtual byte_t get_byte_(address_t location) const = 0;
+            virtual void set_byte_(address_t location, byte_t value) = 0;
+
             virtual identifier_t add_device_(device_ptr dev_ptr, device_config cfg) = 0;
             virtual void remove_device_(identifier_t dev_id) = 0;
-
-            virtual byte_t read_byte_(address_t location) = 0;
-            virtual half_t read_half_(address_t location) = 0;
-            virtual word_t read_word_(address_t location) = 0;
-
-            virtual void write_byte_(address_t location, byte_t value) = 0;
-            virtual void write_half_(address_t location, half_t value) = 0;
-            virtual void write_word_(address_t location, word_t value) = 0;
 
             // Utility methods
 

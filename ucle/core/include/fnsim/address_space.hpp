@@ -37,9 +37,12 @@ namespace ucle::fnsim {
                 devices_.erase(dev_it);
             }
 
-            byte_t read_byte(address_t location) { auto dev_ptr = find_device_(location); return dev_ptr->read_byte(location); }
-            half_t read_half(address_t location) { auto dev_ptr = find_device_(location); return dev_ptr->read_half(location); }
-            word_t read_word(address_t location) { auto dev_ptr = find_device_(location); return dev_ptr->read_word(location); }
+            // read
+            // write
+
+            byte_t read_byte(address_t location) const { auto dev_ptr = find_device_(location); return dev_ptr->read_byte(location); }
+            half_t read_half(address_t location) const { auto dev_ptr = find_device_(location); return dev_ptr->read_half(location); }
+            word_t read_word(address_t location) const { auto dev_ptr = find_device_(location); return dev_ptr->read_word(location); }
 
             void write_byte(address_t location, byte_t value) { auto dev_ptr = find_device_(location); dev_ptr->write_byte(location, value); }
             void write_half(address_t location, half_t value) { auto dev_ptr = find_device_(location); dev_ptr->write_half(location, value); }
@@ -47,7 +50,7 @@ namespace ucle::fnsim {
 
         protected:
 
-            mapped_device_ptr find_device_(address_t location) {
+            auto find_device_(address_t location) const {
                 auto dev_it = std::find_if(devices_.cbegin(), devices_.cend(),
                     [location](auto mapped){ return mapped.first.contains(location); });
 

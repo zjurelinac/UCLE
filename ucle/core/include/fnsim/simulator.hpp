@@ -64,6 +64,16 @@ namespace ucle::fnsim {
                 for (auto [_, info] : devs_)
                     info.ptr->reset();
             }
+
+            virtual byte_t get_byte_(address_t location) const override
+            {
+                return read_byte_(location);
+            }
+            virtual void set_byte_(address_t location, byte_t value) override
+            {
+                return write_byte_(location, value);
+            }
+
             virtual identifier_t add_device_(device_ptr dev_ptr, device_config dev_cfg) override
             {
                 device_info info = { ++max_cur_id_, dev_ptr, mapping_type::NONE };
@@ -98,13 +108,13 @@ namespace ucle::fnsim {
 
                 // return success::ok;
             }
-            virtual byte_t read_byte_(address_t location) override { return mem_asp_.read_byte(location); }
-            virtual half_t read_half_(address_t location) override { return mem_asp_.read_half(location & ~0b1); }
-            virtual word_t read_word_(address_t location) override { return mem_asp_.read_word(location & ~0b11); }
+            byte_t read_byte_(address_t location) const { return mem_asp_.read_byte(location); }
+            half_t read_half_(address_t location) const { return mem_asp_.read_half(location & ~0b1); }
+            word_t read_word_(address_t location) const { return mem_asp_.read_word(location & ~0b11); }
 
-            virtual void write_byte_(address_t location, byte_t value) override { mem_asp_.write_byte(location, value); }
-            virtual void write_half_(address_t location, half_t value) override { mem_asp_.write_half(location & ~0b1, value); }
-            virtual void write_word_(address_t location, word_t value) override { mem_asp_.write_word(location & ~0b11, value); }
+            void write_byte_(address_t location, byte_t value) { mem_asp_.write_byte(location, value); }
+            void write_half_(address_t location, half_t value) { mem_asp_.write_half(location & ~0b1, value); }
+            void write_word_(address_t location, word_t value) { mem_asp_.write_word(location & ~0b11, value); }
 
             // Fields
 
