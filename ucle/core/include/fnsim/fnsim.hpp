@@ -12,7 +12,7 @@
 namespace ucle::fnsim {
 
     enum class byte_order { LE, BE };
-    enum class mapping_type { DEFAULT, MEMORY, PORT, NONE };
+    enum class device_mapping { DEFAULT, MEMORY, PORT, NONE };
 
     // TODO: Select possible options
     enum class device_status {};
@@ -31,7 +31,7 @@ namespace ucle::fnsim {
     struct device_config {
         bool            is_addressable = true;
         bool            uses_interrupts = false;
-        mapping_type    device_mapping = mapping_type::DEFAULT;
+        device_mapping  mapping = device_mapping::DEFAULT;
         address_range   addr_range = {0, 0};
         priority_t      interrupt_priority;
     };

@@ -17,7 +17,7 @@ namespace ucle::fnsim {
         size_t          memory_size;
         address_range   memory_addr_range = {0, 0xFFFFFFFF};
         byte_order      endianness = byte_order::LE;
-        mapping_type    device_mapping = mapping_type::MEMORY;
+        device_mapping  devices_default_mapping = device_mapping::MEMORY;
         address_range   devices_addr_range = {0, 0};
     };
 
@@ -29,7 +29,7 @@ namespace ucle::fnsim {
             struct device_info {
                 identifier_t    id;
                 device_ptr      ptr;
-                mapping_type    mapping;
+                device_mapping  mapping;
             };
 
         public:
@@ -50,7 +50,7 @@ namespace ucle::fnsim {
                 else
                     mem_ptr_ = std::make_shared<memory_type<byte_order::BE>>(cfg.memory_size);
 
-                device_config mem_cfg { true, false, mapping_type::MEMORY, cfg.memory_addr_range, 0 };
+                device_config mem_cfg { true, false, device_mapping::MEMORY, cfg.memory_addr_range, 0 };
                 mem_id_ = add_device_(std::dynamic_pointer_cast<mapped_device_type>(mem_ptr_), mem_cfg);
             }
 
@@ -76,12 +76,12 @@ namespace ucle::fnsim {
 
             virtual identifier_t add_device_(device_ptr dev_ptr, device_config dev_cfg) override
             {
-                device_info info = { ++max_cur_id_, dev_ptr, mapping_type::NONE };
+                device_info info = { ++max_cur_id_, dev_ptr, device_mapping::NONE };
 
                 if (dev_cfg.is_addressable) {
-                    info.mapping = (dev_cfg.device_mapping == mapping_type::DEFAULT) ? cfg_.device_mapping : dev_cfg.device_mapping;
+                    info.mapping = (dev_cfg.mapping == device_mapping::DEFAULT) ? cfg_.devices_default_mapping : dev_cfg.mapping;
 
-                    if (info.mapping == mapping_type::MEMORY)
+                    if (info.mapping == device_mapping::MEMORY)
                         mem_asp_.register_device(std::dynamic_pointer_cast<mapped_device_type>(dev_ptr), dev_cfg.addr_range);
                     else
                         dev_asp_.register_device(std::dynamic_pointer_cast<mapped_device_type>(dev_ptr), dev_cfg.addr_range);
@@ -99,8 +99,8 @@ namespace ucle::fnsim {
 
                 const auto &info = dev_it->second;
 
-                if (info.mapping != mapping_type::NONE) {
-                    if (info.mapping == mapping_type::MEMORY)
+                if (info.mapping != device_mapping::NONE) {
+                    if (info.mapping == device_mapping::MEMORY)
                         mem_asp_.unregister_device(std::dynamic_pointer_cast<mapped_device_type>(info.ptr));
                     else
                         dev_asp_.unregister_device(std::dynamic_pointer_cast<mapped_device_type>(info.ptr));
