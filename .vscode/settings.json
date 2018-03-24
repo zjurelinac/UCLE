@@ -46,6 +46,7 @@
         "bitset": "cpp",
         "fstream": "cpp",
         "iostream": "cpp",
-        "streambuf": "cpp"
+        "streambuf": "cpp",
+        "algorithm": "cpp"
     }
 }
