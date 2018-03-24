@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <vector>
 
 ucle::status_t ucle::fnsim::functional_simulator::start(address_t start_location) {
     if (state_ != simulator_state::loaded) return error::invalid_state;
@@ -90,10 +91,11 @@ ucle::status_t ucle::fnsim::functional_simulator::load_pfile(std::string filenam
 
         // Store the annotation
 
-        while (iss >> byte) {
-            // printf("%08X %02X\n", address, byte);
-            write_byte_(address++, byte);
-        }
+        std::vector<byte_t> bytes;
+        while (iss >> byte)
+            bytes.push_back(byte);
+
+        set_memory_contents(address, bytes);
     }
 
     pfile.close();

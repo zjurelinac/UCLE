@@ -1,6 +1,7 @@
 #ifndef _CORE_COMMON_TYPES_HPP_
 #define _CORE_COMMON_TYPES_HPP_
 
+#include <bitset>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -62,6 +63,14 @@ namespace ucle {
     };
 
     struct arith_flags { bool C, V, N, Z; };
+
+    /*struct arith_flags {
+        public:
+            constexpr arith_flags(bool C, bool V, bool N, bool Z) {}
+
+        private:
+            std::bitset<4> flags_;
+    };*/
 
     struct bitrange {
         index_t low, high;

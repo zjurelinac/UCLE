@@ -19,18 +19,30 @@
 
 namespace ucle::fnsim {
 
+    // template<endianness layout_type>
     class mapped_device : public device {
         public:
+            template <unsigned bits, typename T = sized_uint<bits>>
+            T read(address_t location) const
+            {
+
+            }
+
+        protected:
+            template <unsigned bytes>
+            virtual std::array<byte_t, bytes> read_bytes_(address_t location) = 0;
+
+        /*public:
             virtual byte_t read_byte(address_t location) = 0;
             virtual half_t read_half(address_t location) = 0;
             virtual word_t read_word(address_t location) = 0;
 
             virtual void write_byte(address_t location, byte_t value) = 0;
             virtual void write_half(address_t location, half_t value) = 0;
-            virtual void write_word(address_t location, word_t value) = 0;
+            virtual void write_word(address_t location, word_t value) = 0;*/
     };
 
-    using mapped_device_ptr = std::shared_ptr<mapped_device>;
+    // using mapped_device_ptr = std::shared_ptr<mapped_device>;
 
     template<endianness layout_type>
     class memory_block_device : public mapped_device {
@@ -38,13 +50,13 @@ namespace ucle::fnsim {
             memory_block_device(size_t memory_size) : size_(memory_size) { data_ = new byte_t[size_]; reset(); }
             ~memory_block_device() { delete[] data_; }
 
-            virtual byte_t read_byte(address_t location) override;
+            /*virtual byte_t read_byte(address_t location) override;
             virtual half_t read_half(address_t location) override;
             virtual word_t read_word(address_t location) override;
 
             virtual void write_byte(address_t location, byte_t value) override;
             virtual void write_half(address_t location, half_t value) override;
-            virtual void write_word(address_t location, word_t value) override;
+            virtual void write_word(address_t location, word_t value) override;*/
 
             virtual void reset() override { memset(data_, 0, size_); }
 
@@ -55,7 +67,7 @@ namespace ucle::fnsim {
 
     // Little-endian memory block device specialization
 
-    template<>
+    /*template<>
     inline byte_t memory_block_device<endianness::LE>::read_byte(address_t location) {
         return data_[location];
     }
@@ -125,7 +137,7 @@ namespace ucle::fnsim {
         data_[location + 1] = (value >> 16) & 0xFF;
         data_[location + 2] = (value >> 8) & 0xFF;
         data_[location + 3] = value & 0xFF;
-    }
+    }*/
 
 
     template<size_t reg_num, size_t reg_size = 32>
@@ -138,23 +150,23 @@ namespace ucle::fnsim {
     };
 
 
-    template<endianness layout_type = endianness::LE>
+    /*template<endianness layout_type = endianness::LE>
     class memory : public memory_block_device<layout_type> {
         using memory_block_device<layout_type>::memory_block_device;
 
         public:
             virtual void work() override {}
             virtual void status() override {}
-    };
+    };*/
 
 
     // Interrupt lines
 
-    template <unsigned num_levels>
+    /*template <unsigned num_levels>
     class interrupt_lines {
         public:
 
-    };
+    };*/
 
 }
 

@@ -9,10 +9,13 @@ ucle::status_t ucle::fnsim::frisc_simulator::execute_move_(word_t, bool fn, cons
 {
     std::cout << "MOVE" << "\n";
 
-    auto dest = IR[20] ? &regs_.SR : &regs_.R[IR[{25, 23}]];
-    auto src = IR[21] ? regs_.SR.get() : (fn ? unop::sign_extend(IR[{19, 0}], 20) : regs_.R[IR[{19, 17}]].get());
+    auto src = IR[21] ? word_t(regs_.SR) : (fn ? unop::sign_extend(IR[{19, 0}], 20) : word_t(regs_.R[IR[{19, 17}]]));
 
-    *dest = src;
+    if (IR[20])
+        regs_.SR = src;
+    else
+        regs_.R[IR[{25, 23}]] = src;
+
     return success::ok;
 }
 
