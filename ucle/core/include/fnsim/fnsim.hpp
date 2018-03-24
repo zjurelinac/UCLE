@@ -11,7 +11,7 @@
 
 namespace ucle::fnsim {
 
-    enum class endianness { LE, BE };
+    enum class byte_order { LE, BE };
     enum class mapping_type { DEFAULT, MEMORY, PORT, NONE };
 
     // TODO: Select possible options

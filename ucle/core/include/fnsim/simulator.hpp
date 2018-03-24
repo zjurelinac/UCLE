@@ -16,13 +16,13 @@ namespace ucle::fnsim {
     struct simulator_config {
         size_t          memory_size;
         address_range   memory_addr_range = {0, 0xFFFFFFFF};
-        endianness      memory_layout = endianness::LE;
+        byte_order      endianness = byte_order::LE;
         mapping_type    device_mapping = mapping_type::MEMORY;
         address_range   devices_addr_range = {0, 0};
     };
 
     template <typename RegisterFile, typename AddressSpace,
-              template<endianness> typename Memory, typename Config = simulator_config>
+              template<byte_order> typename Memory, typename Config = simulator_config>
     class functional_simulator_impl : public functional_simulator {
             // using memory_ptr = std::shared_ptr<mapped_device>;
 
@@ -33,7 +33,7 @@ namespace ucle::fnsim {
             };
 
         public:
-            template <endianness E>
+            template <byte_order E>
             using memory_type = Memory<E>;
 
             using regfile_type = RegisterFile;
@@ -45,10 +45,10 @@ namespace ucle::fnsim {
             functional_simulator_impl(config_type cfg)
                 : cfg_(cfg), mem_asp_(cfg.memory_addr_range), dev_asp_(cfg.devices_addr_range)
             {
-                if (cfg.memory_layout == endianness::LE)
-                    mem_ptr_ = std::make_shared<memory_type<endianness::LE>>(cfg.memory_size);
+                if (cfg.endianness == byte_order::LE)
+                    mem_ptr_ = std::make_shared<memory_type<byte_order::LE>>(cfg.memory_size);
                 else
-                    mem_ptr_ = std::make_shared<memory_type<endianness::BE>>(cfg.memory_size);
+                    mem_ptr_ = std::make_shared<memory_type<byte_order::BE>>(cfg.memory_size);
 
                 device_config mem_cfg { true, false, mapping_type::MEMORY, cfg.memory_addr_range, 0 };
                 mem_id_ = add_device_(std::dynamic_pointer_cast<mapped_device_type>(mem_ptr_), mem_cfg);

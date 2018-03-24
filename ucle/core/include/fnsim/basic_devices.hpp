@@ -19,7 +19,7 @@
 
 namespace ucle::fnsim {
 
-    // template<endianness layout_type>
+    // template<byte_order layout_type>
     class mapped_device : public device {
         /*public:
             template <unsigned bits, typename T = sized_uint<bits>>
@@ -44,7 +44,7 @@ namespace ucle::fnsim {
 
     using mapped_device_ptr = std::shared_ptr<mapped_device>;
 
-    template<endianness layout_type>
+    template<byte_order layout_type>
     class memory_block_device : public mapped_device {
          public:
             memory_block_device(size_t memory_size) : size_(memory_size) { data_ = new byte_t[size_]; reset(); }
@@ -68,34 +68,34 @@ namespace ucle::fnsim {
     // Little-endian memory block device specialization
 
     template<>
-    inline byte_t memory_block_device<endianness::LE>::read_byte(address_t location) {
+    inline byte_t memory_block_device<byte_order::LE>::read_byte(address_t location) {
         return data_[location];
     }
 
     template<>
-    inline half_t memory_block_device<endianness::LE>::read_half(address_t location) {
+    inline half_t memory_block_device<byte_order::LE>::read_half(address_t location) {
         return (data_[location + 1] << 8) | data_[location];
     }
 
     template<>
-    inline word_t memory_block_device<endianness::LE>::read_word(address_t location) {
+    inline word_t memory_block_device<byte_order::LE>::read_word(address_t location) {
         return (data_[location + 3] << 24) | (data_[location + 2] << 16) |
                (data_[location + 1] << 8)  | (data_[location]);
     }
 
     template<>
-    inline void memory_block_device<endianness::LE>::write_byte(address_t location, byte_t value) {
+    inline void memory_block_device<byte_order::LE>::write_byte(address_t location, byte_t value) {
         data_[location] = value;
     }
 
     template<>
-    inline void memory_block_device<endianness::LE>::write_half(address_t location, half_t value) {
+    inline void memory_block_device<byte_order::LE>::write_half(address_t location, half_t value) {
         data_[location + 1] = value >> 8;
         data_[location]     = value & 0xFF;
     }
 
     template<>
-    inline void memory_block_device<endianness::LE>::write_word(address_t location, word_t value) {
+    inline void memory_block_device<byte_order::LE>::write_word(address_t location, word_t value) {
         data_[location + 3] = value >> 24;
         data_[location + 2] = (value >> 16) & 0xFF;
         data_[location + 1] = (value >> 8) & 0xFF;
@@ -105,34 +105,34 @@ namespace ucle::fnsim {
     // Big-endian memory block device specialization
 
     template<>
-    inline byte_t memory_block_device<endianness::BE>::read_byte(address_t location) {
+    inline byte_t memory_block_device<byte_order::BE>::read_byte(address_t location) {
         return data_[location];
     }
 
     template<>
-    inline half_t memory_block_device<endianness::BE>::read_half(address_t location) {
+    inline half_t memory_block_device<byte_order::BE>::read_half(address_t location) {
         return (data_[location] << 8) | data_[location + 1];
     }
 
     template<>
-    inline word_t memory_block_device<endianness::BE>::read_word(address_t location) {
+    inline word_t memory_block_device<byte_order::BE>::read_word(address_t location) {
         return (data_[location] << 24)    | (data_[location + 1] << 16) |
                (data_[location + 2] << 8) | (data_[location + 3]);
     }
 
     template<>
-    inline void memory_block_device<endianness::BE>::write_byte(address_t location, byte_t value) {
+    inline void memory_block_device<byte_order::BE>::write_byte(address_t location, byte_t value) {
         data_[location] = value;
     }
 
     template<>
-    inline void memory_block_device<endianness::BE>::write_half(address_t location, half_t value) {
+    inline void memory_block_device<byte_order::BE>::write_half(address_t location, half_t value) {
         data_[location]     = value >> 8;
         data_[location + 1] = value & 0xFF;
     }
 
     template<>
-    inline void memory_block_device<endianness::BE>::write_word(address_t location, word_t value) {
+    inline void memory_block_device<byte_order::BE>::write_word(address_t location, word_t value) {
         data_[location] = value >> 24;
         data_[location + 1] = (value >> 16) & 0xFF;
         data_[location + 2] = (value >> 8) & 0xFF;
@@ -150,9 +150,9 @@ namespace ucle::fnsim {
     };
 
 
-    template<endianness layout_type = endianness::LE>
-    class memory : public memory_block_device<layout_type> {
-        using memory_block_device<layout_type>::memory_block_device;
+    template<byte_order endianness = byte_order::LE>
+    class memory : public memory_block_device<endianness> {
+        using memory_block_device<endianness>::memory_block_device;
 
         public:
             virtual void work() override {}
