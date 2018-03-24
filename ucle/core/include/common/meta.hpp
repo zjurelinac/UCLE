@@ -22,6 +22,12 @@ namespace ucle::meta {
                        /* else */                                sdword_t
                         >>>;
 
+    template <typename T>
+    using is_storage_t = typename std::enable_if_t<std::is_same_v<T, byte_t> ||
+                                                   std::is_same_v<T, half_t> ||
+                                                   std::is_same_v<T, word_t> ||
+                                                   std::is_same_v<T, dword_t> >;
+
 }
 
 #endif  /* _CORE_COMMON_META_HPP_ */
