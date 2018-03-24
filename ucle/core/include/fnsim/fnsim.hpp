@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <set>
+#include <utility>
 #include <vector>
 
 namespace ucle::fnsim {
@@ -43,17 +44,17 @@ namespace ucle::fnsim {
 
             // Basic simulation functionality
 
-            status_t start(address_t start_location = 0);
-            status_t run(address_t start_location = 0);
-            status_t cont();
-            status_t step();
-            status_t until(address_t location);
-            status_t reset();
-            status_t quit();
+            status start(address_t start_location = 0);
+            status run(address_t start_location = 0);
+            status cont();
+            status step();
+            status until(address_t location);
+            status reset();
+            status quit();
 
             // Program loading
 
-            status_t load_pfile(std::string filename, address_t start_location = 0);   // TODO: Start location? What if code not PIC?
+            status load_pfile(std::string filename, address_t start_location = 0);   // TODO: Start location? What if code not PIC?
 
             // Memory
             auto get_memory_contents(address_t location, size_t amount)
@@ -111,22 +112,22 @@ namespace ucle::fnsim {
 
             // Devices
 
-            std::variant<identifier_t, error> add_device(device_ptr dev_ptr, device_config cfg)
+            std::optional<identifier_t> add_device(device_ptr dev_ptr, device_config cfg)
             {
                 try {
                     return add_device_(dev_ptr, cfg);
                 } catch (std::exception &e) {
-                    return error::invalid_address_range;
+                    return std::nullopt;
                 }
             }
 
-            status_t remove_device(identifier_t dev_id)
+            status remove_device(identifier_t dev_id)
             {
                 try {
                     remove_device_(dev_id);
-                    return success::ok;
+                    return status::ok;
                 } catch (std::exception &e) {
-                    return error::invalid_identifier;
+                    return status::invalid_identifier;
                 }
             }
 
@@ -144,7 +145,7 @@ namespace ucle::fnsim {
             virtual address_t get_program_counter_() const = 0;
             virtual void set_program_counter_(address_t location) = 0;
 
-            virtual status_t execute_single_() = 0;
+            virtual status execute_single_() = 0;
             virtual void reset_() = 0;
 
             virtual byte_t get_byte_(address_t location) const = 0;
@@ -171,14 +172,10 @@ namespace ucle::fnsim {
                 }
             }
 
-            status_t run_()
+            status run_()
             {
                 do { step_(); } while (state_ == simulator_state::running);
-
-                if (state_ == simulator_state::exception)
-                    return error::runtime_exception;
-                else
-                    return success::ok;
+                return state_ != simulator_state::exception ? status::ok : status::runtime_exception;
             }
 
             void terminate_()

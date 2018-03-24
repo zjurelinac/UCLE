@@ -5,7 +5,7 @@
 #include <iostream>
 
 
-ucle::status_t ucle::fnsim::frisc_simulator::execute_move_(word_t, bool fn, const reg<32>& IR)
+ucle::status ucle::fnsim::frisc_simulator::execute_move_(word_t, bool fn, const reg<32>& IR)
 {
     std::cout << "MOVE" << "\n";
 
@@ -16,10 +16,10 @@ ucle::status_t ucle::fnsim::frisc_simulator::execute_move_(word_t, bool fn, cons
     else
         regs_.R[IR[{25, 23}]] = src;
 
-    return success::ok;
+    return status::ok;
 }
 
-ucle::status_t ucle::fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, const reg<32>& IR)
+ucle::status ucle::fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, const reg<32>& IR)
 {
     auto dest = &regs_.R[IR[{25, 23}]];
     auto src1 = regs_.R[IR[{22, 20}]].get();
@@ -104,13 +104,13 @@ ucle::status_t ucle::fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn
             // flags = new_flags;
             break;
         default:
-            return error::invalid_instruction;
+            return status::invalid_instruction;
     }
 
-    return success::ok;
+    return status::ok;
 }
 
-ucle::status_t ucle::fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, const reg<32>& IR)
+ucle::status ucle::fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, const reg<32>& IR)
 {
     auto& reg = regs_.R[IR[{25, 23}]];
     auto addr = unop::sign_extend(IR[{19, 0}], 20) + (fn ? regs_.R[IR[{22, 20}]].get() : 0);
@@ -152,13 +152,13 @@ ucle::status_t ucle::fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn
             break;
     }
 
-    return success::ok;
+    return status::ok;
 }
 
-ucle::status_t ucle::fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, const reg<32>& IR)
+ucle::status ucle::fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, const reg<32>& IR)
 {
     if (!eval_cond_(IR[{25, 22}]))
-        return success::ok;
+        return status::ok;
 
     auto addr = fn ? unop::sign_extend(IR[{19, 0}], 20) : regs_.R[IR[{19, 17}]].get();
 
@@ -193,10 +193,10 @@ ucle::status_t ucle::fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool f
             terminate_();
             break;
         default:
-            return error::invalid_instruction;
+            return status::invalid_instruction;
     }
 
-    return success::ok;
+    return status::ok;
 }
 
 constexpr bool ucle::fnsim::frisc_simulator::eval_cond_(word_t) const
@@ -204,14 +204,16 @@ constexpr bool ucle::fnsim::frisc_simulator::eval_cond_(word_t) const
     return true;
 }
 
-ucle::status_t ucle::fnsim::frisc_simulator::execute_single_() {
-    reg<32> IR = read_word_(address_t(regs_.PC));
+ucle::status ucle::fnsim::frisc_simulator::execute_single_() {
     std::cout << regs_.PC.get() << ": ";
+
+    reg<32> IR = read_word_(address_t(regs_.PC));
+    regs_.PC += 4;
 
     auto opcode = IR[{31, 27}];
     auto fn = IR[26];
 
-    status_t stat;
+    status stat;
     if (opcode == 0b00000) {
         stat = execute_move_(opcode, fn, IR);
     } else if (opcode >= 0b00001 && opcode <= 0b01101) {
@@ -222,10 +224,8 @@ ucle::status_t ucle::fnsim::frisc_simulator::execute_single_() {
         stat = execute_ctrl_(opcode, fn, IR);
     } else {
         std::cout << "Unknown!" << "\n";
-        return error::invalid_instruction;
+        stat = status::invalid_instruction;
     }
-
-    regs_.PC += 4;
 
     return stat;
 }

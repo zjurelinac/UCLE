@@ -105,9 +105,8 @@ namespace ucle::fnsim {
                     else
                         dev_asp_.unregister_device(std::dynamic_pointer_cast<mapped_device_type>(info.ptr));
                 }
-
-                // return success::ok;
             }
+
             byte_t read_byte_(address_t location) const { return mem_asp_.read_byte(location); }
             half_t read_half_(address_t location) const { return mem_asp_.read_half(location & ~0b1); }
             word_t read_word_(address_t location) const { return mem_asp_.read_word(location & ~0b11); }

@@ -44,13 +44,13 @@ namespace ucle::fnsim {
             virtual address_t get_program_counter_() const override { return regs_.PC.get(); };
             virtual void set_program_counter_(address_t location) override { regs_.PC = location; }
 
-            virtual status_t execute_single_() override;
+            virtual status execute_single_() override;
 
         private:
-            status_t execute_move_(word_t opcode, bool fn, const reg<32>& IR);
-            status_t execute_alu_(word_t opcode, bool fn, const reg<32>& IR);
-            status_t execute_mem_(word_t opcode, bool fn, const reg<32>& IR);
-            status_t execute_ctrl_(word_t opcode, bool fn, const reg<32>& IR);
+            status execute_move_(word_t opcode, bool fn, const reg<32>& IR);
+            status execute_alu_(word_t opcode, bool fn, const reg<32>& IR);
+            status execute_mem_(word_t opcode, bool fn, const reg<32>& IR);
+            status execute_ctrl_(word_t opcode, bool fn, const reg<32>& IR);
 
             constexpr bool eval_cond_(word_t cond) const;
     };

@@ -6,7 +6,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <utility>
-#include <variant>
 
 namespace ucle {
 
@@ -31,8 +30,8 @@ namespace ucle {
     using identifier_t = uint32_t;
     using priority_t = uint32_t;
 
-    enum class success { ok };
-    enum class error {
+    enum class status {
+        ok,
         invalid_state,
         invalid_address_range,
         invalid_identifier,
@@ -41,10 +40,8 @@ namespace ucle {
         filesystem_error
     };
 
-    using status_t = std::variant<success, error>;
-
-    inline bool is_success(status_t status) { return std::holds_alternative<success>(status); }
-    inline bool is_error(status_t status) { return std::holds_alternative<error>(status); }
+    constexpr bool is_success(status stat) { return stat == status::ok; }
+    constexpr bool is_error(status stat) { return stat != status::ok; }
 
     struct address_range {
         address_t low_addr, high_addr;
@@ -62,7 +59,7 @@ namespace ucle {
         bool contains(const address_range& other) const { return low_addr <= other.low_addr && other.high_addr <= high_addr; }
     };
 
-    struct arith_flags { bool C, V, N, Z; };
+    struct arith_flags { bool C, V, N, Z; };  // TODO: Redesign (& rename)
 
     /*struct arith_flags {
         public:
