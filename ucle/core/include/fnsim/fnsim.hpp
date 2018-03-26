@@ -11,7 +11,6 @@
 
 namespace ucle::fnsim {
 
-    enum class byte_order { LE, BE };
     enum class device_mapping { DEFAULT, MEMORY, PORT, NONE };
 
     // TODO: Select possible options

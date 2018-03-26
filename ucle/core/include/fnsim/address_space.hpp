@@ -2,6 +2,7 @@
 #define _UCLE_CORE_FNSIM_ADDRESS_SPACE_HPP_
 
 #include <common/exceptions.hpp>
+#include <common/meta.hpp>
 #include <common/types.hpp>
 
 #include <fnsim/fnsim.hpp>
@@ -37,16 +38,18 @@ namespace ucle::fnsim {
                 devices_.erase(dev_it);
             }
 
-            // read
-            // write
+            template <typename T, typename = meta::is_storage_t<T>>
+            T read(address_t location) const
+            {
+                auto [dev_range, dev_ptr] = *find_device_(location);
+                return dev_ptr->template read<T>(location - dev_range.low_addr);
+            }
 
-            byte_t read_byte(address_t location) const { auto dev_ptr = find_device_(location); return dev_ptr->read_byte(location); }
-            half_t read_half(address_t location) const { auto dev_ptr = find_device_(location); return dev_ptr->read_half(location); }
-            word_t read_word(address_t location) const { auto dev_ptr = find_device_(location); return dev_ptr->read_word(location); }
-
-            void write_byte(address_t location, byte_t value) { auto dev_ptr = find_device_(location); dev_ptr->write_byte(location, value); }
-            void write_half(address_t location, half_t value) { auto dev_ptr = find_device_(location); dev_ptr->write_half(location, value); }
-            void write_word(address_t location, word_t value) { auto dev_ptr = find_device_(location); dev_ptr->write_word(location, value); }
+            template <typename T, typename = meta::is_storage_t<T>>
+            void write(address_t location, T value) {
+                auto [dev_range, dev_ptr] = *find_device_(location);
+                return dev_ptr->template write<T>(location - dev_range.low_addr, value);
+            }
 
         protected:
 
@@ -55,7 +58,7 @@ namespace ucle::fnsim {
                     [location](auto mapped){ return mapped.first.contains(location); });
 
                 if (dev_it != devices_.cend())
-                    return dev_it->second;
+                    return dev_it;
                 else
                     throw invalid_memory_access("No memory/device mapped to this address!");
             }

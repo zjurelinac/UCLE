@@ -118,37 +118,37 @@ ucle::status ucle::fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, 
     switch (opcode) {
         case 0b10000:
             std::cout << "POP" << "\n";
-            reg = read_word_(regs_.SP.get());
+            reg = read_<word_t>(regs_.SP.get());
             regs_.SP += 4;
             break;
         case 0b10001:
             std::cout << "PUSH" << "\n";
             regs_.SP -= 4;
-            write_word_(regs_.SP.get(), reg.get());
+            write_<word_t>(regs_.SP.get(), reg.get());
             break;
         case 0b10010:
             std::cout << "LOADB" << "\n";
-            reg = read_byte_(addr);
+            reg = read_<byte_t>(addr);
             break;
         case 0b10011:
             std::cout << "STOREB" << "\n";
-            write_byte_(addr, reg.get());  // TODO: get_byte?
+            write_<byte_t>(addr, reg.get());  // TODO: get_byte?
             break;
         case 0b10100:
             std::cout << "LOADH" << "\n";
-            reg = read_half_(addr);
+            reg = read_<half_t>(addr);
             break;
         case 0b10101:
             std::cout << "STOREH" << "\n";
-            write_half_(addr, reg.get());  // TODO: get_half?
+            write_<half_t>(addr, reg.get());  // TODO: get_half?
             break;
         case 0b10110:
             std::cout << "LOAD" << "\n";
-            reg = read_word_(addr);
+            reg = read_<word_t>(addr);
             break;
         case 0b10111:
             std::cout << "STORE" << "\n";
-            write_word_(addr, reg.get());
+            write_<word_t>(addr, reg.get());
             break;
     }
 
@@ -170,7 +170,7 @@ ucle::status ucle::fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn,
         case 0b11001:
             std::cout << "CALL" << "\n";
             regs_.SP -= 4;
-            write_word_(regs_.SP.get(), regs_.PC.get());
+            write_<word_t>(regs_.SP.get(), regs_.PC.get());
             regs_.PC = addr;
             break;
         case 0b11010:
@@ -180,7 +180,7 @@ ucle::status ucle::fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn,
         case 0b11011: {
             std::cout << "RETX" << "\n";
             auto rtcode = IR[{1, 0}];
-            regs_.PC = read_word_(regs_.SP.get());
+            regs_.PC = read_<word_t>(regs_.SP.get());
             regs_.SP += 4;
             // if (rtcode == 0b01)      /* RETI */
             //      /* set GIE = 1 */
@@ -207,7 +207,7 @@ constexpr bool ucle::fnsim::frisc_simulator::eval_cond_(word_t) const
 ucle::status ucle::fnsim::frisc_simulator::execute_single_() {
     std::cout << regs_.PC.get() << ": ";
 
-    reg<32> IR = read_word_(address_t(regs_.PC));
+    reg<32> IR = read_<word_t>(address_t(regs_.PC));
     regs_.PC += 4;
 
     auto opcode = IR[{31, 27}];

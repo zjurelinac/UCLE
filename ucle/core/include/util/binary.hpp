@@ -19,7 +19,7 @@ namespace ucle::util {
         static constexpr auto clear_topn_mask(size_t n) { return (static_cast<T>(1) << n) - 1; }
         static constexpr auto set_topn_mask(size_t n) { return ~clear_topn_mask(n); }
 
-
+        static constexpr auto address_round_mask() { return ~(sizeof(T) - 1); }
     };
 
     template <typename ValueType>

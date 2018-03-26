@@ -8,6 +8,8 @@
 #include <fnsim/address_space.hpp>
 #include <fnsim/basic_devices.hpp>
 
+#include <util/binary.hpp>
+
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -67,11 +69,11 @@ namespace ucle::fnsim {
 
             virtual byte_t get_byte_(address_t location) const override
             {
-                return read_byte_(location);
+                return read_<byte_t>(location);
             }
             virtual void set_byte_(address_t location, byte_t value) override
             {
-                return write_byte_(location, value);
+                return write_<byte_t>(location, value);
             }
 
             virtual identifier_t add_device_(device_ptr dev_ptr, device_config dev_cfg) override
@@ -108,17 +110,17 @@ namespace ucle::fnsim {
             }
 
             template <typename T, typename = meta::is_storage_t<T>>
-            T read(address_t location) const;
+            T read_(address_t location) const { return mem_asp_.template read<T>(location & util::const_bit_util<T>::address_round_mask()); }
             template <typename T, typename = meta::is_storage_t<T>>
-            void write(address_t location, T value);
+            void write_(address_t location, T value) { mem_asp_.template write<T>(location & util::const_bit_util<T>::address_round_mask(), value); }
 
-            byte_t read_byte_(address_t location) const { return mem_asp_.read_byte(location); }
+            /*byte_t read_byte_(address_t location) const { return mem_asp_.read_byte(location); }
             half_t read_half_(address_t location) const { return mem_asp_.read_half(location & ~0b1); }
             word_t read_word_(address_t location) const { return mem_asp_.read_word(location & ~0b11); }
 
             void write_byte_(address_t location, byte_t value) { mem_asp_.write_byte(location, value); }
             void write_half_(address_t location, half_t value) { mem_asp_.write_half(location & ~0b1, value); }
-            void write_word_(address_t location, word_t value) { mem_asp_.write_word(location & ~0b11, value); }
+            void write_word_(address_t location, word_t value) { mem_asp_.write_word(location & ~0b11, value); }*/
 
             // Fields
 
