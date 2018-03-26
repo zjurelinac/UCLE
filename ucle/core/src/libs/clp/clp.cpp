@@ -1,11 +1,12 @@
-#include <libs/clap.hpp>
+#include <libs/clp.hpp>
 
+#include <any>
 #include <iostream>
 #include <string_view>
 
-void clap::cli::parse(int argc, const char* argv[])
+void clp::cli::parse(int argc, const char* argv[])
 {
-    // using namespace detail;
+    using namespace detail;
 
     auto i = 1u;
     while (i < argc) {
@@ -23,12 +24,11 @@ void clap::cli::parse(int argc, const char* argv[])
     }
 }
 
-// clap -std=c++17 -Icore/include -Wall -c file1.cpp file2.cpp -o binary
+// clp -std=c++17 -Icore/include -Wall -c file1.cpp file2.cpp -o binary
 
 /* Test */
 int main(int argc, const char* argv[])
 {
-    clap::cli argparser;
-    // argparser.
+    clp::cli argparser;
     argparser.parse(argc, argv);
 }
