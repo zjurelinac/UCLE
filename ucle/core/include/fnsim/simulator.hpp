@@ -8,7 +8,7 @@
 #include <fnsim/address_space.hpp>
 #include <fnsim/basic_devices.hpp>
 
-#include <util/binary.hpp>
+#include <util/const_bit_util.hpp>
 
 #include <set>
 #include <string>

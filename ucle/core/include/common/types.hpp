@@ -63,14 +63,6 @@ namespace ucle {
 
     struct arith_flags { bool C, V, N, Z; };  // TODO: Redesign (& rename)
 
-    /*struct arith_flags {
-        public:
-            constexpr arith_flags(bool C, bool V, bool N, bool Z) {}
-
-        private:
-            std::bitset<4> flags_;
-    };*/
-
     struct bitrange {
         index_t low, high;
 
