@@ -17,14 +17,12 @@ namespace ucle::fnsim {
             constexpr reg(const reg<bits>& other) : value_(other.value_) {}
             constexpr reg(reg<bits>&& other) : value_(other.value_) {}
 
-            reg<bits>& operator=(value_type value)
-                { value_ = value; return *this; }
             reg<bits>& operator=(const reg<bits>& other)
                 {value_ = other.value_; return *this; }
             reg<bits>& operator=(reg<bits>&& other)
                 { value_ = other.value_; return *this; }
 
-            constexpr explicit operator value_type() const { return value_; }
+            constexpr operator value_type() const { return value_; }
 
             constexpr value_type operator[](const bitrange br) const
                 { return (value_ >> br.shift()) & br.mask(); }
