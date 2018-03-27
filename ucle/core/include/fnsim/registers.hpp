@@ -2,6 +2,7 @@
 #define _UCLE_CORE_FNSIM_REGISTER_HPP_
 
 #include <common/meta.hpp>
+#include <common/structures.hpp>
 #include <common/types.hpp>
 
 namespace ucle::fnsim {
@@ -19,9 +20,9 @@ namespace ucle::fnsim {
             reg<bits>& operator=(value_type value)
                 { value_ = value; return *this; }
             reg<bits>& operator=(const reg<bits>& other)
-                { if (this != &other) value_ = other.value_; return *this; }
+                {value_ = other.value_; return *this; }
             reg<bits>& operator=(reg<bits>&& other)
-                { if (this != &other) value_ = other.value_; return *this; }
+                { value_ = other.value_; return *this; }
 
             constexpr explicit operator value_type() const { return value_; }
 
@@ -47,6 +48,14 @@ namespace ucle::fnsim {
 
         protected:
             value_type value_;
+    };
+
+    template <unsigned bits>
+    class flags_reg {
+        public:
+
+        private:
+            bitfield<bits> bf_;
     };
 
     /*template <unsigned bits>

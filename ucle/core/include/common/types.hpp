@@ -9,8 +9,6 @@
 
 namespace ucle {
 
-    /*** Generic types ***/
-
     using byte_t = uint8_t;
     using sbyte_t = int8_t;
 
