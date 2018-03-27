@@ -15,15 +15,21 @@
 
 namespace ucle::fnsim {
 
-    /*struct frisc_status_reg : public flags_reg<32> {
+    struct frisc_status_reg : public flags_reg<32> {
         using flags_reg<32>::operator=;
-    };*/
+
+        flag_reference GIE  = value_[4];
+        flag_reference Z    = value_[3];
+        flag_reference V    = value_[2];
+        flag_reference C    = value_[1];
+        flag_reference N    = value_[0];
+    };
 
     struct frisc_register_file : public register_file {
         std::array<reg<32>, 8> R;
         reg<32>& SP = R[7];
         reg<32> PC;
-        reg<32> SR;
+        frisc_status_reg SR;
 
         void clear() override
         {

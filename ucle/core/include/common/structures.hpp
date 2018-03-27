@@ -68,7 +68,7 @@ namespace ucle {
             constexpr bitfield<N>& operator=(bitfield<N>&& other)
                 { value_ = other.value_; return *this; }
 
-            constexpr explicit operator value_type() { return value_; }
+            constexpr explicit operator value_type() const { return value_; }
 
             constexpr bool operator==(value_type value) const
                 { return value_ == value; }

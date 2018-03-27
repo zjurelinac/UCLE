@@ -22,7 +22,7 @@ ucle::status ucle::fnsim::frisc_simulator::execute_move_(word_t, bool fn, const 
 ucle::status ucle::fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, const reg<32>& IR)
 {
     auto dest = &regs_.R[IR[{25, 23}]];
-    auto src1 = regs_.R[IR[{22, 20}]].get();
+    auto src1 = regs_.R[IR[{22, 20}]];
     auto src2 = fn ? unop::sign_extend(IR[{19, 0}], 20) : word_t(regs_.R[IR[{19, 17}]]);
 
     switch (opcode) {
@@ -205,7 +205,7 @@ constexpr bool ucle::fnsim::frisc_simulator::eval_cond_(word_t) const
 }
 
 ucle::status ucle::fnsim::frisc_simulator::execute_single_() {
-    std::cout << regs_.PC.get() << ": ";
+    std::cout << word_t(regs_.PC) << ": ";
 
     reg<32> IR = read_<word_t>(address_t(regs_.PC));
     regs_.PC += 4;
