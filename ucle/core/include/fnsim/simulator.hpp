@@ -73,12 +73,12 @@ namespace ucle::fnsim {
             }
             virtual void set_byte_(address_t location, byte_t value) override
             {
-                return write_<byte_t>(location, value);
+                write_<byte_t>(location, value);
             }
 
             virtual identifier_t add_device_(device_ptr dev_ptr, device_config dev_cfg) override
             {
-                device_info info = { ++max_cur_id_, dev_ptr, device_mapping::NONE };
+                device_info info = { next_dev_id_++, dev_ptr, device_mapping::NONE };
 
                 if (dev_cfg.is_addressable) {
                     info.mapping = (dev_cfg.mapping == device_mapping::DEFAULT) ? cfg_.devices_default_mapping : dev_cfg.mapping;
@@ -116,14 +116,14 @@ namespace ucle::fnsim {
 
             // Fields
 
-            config_type cfg_;                   /* Simulator config parameters */
-            regfile_type regs_;                 /* Internal register file keeping the state of all registers and flags */
-            address_space_type mem_asp_;        /* Memory address space (for memory and optionally other devices) */
-            address_space_type dev_asp_;        /* Device address space (if devices are memory-mapped, then it's unused) */
-            mapped_device_ptr mem_ptr_;         /* Internal memory device pointer */
-            identifier_t mem_id_;               /* Internal memory device ID */
+            config_type             cfg_;           /* Simulator config parameters */
+            regfile_type            regs_;          /* Internal register file keeping the state of all registers and flags */
+            address_space_type      mem_asp_;       /* Memory address space (for memory and optionally other devices) */
+            address_space_type      dev_asp_;       /* Device address space (if devices are memory-mapped, then it's unused) */
+            mapped_device_ptr       mem_ptr_;       /* Internal memory device pointer */
+            identifier_t            mem_id_;        /* Internal memory device ID */
             std::unordered_map<identifier_t, device_info> devs_;    /* Pointers and info about all used devices */
-            identifier_t max_cur_id_ = 0;       /*  */
+            identifier_t            next_dev_id_ = 0;               /* Next unique ID to be assigned to a device upon registration */
             // TODO: Interrupt handling
 
     };
