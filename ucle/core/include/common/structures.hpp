@@ -84,6 +84,24 @@ namespace ucle {
             constexpr reference operator[](index_t idx)
                 { return reference(value_, idx); }
 
+            bitfield<N>& operator&=(const bitfield<N>& other)
+                { value_ &= other.value_; return *this; }
+            bitfield<N>& operator|=(const bitfield<N>& other)
+                { value_ |= other.value_; return *this; }
+            bitfield<N>& operator^=(const bitfield<N>& other)
+                { value_ ^= other.value_; return *this; }
+            bitfield<N> operator~() const
+                { return { ~value_ }; }
+
+            bitfield<N> operator<<(size_t shift) const
+                { return { value_ << shift }; }
+            bitfield<N> operator>>(size_t shift) const
+                { return { value_ >> shift }; }
+            bitfield<N>& operator<<=(size_t shift)
+                { value_ <<= shift; return *this; }
+            bitfield<N>& operator>>=(size_t shift)
+                { value_ >>= shift; return *this; }
+
             bool test(index_t idx) const
                 { return value_ & cbu::nth_bit(idx); }
 
