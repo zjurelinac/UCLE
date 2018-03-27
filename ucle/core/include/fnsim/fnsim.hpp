@@ -2,6 +2,7 @@
 #define _UCLE_CORE_FNSIM_FNSIM_HPP_
 
 #include <common/exceptions.hpp>
+#include <common/structures.hpp>
 #include <common/types.hpp>
 
 #include <memory>
@@ -58,15 +59,15 @@ namespace ucle::fnsim {
             // Memory
             auto get_memory_contents(address_t location, size_t amount)
             {
-                std::vector<byte_t> contents;
+                small_byte_vector bytes;
                 while (amount--)
-                    contents.push_back(get_byte_(location++));
-                return contents;
+                    bytes.push_back(get_byte_(location++));
+                return bytes;
             }
-            void set_memory_contents(address_t location, std::vector<byte_t>& bytes)
+            void set_memory_contents(address_t location, small_byte_vector& bytes)
             {
-                for (auto byte : bytes)
-                    set_byte_(location++, byte);
+                for (auto i = 0u; i < bytes.size(); ++i)
+                    set_byte_(location++, bytes[i]);
             }
 
             // Breakpoints

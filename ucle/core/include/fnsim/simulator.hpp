@@ -114,14 +114,6 @@ namespace ucle::fnsim {
             template <typename T, typename = meta::is_storage_t<T>>
             void write_(address_t location, T value) { mem_asp_.template write<T>(location & util::const_bit_util<T>::address_round_mask(), value); }
 
-            /*byte_t read_byte_(address_t location) const { return mem_asp_.read_byte(location); }
-            half_t read_half_(address_t location) const { return mem_asp_.read_half(location & ~0b1); }
-            word_t read_word_(address_t location) const { return mem_asp_.read_word(location & ~0b11); }
-
-            void write_byte_(address_t location, byte_t value) { mem_asp_.write_byte(location, value); }
-            void write_half_(address_t location, half_t value) { mem_asp_.write_half(location & ~0b1, value); }
-            void write_word_(address_t location, word_t value) { mem_asp_.write_word(location & ~0b11, value); }*/
-
             // Fields
 
             config_type cfg_;                   /* Simulator config parameters */
@@ -131,7 +123,7 @@ namespace ucle::fnsim {
             mapped_device_ptr mem_ptr_;         /* Internal memory device pointer */
             identifier_t mem_id_;               /* Internal memory device ID */
             std::unordered_map<identifier_t, device_info> devs_;    /* Pointers and info about all used devices */
-            identifier_t max_cur_id_;           /*  */
+            identifier_t max_cur_id_ = 0;       /*  */
             // TODO: Interrupt handling
 
     };

@@ -17,6 +17,7 @@ namespace ucle {
             using const_reference = const value_type&;
 
             small_vector() {}
+            small_vector(size_t size) : tsize_(size) {}
             small_vector(const small_vector<T, vector_size>& other)
                 : tsize_(other.tsize_), data_(other.data_) {}
             small_vector(small_vector<T, vector_size>&& other)
@@ -37,12 +38,15 @@ namespace ucle {
             size_t size() const { return tsize_; }
 
             void clear() { tsize_ = 0; }
+            void resize(size_t size) { tsize_ = size; }
             void push_back(T value) { data_[tsize_++] = value; }
             void pop_back() { --tsize_; }
 
+            // TODO: Implement iterators
+
         private:
-            int tsize_;
-            std::array<T, vector_size> data_;
+            int tsize_ = 0;
+            std::array<T, vector_size> data_ = {0};
     };
 
     using small_byte_vector = small_vector<byte_t, 8>;

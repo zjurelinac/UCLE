@@ -1,6 +1,8 @@
 #include <fnsim/fnsim.hpp>
 
 #include <common/types.hpp>
+#include <common/structures.hpp>
+
 #include <util/string.hpp>
 
 #include <cstdio>
@@ -96,7 +98,7 @@ ucle::status ucle::fnsim::functional_simulator::load_pfile(std::string filename,
 
         // Store the annotation
 
-        std::vector<byte_t> bytes;
+        small_byte_vector bytes;
         while (iss >> byte)
             bytes.push_back(byte);
 

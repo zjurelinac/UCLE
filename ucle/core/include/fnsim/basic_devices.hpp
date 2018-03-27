@@ -27,14 +27,15 @@ namespace ucle::fnsim {
             template <typename T, typename = meta::is_storage_t<T>>
             T read(address_t location) const
             {
+                constexpr auto size = sizeof(T);
                 auto bytes = read_bytes_(location, sizeof(T));
-                T value = 0;
 
+                T value = 0;
                 if constexpr (layout_type == byte_order::LE) {
-                    for (auto i = 3u; i >= 0; --i)
-                        value = value << 8 | bytes[i];
+                    for (auto i = 0u; i < size; ++i)
+                        value = value << 8 | bytes[size - i - 1];
                 } else {  /* byte_order::BE */
-                    for (auto i = 0; i < 4; ++i)
+                    for (auto i = 0u; i < size; ++i)
                         value = value << 8 | bytes[i];
                 }
 
@@ -44,16 +45,17 @@ namespace ucle::fnsim {
             template <typename T, typename = meta::is_storage_t<T>>
             void write(address_t location, T value)
             {
-                small_byte_vector bytes;
+                auto size = sizeof(T);
+                small_byte_vector bytes(size);
 
                 if constexpr (layout_type == byte_order::LE) {
-                    for (auto i = 0u; i < 4; ++i) {
+                    for (auto i = 0u; i < size; ++i) {
                         bytes[i] = value & 0xFF;
                         value >>= 8;
                     }
                 } else {  /* byte_order::BE */
-                    for (auto i = 3u; i >= 0; -i) {
-                        bytes[i] = value & 0xFF;
+                    for (auto i = 0u; i < size; ++i) {
+                        bytes[size - i - 1] = value & 0xFF;
                         value >>= 8;
                     }
                 }
@@ -77,7 +79,7 @@ namespace ucle::fnsim {
 
             virtual small_byte_vector read_bytes_(address_t location, size_t amount) const override
             {
-                small_byte_vector bytes;
+                small_byte_vector bytes(amount);
                 for (auto i = 0u; i < amount; ++i)
                     bytes[i] = data_[location++];
                 return bytes;
@@ -95,91 +97,6 @@ namespace ucle::fnsim {
             size_t size_;
             byte_t *data_;
     };
-
-    // Little-endian memory block device specialization
-
-    /*template<>
-    inline byte_t memory_block_device<byte_order::LE>::read_byte(address_t location) {
-        return data_[location];
-    }
-
-    template<>
-    inline half_t memory_block_device<byte_order::LE>::read_half(address_t location) {
-        return (data_[location + 1] << 8) | data_[location];
-    }
-
-    template<>
-    inline word_t memory_block_device<byte_order::LE>::read_word(address_t location) {
-        return (data_[location + 3] << 24) | (data_[location + 2] << 16) |
-               (data_[location + 1] << 8)  | (data_[location]);
-    }
-
-    template<>
-    inline void memory_block_device<byte_order::LE>::write_byte(address_t location, byte_t value) {
-        data_[location] = value;
-    }
-
-    template<>
-    inline void memory_block_device<byte_order::LE>::write_half(address_t location, half_t value) {
-        data_[location + 1] = value >> 8;
-        data_[location]     = value & 0xFF;
-    }
-
-    template<>
-    inline void memory_block_device<byte_order::LE>::write_word(address_t location, word_t value) {
-        data_[location + 3] = value >> 24;
-        data_[location + 2] = (value >> 16) & 0xFF;
-        data_[location + 1] = (value >> 8) & 0xFF;
-        data_[location] = value & 0xFF;
-    }*/
-
-    // Big-endian memory block device specialization
-
-    /*template<>
-    inline byte_t memory_block_device<byte_order::BE>::read_byte(address_t location) {
-        return data_[location];
-    }
-
-    template<>
-    inline half_t memory_block_device<byte_order::BE>::read_half(address_t location) {
-        return (data_[location] << 8) | data_[location + 1];
-    }
-
-    template<>
-    inline word_t memory_block_device<byte_order::BE>::read_word(address_t location) {
-        return (data_[location] << 24)    | (data_[location + 1] << 16) |
-               (data_[location + 2] << 8) | (data_[location + 3]);
-    }
-
-    template<>
-    inline void memory_block_device<byte_order::BE>::write_byte(address_t location, byte_t value) {
-        data_[location] = value;
-    }
-
-    template<>
-    inline void memory_block_device<byte_order::BE>::write_half(address_t location, half_t value) {
-        data_[location]     = value >> 8;
-        data_[location + 1] = value & 0xFF;
-    }
-
-    template<>
-    inline void memory_block_device<byte_order::BE>::write_word(address_t location, word_t value) {
-        data_[location] = value >> 24;
-        data_[location + 1] = (value >> 16) & 0xFF;
-        data_[location + 2] = (value >> 8) & 0xFF;
-        data_[location + 3] = value & 0xFF;
-    }*/
-
-
-    /*template<size_t reg_num, size_t reg_size = 32>
-    class register_group_device : public mapped_device {
-        public:
-            // TODO read/write
-
-        protected:
-            std::array<reg<reg_size>, reg_num> registers_;
-    };*/
-
 
     template<byte_order endianness = byte_order::LE>
     class memory : public memory_block_device<endianness> {
