@@ -14,69 +14,63 @@
 #include <cstring>
 #include <memory>
 
-/*
-    TODO: Variable address_t size
-*/
-
-
 namespace ucle::fnsim {
 
-    template<byte_order layout_type>
+    template<byte_order endianness, typename AddressType = address_t>
     class mapped_device : public device {
         public:
+            using address_type = AddressType;
             template <typename T, typename = meta::is_storage_t<T>>
-            T read(address_t location) const
+            T read(address_type location) const
             {
                 constexpr auto size = sizeof(T);
                 auto bytes = read_bytes_(location, sizeof(T));
 
                 T value = 0;
-                if constexpr (layout_type == byte_order::LE) {
-                    for (auto i = 0u; i < size; ++i)
+
+                for (auto i = 0u; i < size; ++i) {
+                    if constexpr (endianness == byte_order::LE)
                         value = value << 8 | bytes[size - i - 1];
-                } else {  /* byte_order::BE */
-                    for (auto i = 0u; i < size; ++i)
+                    else
                         value = value << 8 | bytes[i];
                 }
 
                 return value;
             }
-
             template <typename T, typename = meta::is_storage_t<T>>
-            void write(address_t location, T value)
+            void write(address_type location, T value)
             {
                 auto size = sizeof(T);
                 small_byte_vector bytes(size);
 
-                if constexpr (layout_type == byte_order::LE) {
-                    for (auto i = 0u; i < size; ++i) {
+                for (auto i = 0u; i < size; ++i) {
+                    if constexpr (endianness == byte_order::LE)
                         bytes[i] = value & 0xFF;
-                        value >>= 8;
-                    }
-                } else {  /* byte_order::BE */
-                    for (auto i = 0u; i < size; ++i) {
+                    else
                         bytes[size - i - 1] = value & 0xFF;
-                        value >>= 8;
-                    }
+
+                    value >>= 8;
                 }
 
                 write_bytes_(location, bytes);
             }
-
         protected:
-            virtual small_byte_vector read_bytes_(address_t location, size_t amount) const = 0;
-            virtual void write_bytes_(address_t location, small_byte_vector& bytes) = 0;
+            virtual small_byte_vector read_bytes_(address_type location, size_t amount) const = 0;
+            virtual void write_bytes_(address_type location, small_byte_vector& bytes) = 0;
     };
 
-    template <byte_order layout_type>
-    using mapped_device_ptr = std::shared_ptr<mapped_device<layout_type>>;
+    template <byte_order endianness, typename AddressType = address_t>
+    using mapped_device_ptr = std::shared_ptr<mapped_device<endianness, AddressType>>;
 
-    template<byte_order layout_type>
-    class memory_block_device : public mapped_device<layout_type> {
+    template<byte_order endianness, typename AddressType = address_t>
+    class memory_block_device : public mapped_device<endianness, AddressType> {
          public:
             memory_block_device(size_t memory_size) : size_(memory_size) { data_ = new byte_t[size_]; reset(); }
             ~memory_block_device() { delete[] data_; }
 
+            virtual void reset() override { memset(data_, 0, size_); }
+
+        protected:
             virtual small_byte_vector read_bytes_(address_t location, size_t amount) const override
             {
                 small_byte_vector bytes(amount);
@@ -85,24 +79,21 @@ namespace ucle::fnsim {
                 return bytes;
             }
 
-            virtual void write_bytes_(address_t location, small_byte_vector& bytes)
+            virtual void write_bytes_(address_t location, small_byte_vector& bytes) override
             {
                 for (auto i = 0u; i < bytes.size(); ++i)
                     data_[location++] = bytes[i];
             }
-
-            virtual void reset() override { memset(data_, 0, size_); }
 
         private:
             size_t size_;
             byte_t *data_;
     };
 
-    template<byte_order endianness = byte_order::LE>
-    class memory : public memory_block_device<endianness> {
-        using memory_block_device<endianness>::memory_block_device;
-
+    template<byte_order endianness = byte_order::LE, typename AddressType = address_t>
+    class memory : public memory_block_device<endianness, AddressType> {
         public:
+            using memory_block_device<endianness>::memory_block_device;
             virtual void work() override {}
             virtual void status() override {}
     };
