@@ -8,8 +8,8 @@
 #include <fnsim/fnsim.hpp>
 
 #include <algorithm>
-#include <set>
 #include <utility>
+#include <vector>
 
 namespace ucle::fnsim {
 
@@ -26,7 +26,7 @@ namespace ucle::fnsim {
                 if (!total_range_.contains(range))
                     throw invalid_address_range("Device address range overflows the available address space.");
 
-                devices_.emplace(range, dev_ptr);
+                devices_.emplace_back(range, dev_ptr);
             }
             void unregister_device(mapped_device_ptr dev_ptr) {
                 auto dev_it = std::find_if(devices_.cbegin(), devices_.cend(),
@@ -64,7 +64,7 @@ namespace ucle::fnsim {
             }
 
             address_range total_range_;
-            std::set<mapped_device_info> devices_;
+            std::vector<mapped_device_info> devices_;
     };
 }
 
