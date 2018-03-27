@@ -7,19 +7,19 @@
 
 namespace ucle::fnsim {
 
-    template<unsigned bits, typename T = meta::sized_uint<bits>>
+    template<unsigned N, typename T = meta::sized_uint<N>>
     class reg {
         public:
             using value_type = T;
 
             constexpr reg() : value_(0) {}
             constexpr reg(value_type value) : value_(value) {}
-            constexpr reg(const reg<bits>& other) : value_(other.value_) {}
-            constexpr reg(reg<bits>&& other) : value_(other.value_) {}
+            constexpr reg(const reg<N>& other) : value_(other.value_) {}
+            constexpr reg(reg<N>&& other) : value_(other.value_) {}
 
-            reg<bits>& operator=(const reg<bits>& other)
+            constexpr reg<N>& operator=(const reg<N>& other)
                 {value_ = other.value_; return *this; }
-            reg<bits>& operator=(reg<bits>&& other)
+            constexpr reg<N>& operator=(reg<N>&& other)
                 { value_ = other.value_; return *this; }
 
             constexpr operator value_type() const { return value_; }
@@ -48,30 +48,30 @@ namespace ucle::fnsim {
             value_type value_;
     };
 
-    template <unsigned bits>
+    template <unsigned N>
     class flags_reg {
         public:
 
         private:
-            bitfield<bits> bf_;
+            bitfield<N> bf_;
     };
 
-    /*template <unsigned bits>
+    /*template <unsigned N>
     class flags_reg {
         public:
 
             constexpr flags_reg() {}
             template <typename T, std::enable_if_t<std::is_integral_v<T>>>
             constexpr flags_reg(T value) : flags_(value) {}
-            constexpr flags_reg(const flags_reg<bits>& other) : flags_(other.flags_) {}
-            constexpr flags_reg(flags_reg<bits>&& other) : flags_(std::move(other.flags_)) {}
+            constexpr flags_reg(const flags_reg<N>& other) : flags_(other.flags_) {}
+            constexpr flags_reg(flags_reg<N>&& other) : flags_(std::move(other.flags_)) {}
 
             template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-            flags_reg<bits>& operator=(T value)
+            flags_reg<N>& operator=(T value)
                 { flags_ = std::bitset(value); return *this; }
-            flags_reg<bits>& operator=(const flags_reg<bits>& other)
+            flags_reg<N>& operator=(const flags_reg<N>& other)
                 { if (this != &other) flags_ = other.flags_; return *this; }
-            flags_reg<bits>& operator=(flags_reg<bits>&& other)
+            flags_reg<N>& operator=(flags_reg<N>&& other)
                 { if (this != &other) flags_ = std::move(other.flags_); return *this; }
 
             constexpr bool operator[](const index_t i) const
@@ -80,15 +80,15 @@ namespace ucle::fnsim {
             template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
             constexpr explicit operator T() const;
 
-            constexpr flags_reg<bits>& operator&=(value_type v) { flags_ &= std::bitset(v); return *this; }
-            constexpr flags_reg<bits>& operator|=(value_type v) { flags_ |= std::bitset(v); return *this; }
-            constexpr flags_reg<bits>& operator^=(value_type v) { flags_ ^= std::bitset(v); return *this; }
+            constexpr flags_reg<N>& operator&=(value_type v) { flags_ &= std::bitset(v); return *this; }
+            constexpr flags_reg<N>& operator|=(value_type v) { flags_ |= std::bitset(v); return *this; }
+            constexpr flags_reg<N>& operator^=(value_type v) { flags_ ^= std::bitset(v); return *this; }
 
             template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
             constexpr T get() const { return static_cast<T>(flags_.to_ulong()); }
 
         protected:
-            std::bitset<bits> flags_;
+            std::bitset<N> flags_;
     };*/
 
     /*template <> template <>

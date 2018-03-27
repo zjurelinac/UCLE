@@ -61,14 +61,14 @@ namespace ucle {
             constexpr bitfield(const bitfield<N>& other) : value_(other.value_) {}
             constexpr bitfield(bitfield<N>&& other) : value_(other.value_) {}
 
-            bitfield<N>& operator=(value_type value)
+            constexpr bitfield<N>& operator=(value_type value)
                 { value_ = value; return *this; }
-            bitfield<N>& operator=(const bitfield<N>& other)
+            constexpr bitfield<N>& operator=(const bitfield<N>& other)
                 { value_ = other.value_; return *this; }
-            bitfield<N>& operator=(bitfield<N>&& other)
+            constexpr bitfield<N>& operator=(bitfield<N>&& other)
                 { value_ = other.value_; return *this; }
 
-            explicit operator value_type() { return value_; }
+            constexpr explicit operator value_type() { return value_; }
 
             constexpr bool operator==(value_type value) const
                 { return value_ == value; }
@@ -84,48 +84,43 @@ namespace ucle {
             constexpr reference operator[](index_t idx)
                 { return reference(value_, idx); }
 
-            bitfield<N>& operator&=(const bitfield<N>& other)
+            constexpr bitfield<N>& operator&=(const bitfield<N>& other)
                 { value_ &= other.value_; return *this; }
-            bitfield<N>& operator|=(const bitfield<N>& other)
+            constexpr bitfield<N>& operator|=(const bitfield<N>& other)
                 { value_ |= other.value_; return *this; }
-            bitfield<N>& operator^=(const bitfield<N>& other)
+            constexpr bitfield<N>& operator^=(const bitfield<N>& other)
                 { value_ ^= other.value_; return *this; }
-            bitfield<N> operator~() const
+            constexpr bitfield<N> operator~() const
                 { return { ~value_ }; }
 
-            bitfield<N> operator<<(size_t shift) const
+            constexpr bitfield<N> operator<<(size_t shift) const
                 { return { value_ << shift }; }
-            bitfield<N> operator>>(size_t shift) const
+            constexpr bitfield<N> operator>>(size_t shift) const
                 { return { value_ >> shift }; }
-            bitfield<N>& operator<<=(size_t shift)
+            constexpr bitfield<N>& operator<<=(size_t shift)
                 { value_ <<= shift; return *this; }
-            bitfield<N>& operator>>=(size_t shift)
+            constexpr bitfield<N>& operator>>=(size_t shift)
                 { value_ >>= shift; return *this; }
 
-            bool test(index_t idx) const
+            constexpr bool test(index_t idx) const
                 { return value_ & cbu::nth_bit(idx); }
 
-            bool all() const
-                { return value_ == cbu::all_bits(); }
-            bool any() const
-                { return value_ != 0; }
-            bool none() const
-                { return value_ == 0; }
+            constexpr bool all() const { return value_ == cbu::all_bits(); }
+            constexpr bool any() const { return value_ != 0; }
+            constexpr bool none() const { return value_ == 0; }
 
-            // size_t count() const
-            //    { /* TODO */ }
+            // size_t count() const { /* TODO */ }
 
-            constexpr size_t size() const
-                { return N; }
+            constexpr size_t size() const { return N; }
 
-            bitfield<N>& reset()
+            constexpr bitfield<N>& reset()
                 { value_ = 0; return *this; }
-            bitfield<N>& reset(index_t idx)
+            constexpr bitfield<N>& reset(index_t idx)
                 { value_ &= ~cbu::nth_bit(idx); return *this; }
 
-            bitfield<N>& flip()
+            constexpr bitfield<N>& flip()
                 { value_ = ~value_; return *this; }
-            bitfield<N>& flip(index_t idx)
+            constexpr bitfield<N>& flip(index_t idx)
                 { value_[idx].flip(); return *this; }
 
         private:
@@ -142,32 +137,32 @@ namespace ucle {
             using reference = value_type&;
             using const_reference = const value_type&;
 
-            small_vector() {}
-            small_vector(size_t size) : tsize_(size) {}
-            small_vector(const small_vector<T, N>& other)
+            constexpr small_vector() {}
+            constexpr small_vector(size_t size) : tsize_(size) {}
+            constexpr small_vector(const small_vector<T, N>& other)
                 : tsize_(other.tsize_), data_(other.data_) {}
-            small_vector(small_vector<T, N>&& other)
+            constexpr small_vector(small_vector<T, N>&& other)
                 : tsize_(other.tsize_), data_(std::move(other.data_)) {}
 
-            small_vector<T, N>& operator=(const small_vector<T, N>& other)
+            constexpr small_vector<T, N>& operator=(const small_vector<T, N>& other)
                 { if (*this != other) { tsize_ = other.tsize_; data_ = other.data_; } return *this; }
-            small_vector<T, N>& operator=(small_vector<T, N>&& other)
+            constexpr small_vector<T, N>& operator=(small_vector<T, N>&& other)
                 { if (*this != other) { tsize_ = other.tsize_; data_ = std::move(other.data_); } return *this; }
 
-            reference at(index_t idx) { return data_[idx]; }
-            const_reference at(index_t idx) const { return data_[idx]; }
+            constexpr reference at(index_t idx) { return data_[idx]; }
+            constexpr const_reference at(index_t idx) const { return data_[idx]; }
 
-            reference operator[](index_t idx) { return data_[idx]; }
-            const_reference operator[](index_t idx) const { return data_[idx]; }
+            constexpr reference operator[](index_t idx) { return data_[idx]; }
+            constexpr const_reference operator[](index_t idx) const { return data_[idx]; }
 
-            bool empty() const { return tsize_ == 0; }
-            size_t size() const { return tsize_; }
-            size_t capacity() const { return N; }
+            constexpr bool empty() const { return tsize_ == 0; }
+            constexpr size_t size() const { return tsize_; }
+            constexpr size_t capacity() const { return N; }
 
-            void clear() { tsize_ = 0; }
-            void resize(size_t size) { tsize_ = size; }
-            void push_back(T value) { data_[tsize_++] = value; }
-            void pop_back() { --tsize_; }
+            constexpr void clear() { tsize_ = 0; }
+            constexpr void resize(size_t size) { tsize_ = size; }
+            constexpr void push_back(T value) { data_[tsize_++] = value; }
+            constexpr void pop_back() { --tsize_; }
 
             // TODO: Implement iterators
 
