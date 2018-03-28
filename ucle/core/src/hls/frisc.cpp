@@ -1,19 +1,10 @@
 //******************************************************************************
 //  FRISC HLS v0.1.0
 //
-//  Desired features in productin version:
-//      - register<size> type
-//      - signed_cast -> exists, std::make_unsigned, std::make_signed
-//      - fixed-size types (int16, int32...) -> exists in C++11
-//      - uniform HLS interface
-//      - header file
-//      - OO inheritance
-//      - binary util library
+//  Desired features in product version:
 //      - info and status queries
 //      - policy-based execution?
-//      - SR-flags class - mapping between flags and status register bits -> modified std::bitset?
 //      - memory class - test overflows and sigsegvs
-//      - exceptions/expecteds
 //******************************************************************************
 
 #include <cstdio>
