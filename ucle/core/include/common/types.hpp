@@ -59,8 +59,6 @@ namespace ucle {
         bool contains(const address_range& other) const { return low_addr <= other.low_addr && other.high_addr <= high_addr; }
     };
 
-    struct arith_flags { bool C, V, N, Z; };  // TODO: Redesign (& rename)
-
     struct bitrange {
         index_t low, high;
 

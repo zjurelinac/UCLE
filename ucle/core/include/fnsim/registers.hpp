@@ -17,8 +17,10 @@ namespace ucle::fnsim {
             constexpr reg(const reg<N>& other) : value_(other.value_) {}
             constexpr reg(reg<N>&& other) : value_(other.value_) {}
 
+            constexpr reg<N>& operator=(value_type value)
+                { value_ = value; return *this; }
             constexpr reg<N>& operator=(const reg<N>& other)
-                {value_ = other.value_; return *this; }
+                { value_ = other.value_; return *this; }
             constexpr reg<N>& operator=(reg<N>&& other)
                 { value_ = other.value_; return *this; }
 
@@ -65,7 +67,7 @@ namespace ucle::fnsim {
             constexpr operator value_type() const { return value_type(value_); }
 
             constexpr value_type operator[](const bitrange br) const
-                { return (value_ >> br.shift()) & br.mask(); }
+                { return (value_type(value_) >> br.shift()) & br.mask(); }
 
             constexpr flag_reference operator[](index_t i)
                 { return value_[i]; }

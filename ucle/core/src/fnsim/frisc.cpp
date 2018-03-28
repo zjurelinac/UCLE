@@ -21,91 +21,98 @@ ucle::status ucle::fnsim::frisc_simulator::execute_move_(word_t, bool fn, const 
 
 ucle::status ucle::fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, const reg<32>& IR)
 {
-    auto dest = &regs_.R[IR[{25, 23}]];
-    auto src1 = regs_.R[IR[{22, 20}]];
+    auto& dest = regs_.R[IR[{25, 23}]];
+    auto src1 = word_t(regs_.R[IR[{22, 20}]]);
     auto src2 = fn ? unop::sign_extend(IR[{19, 0}], 20) : word_t(regs_.R[IR[{19, 17}]]);
+    frisc_arith_flags old_flags = static_cast<frisc_arith_flags::value_type>(regs_.SR[{3, 0}]);
+    frisc_arith_flags flags;
 
     switch (opcode) {
-        case 0b00001:
+        case 0b00001: {
             std::cout << "OR" << "\n";
-            // auto [res, new_flags] = binop::op_or(src1, src2, old_flags);
-            // dest = res;
-            // flags = new_flags;
+            auto [res, new_flags] = binop::op_or(src1, src2, old_flags);
+            dest = res;
+            flags = new_flags;
             break;
-        case 0b00010:
+        } case 0b00010: {
             std::cout << "AND" << "\n";
-            // auto [res, new_flags] = binop::op_and(src1, src2, old_flags);
-            // dest = res;
-            // flags = new_flags;
+            auto [res, new_flags] = binop::op_and(src1, src2, old_flags);
+            dest = res;
+            flags = new_flags;
             break;
-        case 0b00011:
+        } case 0b00011: {
             std::cout << "XOR" << "\n";
-            // auto [res, new_flags] = binop::op_xor(src1, src2, old_flags);
-            // dest = res;
-            // flags = new_flags;
+            auto [res, new_flags] = binop::op_xor(src1, src2, old_flags);
+            dest = res;
+            flags = new_flags;
             break;
-        case 0b00100:
+        } case 0b00100: {
             std::cout << "ADD" << "\n";
-            // auto [res, new_flags] = binop::op_add(src1, src2, old_flags);
-            // dest = res;
-            // flags = new_flags;
+            auto [res, new_flags] = binop::op_add(src1, src2, old_flags);
+            dest = res;
+            flags = new_flags;
             break;
-        case 0b00101:
+        } case 0b00101: {
             std::cout << "ADC" << "\n";
-            // auto [res, new_flags] = binop::op_adc(src1, src2, old_flags);
-            // dest = res;
-            // flags = new_flags;
+            auto [res, new_flags] = binop::op_adc(src1, src2, old_flags);
+            dest = res;
+            flags = new_flags;
             break;
-        case 0b00110:
+        } case 0b00110: {
             std::cout << "SUB" << "\n";
-            // auto [res, new_flags] = binop::op_sub(src1, src2, old_flags);
-            // dest = res;
-            // flags = new_flags;
+            auto [res, new_flags] = binop::op_sub(src1, src2, old_flags);
+            dest = res;
+            flags = new_flags;
             break;
-        case 0b00111:
+        } case 0b00111: {
             std::cout << "SBC" << "\n";
-            // auto [res, new_flags] = binop::op_sbc(src1, src2, old_flags);
-            // dest = res;
-            // flags = new_flags;
+            auto [res, new_flags] = binop::op_sbc(src1, src2, old_flags);
+            dest = res;
+            flags = new_flags;
             break;
-        case 0b01000:
+        } case 0b01000: {
             std::cout << "ROTL" << "\n";
-            // auto [res, new_flags] = binop::op_rtl(src1, src2, old_flags);
-            // dest = res;
-            // flags = new_flags;
+            auto [res, new_flags] = binop::op_rtl(src1, src2, old_flags);
+            dest = res;
+            flags = new_flags;
             break;
-        case 0b01001:
+        } case 0b01001: {
             std::cout << "ROTR" << "\n";
-            // auto [res, new_flags] = binop::op_rtr(src1, src2, old_flags);
-            // dest = res;
-            // flags = new_flags;
+            auto [res, new_flags] = binop::op_rtr(src1, src2, old_flags);
+            dest = res;
+            flags = new_flags;
             break;
-        case 0b01010:
+        } case 0b01010: {
             std::cout << "SHL" << "\n";
-            // auto [res, new_flags] = binop::op_shl(src1, src2, old_flags);
-            // dest = res;
-            // flags = new_flags;
+            auto [res, new_flags] = binop::op_shl(src1, src2, old_flags);
+            dest = res;
+            flags = new_flags;
             break;
-        case 0b01011:
+        } case 0b01011: {
             std::cout << "SHR" << "\n";
-            // auto [res, new_flags] = binop::op_shr(src1, src2, old_flags);
-            // dest = res;
-            // flags = new_flags;
+            auto [res, new_flags] = binop::op_shr(src1, src2, old_flags);
+            dest = res;
+            flags = new_flags;
             break;
-        case 0b01100:
+        } case 0b01100: {
             std::cout << "ASHR" << "\n";
-            // auto [res, new_flags] = binop::op_asr(src1, src2, old_flags);
-            // dest = res;
-            // flags = new_flags;
+            auto [res, new_flags] = binop::op_asr(src1, src2, old_flags);
+            dest = res;
+            flags = new_flags;
             break;
-        case 0b01101:
+        } case 0b01101: {
             std::cout << "CMP" << "\n";
-            // auto [_, new_flags] = binop::op_asr(src1, src2, old_flags);
-            // flags = new_flags;
+            auto [_, new_flags] = binop::op_sub(src1, src2, old_flags);
+            flags = new_flags;
             break;
-        default:
+        } default:
             return status::invalid_instruction;
     }
+
+    regs_.SR.C = flags.C;
+    regs_.SR.V = flags.V;
+    regs_.SR.N = flags.N;
+    regs_.SR.Z = flags.Z;
 
     return status::ok;
 }

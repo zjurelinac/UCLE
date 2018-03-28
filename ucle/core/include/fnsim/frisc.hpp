@@ -25,6 +25,19 @@ namespace ucle::fnsim {
         flag_reference N    = operator[](0);
     };
 
+    struct frisc_arith_flags : public bitfield<4> {
+        using parent = bitfield<4>;
+        using parent::bitfield;
+
+        parent::reference Z = operator[](3);
+        parent::reference V = operator[](2);
+        parent::reference C = operator[](1);
+        parent::reference N = operator[](0);
+
+        constexpr frisc_arith_flags(bool c, bool v, bool n, bool z)
+            { C = c; V = v; N = n; Z = z; }
+    };
+
     struct frisc_register_file : public register_file {
         std::array<reg<32>, 8> R;
         reg<32>& SP = R[7];
@@ -39,12 +52,10 @@ namespace ucle::fnsim {
         }
     };
 
-    class frisc_simulator: public functional_simulator_impl<
-            byte_order::LE, address_space<mapped_device_ptr<byte_order::LE>>, memory
-    > {
+    class frisc_simulator : public functional_simulator_impl<byte_order::LE, address_space<mapped_device_ptr<byte_order::LE>>, memory> {
         using cbu = util::const_bit_util<word_t>;
         using unop = util::unop<word_t>;
-        using binop = util::binop<word_t>;
+        using binop = util::binop<word_t, frisc_arith_flags>;
         using parent = functional_simulator_impl<byte_order::LE, address_space<mapped_device_ptr>, memory>;
 
         public:

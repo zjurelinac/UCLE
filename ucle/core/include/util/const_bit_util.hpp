@@ -11,7 +11,7 @@ namespace ucle::util {
     struct const_bit_util {
         static constexpr auto bitsize() { return 8 * sizeof(T); }
 
-        static constexpr auto highest_bit() { return static_cast<T>(1) << bitsize() - 1; }
+        static constexpr auto highest_bit() { return static_cast<T>(1) << (bitsize() - 1); }
         static constexpr auto nth_bit(size_t n) { return static_cast<T>(1) << n; }
         static constexpr auto all_bits() { return ~static_cast<T>(0); }
         static constexpr auto all_but_highest_bit() { return ~highest_bit(); }

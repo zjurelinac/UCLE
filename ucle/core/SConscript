@@ -2,19 +2,19 @@ libraries 		= []
 library_paths 	= ''
 cpp_defines 	= {}
 cpp_paths       = ['include']
-cpp_flags 		= ['-Wall', '-Wextra',
-                   '-pedantic-errors',
-                   '-Wcast-align', '-Wcast-qual', '-Wfloat-equal', '-Wpointer-arith',
-                   '-Wctor-dtor-privacy', '-Wredundant-decls',
-                   '-Wformat=2', '-Wmissing-format-attribute',
-                   '-Wlogical-op', '-Wshadow', '-Wuseless-cast', # '-Wconversion', '-Wsign-conversion',
-                   '-Wstrict-overflow=5', '-Wswitch-default', '-Winline', '-Wimplicit-fallthrough=5',
-                   '-Wmissing-declarations', '-Wmissing-field-initializers', # '-Wmissing-include-dirs',
-                   '-Wsuggest-final-types', '-Wsuggest-final-methods', '-Wsuggest-override',
-                   '-Wundef', '-Wunused', '-Wuninitialized',
-                   '-Wnull-dereference', '-Wpacked', # '-Wpadded',
-                   '-Wzero-as-null-pointer-constant', '-Wmisleading-indentation',
-                   '-Wdisabled-optimization']
+cpp_flags 		= ['-Wall', '-Wextra' ]
+                #    '-pedantic-errors',
+                #    '-Wcast-align', '-Wcast-qual', '-Wfloat-equal', '-Wpointer-arith',
+                #    '-Wctor-dtor-privacy', '-Wredundant-decls',
+                #    '-Wformat=2', '-Wmissing-format-attribute',
+                #    '-Wlogical-op', '-Wshadow', '-Wuseless-cast', # '-Wconversion', '-Wsign-conversion',
+                #    '-Wstrict-overflow=5', '-Wswitch-default', '-Winline', '-Wimplicit-fallthrough=5',
+                #    '-Wmissing-declarations', '-Wmissing-field-initializers', # '-Wmissing-include-dirs',
+                #    '-Wsuggest-final-types', '-Wsuggest-final-methods', '-Wsuggest-override',
+                #    '-Wundef', '-Wunused', '-Wuninitialized',
+                #    '-Wnull-dereference', '-Wpacked', # '-Wpadded',
+                #    '-Wzero-as-null-pointer-constant', '-Wmisleading-indentation',
+                #    '-Wdisabled-optimization']
 cxx_flags 		= ['-std=c++17']
 
 common = Environment()
@@ -40,7 +40,4 @@ debug.VariantDir('debug/tests', 'tests', duplicate=0)
 
 debug.Program('debug/frisc-fnsim', ['debug/fnsim/frisc.cpp', 'debug/fnsim/fnsim.cpp'])
 
-debug.Program('debug/tests/common/structures_bitfield', ['debug/tests/common/test_structures_bitfield.cpp'])
-
-# debug.Program('../build/debug/core/functional-test', ['src/simulators/fnsim.cpp'])
-# debug.Program('frisc-hls', 'src/ls/frisc.cpp')
+# debug.Program('debug/tests/common/structures_bitfield', ['debug/tests/common/test_structures_bitfield.cpp'])
