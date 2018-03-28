@@ -76,7 +76,7 @@ namespace ucle::fnsim {
             constexpr value_type operator|=(value_type v) { return value_ |= v; }
             constexpr value_type operator^=(value_type v) { return value_ ^= v; }
 
-        protected:
+        private:
             bitfield<N> value_;
     };
 

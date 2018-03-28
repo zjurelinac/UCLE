@@ -186,8 +186,7 @@ namespace ucle::fnsim {
             bool is_breakpoint_(address_t location) const { return breakpts_.count(location) || tmp_breakpts_.count(location); }
             void clear_tmp_breakpoints_(address_t location) { tmp_breakpts_.erase(location); }
 
-            // Fields
-
+        private:
             simulator_state state_ = simulator_state::initialized;  /* Internal simulator state */
             std::set<address_t> breakpts_;                          /* User-defined breakpoints */
             std::set<address_t> tmp_breakpts_;                      /* Temporary internal breakpoints */

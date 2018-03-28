@@ -18,11 +18,11 @@ namespace ucle::fnsim {
     struct frisc_status_reg : public flags_reg<32> {
         using flags_reg<32>::operator=;
 
-        flag_reference GIE  = value_[4];
-        flag_reference Z    = value_[3];
-        flag_reference V    = value_[2];
-        flag_reference C    = value_[1];
-        flag_reference N    = value_[0];
+        flag_reference GIE  = operator[](4);
+        flag_reference Z    = operator[](3);
+        flag_reference V    = operator[](2);
+        flag_reference C    = operator[](1);
+        flag_reference N    = operator[](0);
     };
 
     struct frisc_register_file : public register_file {
@@ -40,18 +40,21 @@ namespace ucle::fnsim {
     };
 
     class frisc_simulator: public functional_simulator_impl<
-            byte_order::LE, frisc_register_file, address_space<mapped_device_ptr<byte_order::LE>>, memory
+            byte_order::LE, address_space<mapped_device_ptr<byte_order::LE>>, memory
     > {
-        using parent = functional_simulator_impl<byte_order::LE, frisc_register_file, address_space<mapped_device_ptr>, memory>;
-        using parent::functional_simulator_impl;
-
         using cbu = util::const_bit_util<word_t>;
         using unop = util::unop<word_t>;
         using binop = util::binop<word_t>;
+        using parent = functional_simulator_impl<byte_order::LE, address_space<mapped_device_ptr>, memory>;
+
+        public:
+            using parent::functional_simulator_impl;
 
         protected:
             virtual address_t get_program_counter_() const override { return regs_.PC; };
             virtual void set_program_counter_(address_t location) override { regs_.PC = location; }
+
+            virtual void clear_regs_() override { regs_.clear(); }
 
             virtual status execute_single_() override;
 
@@ -62,6 +65,8 @@ namespace ucle::fnsim {
             status execute_ctrl_(word_t opcode, bool fn, const reg<32>& IR);
 
             constexpr bool eval_cond_(word_t cond) const;
+
+            frisc_register_file            regs_;          /* Internal register file keeping the state of all registers and flags */
     };
 
 }

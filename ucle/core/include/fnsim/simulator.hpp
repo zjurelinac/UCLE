@@ -24,7 +24,6 @@ namespace ucle::fnsim {
     };
 
     template <byte_order endianness,                // Processor's endianness
-              typename RegisterFile,                // Processor's register file type
               typename AddressSpace,                // Processor's address space type
         template <byte_order>
               typename Memory,                      // Processor's internal memory
@@ -40,7 +39,6 @@ namespace ucle::fnsim {
             };
 
         public:
-            using regfile_type = RegisterFile;
             using address_space_type = AddressSpace;
             using memory_type = Memory<endianness>;
             using config_type = Config;
@@ -59,10 +57,9 @@ namespace ucle::fnsim {
             virtual ~functional_simulator_impl() override { remove_device_(mem_id_); }
 
         protected:
-
             virtual void reset_() override
             {
-                regs_.clear();
+                clear_regs_();
                 for (auto [_, info] : devs_)
                     info.ptr->reset();
             }
@@ -109,15 +106,15 @@ namespace ucle::fnsim {
                 }
             }
 
+            virtual void clear_regs_() = 0;
+
             template <typename T, typename = meta::is_storage_t<T>>
             T read_(address_t location) const { return mem_asp_.template read<T>(location & util::const_bit_util<T>::address_round_mask()); }
             template <typename T, typename = meta::is_storage_t<T>>
             void write_(address_t location, T value) { mem_asp_.template write<T>(location & util::const_bit_util<T>::address_round_mask(), value); }
 
-            // Fields
-
+        private:
             config_type             cfg_;           /* Simulator config parameters */
-            regfile_type            regs_;          /* Internal register file keeping the state of all registers and flags */
             address_space_type      mem_asp_;       /* Memory address space (for memory and optionally other devices) */
             address_space_type      dev_asp_;       /* Device address space (if devices are memory-mapped, then it's unused) */
             mapped_device_ptr       mem_ptr_;       /* Internal memory device pointer */

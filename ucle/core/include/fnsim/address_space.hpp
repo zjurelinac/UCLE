@@ -63,6 +63,7 @@ namespace ucle::fnsim {
                     throw invalid_memory_access("No memory/device mapped to this address!");
             }
 
+        private:
             address_range total_range_;
             std::vector<mapped_device_info> devices_;
     };
