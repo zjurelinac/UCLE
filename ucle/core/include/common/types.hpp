@@ -1,5 +1,5 @@
-#ifndef _CORE_COMMON_TYPES_HPP_
-#define _CORE_COMMON_TYPES_HPP_
+#ifndef _UCLE_CORE_COMMON_TYPES_HPP_
+#define _UCLE_CORE_COMMON_TYPES_HPP_
 
 #include <bitset>
 #include <cstdint>
@@ -77,4 +77,4 @@ namespace ucle {
 }
 
 
-#endif  /* _CORE_COMMON_TYPES_HPP_ */
+#endif  /* _UCLE_CORE_COMMON_TYPES_HPP_ */

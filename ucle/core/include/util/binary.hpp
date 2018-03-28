@@ -1,5 +1,5 @@
-#ifndef _CORE_UTIL_BINARY_HPP_
-#define _CORE_UTIL_BINARY_HPP_
+#ifndef _UCLE_CORE_UTIL_BINARY_HPP_
+#define _UCLE_CORE_UTIL_BINARY_HPP_
 
 #include <common/types.hpp>
 
@@ -153,4 +153,4 @@ namespace ucle::util {
     };
 }
 
-#endif  // _CORE_UTIL_BINARY_HPP_
+#endif  // _UCLE_CORE_UTIL_BINARY_HPP_

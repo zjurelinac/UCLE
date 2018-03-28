@@ -1,5 +1,5 @@
-#ifndef _CORE_COMMON_META_HPP_
-#define _CORE_COMMON_META_HPP_
+#ifndef _UCLE_CORE_COMMON_META_HPP_
+#define _UCLE_CORE_COMMON_META_HPP_
 
 #include <common/types.hpp>
 
@@ -30,4 +30,4 @@ namespace ucle::meta {
 
 }
 
-#endif  /* _CORE_COMMON_META_HPP_ */
+#endif  /* _UCLE_CORE_COMMON_META_HPP_ */

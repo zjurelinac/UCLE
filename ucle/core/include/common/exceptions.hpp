@@ -1,5 +1,5 @@
-#ifndef _CORE_COMMON_EXCEPTIONS_HPP_
-#define _CORE_COMMON_EXCEPTIONS_HPP_
+#ifndef _UCLE_CORE_COMMON_EXCEPTIONS_HPP_
+#define _UCLE_CORE_COMMON_EXCEPTIONS_HPP_
 
 #include <exception>
 #include <string>
@@ -19,4 +19,4 @@ namespace ucle {
     class invalid_identifier : public base_exception { using base_exception::base_exception; };
 }
 
-#endif /* _CORE_COMMON_EXCEPTIONS_HPP_ */
+#endif /* _UCLE_CORE_COMMON_EXCEPTIONS_HPP_ */
