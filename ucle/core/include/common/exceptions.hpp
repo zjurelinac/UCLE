@@ -17,6 +17,6 @@ namespace ucle {
     class invalid_address_range : public base_exception { using base_exception::base_exception; };
     class invalid_memory_access : public base_exception { using base_exception::base_exception; };
     class invalid_identifier : public base_exception { using base_exception::base_exception; };
-};
+}
 
 #endif /* _CORE_COMMON_EXCEPTIONS_HPP_ */

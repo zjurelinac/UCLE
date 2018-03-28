@@ -2,36 +2,20 @@ libraries 		= []
 library_paths 	= ''
 cpp_defines 	= {}
 cpp_paths       = ['include']
-cpp_flags 		= ['-Wall', '-Wextra']
+cpp_flags 		= ['-Wall', '-Wextra',
+                   '-pedantic-errors',
+                   '-Wcast-align', '-Wcast-qual', '-Wfloat-equal', '-Wpointer-arith',
+                   '-Wctor-dtor-privacy', '-Wredundant-decls',
+                   '-Wformat=2', '-Wmissing-format-attribute',
+                   '-Wlogical-op', '-Wshadow', '-Wconversion', '-Wsign-conversion', '-Wuseless-cast',
+                   '-Wstrict-overflow=5', '-Wswitch-default', '-Winline', '-Wimplicit-fallthrough=5',
+                   '-Wmissing-declarations', '-Wmissing-include-dirs', '-Wmissing-field-initializers',
+                   '-Wsuggest-final-types', '-Wsuggest-final-methods', '-Wsuggest-override',
+                   '-Wundef', '-Wunused', '-Wuninitialized',
+                   '-Wpacked', '-Wpadded', '-Wnull-dereference',
+                   '-Wzero-as-null-pointer-constant', '-Wmisleading-indentation',
+                   '-Wdisabled-optimization']
 cxx_flags 		= ['-std=c++17']
-
-# Potential warning flags
-#=========================
-# -pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy
-# -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations
-# -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual
-# -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel
-# -Wstrict-overflow=5 -Wswitch-default -Wundef -Werror -Wno-unused
-# -Weffc++ -pedantic  \
-# -pedantic-errors -Wextra -Waggregate-return -Wcast-align \
-# -Wcast-qual -Wconversion \
-# -Wdisabled-optimization \
-# -Werror -Wfloat-equal -Wformat=2 \
-# -Wformat-nonliteral -Wformat-security  \
-# -Wformat-y2k \
-# -Wimplicit  -Wimport  -Winit-self  -Winline \
-# -Wlong-long \
-# -Wmissing-field-initializers -Wmissing-format-attribute   \
-# -Wmissing-include-dirs -Wmissing-noreturn \
-# -Wpacked  -Wpadded -Wpointer-arith \
-# -Wredundant-decls \
-# -Wshadow -Wstack-protector \
-# -Wstrict-aliasing=2 -Wswitch-default \
-# -Wswitch-enum \
-# -Wunreachable-code -Wunused \
-# -Wunused-parameter \
-# -Wvariadic-macros \
-# -Wwrite-strings
 
 common = Environment()
 
