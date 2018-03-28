@@ -132,7 +132,7 @@ ucle::status ucle::fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, 
             break;
         case 0b10011:
             std::cout << "STOREB" << "\n";
-            write_<byte_t>(addr, reg);  // TODO: get_byte?
+            write_<byte_t>(addr, static_cast<byte_t>(reg));
             break;
         case 0b10100:
             std::cout << "LOADH" << "\n";
@@ -140,7 +140,7 @@ ucle::status ucle::fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, 
             break;
         case 0b10101:
             std::cout << "STOREH" << "\n";
-            write_<half_t>(addr, reg);  // TODO: get_half?
+            write_<half_t>(addr, static_cast<half_t>(reg));
             break;
         case 0b10110:
             std::cout << "LOAD" << "\n";
@@ -150,6 +150,8 @@ ucle::status ucle::fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, 
             std::cout << "STORE" << "\n";
             write_<word_t>(addr, reg);
             break;
+        default:
+            return status::invalid_instruction;
     }
 
     return status::ok;

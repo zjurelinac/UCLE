@@ -167,7 +167,7 @@ namespace ucle {
             // TODO: Implement iterators
 
         private:
-            int tsize_ = 0;
+            size_t tsize_ = 0;
             std::array<T, N> data_ = {0};
     };
 

@@ -100,7 +100,7 @@ ucle::status ucle::fnsim::functional_simulator::load_pfile(std::string filename,
 
         small_byte_vector bytes;
         while (iss >> byte)
-            bytes.push_back(byte);
+            bytes.push_back(static_cast<byte_t>(byte));
 
         set_memory_contents(address, bytes);
     }
