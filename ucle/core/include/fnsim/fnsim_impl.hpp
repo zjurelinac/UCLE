@@ -59,7 +59,7 @@ namespace ucle::fnsim {
         protected:
             virtual void reset_() override
             {
-                clear_regs_();
+                clear_internals_();
                 for (auto [_, info] : devs_)
                     info.ptr->reset();
             }
@@ -106,7 +106,7 @@ namespace ucle::fnsim {
                 }
             }
 
-            virtual void clear_regs_() = 0;
+            virtual void clear_internals_() = 0;
 
             template <typename T, typename = meta::is_storage_t<T>>
             T read_(address_t location) const { return mem_asp_.template read<T>(location & util::const_bit_util<T>::address_round_mask()); }
