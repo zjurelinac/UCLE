@@ -117,8 +117,8 @@ namespace ucle::fnsim {
             using memory_block_device<endianness>::memory_block_device;
             using memory_block_device<endianness>::operator=;
 
-            void work() final {}
-            void status() final {}
+            void work() override {}
+            void status() override {}
     };
 
 

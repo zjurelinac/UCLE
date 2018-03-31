@@ -28,19 +28,6 @@ namespace ucle {
     using identifier_t = uint32_t;
     using priority_t = uint32_t;
 
-    enum class status {
-        ok,
-        invalid_state,
-        invalid_address_range,
-        invalid_identifier,
-        invalid_instruction,
-        runtime_exception,
-        filesystem_error
-    };
-
-    constexpr bool is_success(status stat) { return stat == status::ok; }
-    constexpr bool is_error(status stat) { return stat != status::ok; }
-
     struct address_range {
         address_t low_addr, high_addr;
 

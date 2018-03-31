@@ -22,17 +22,17 @@ namespace ucle::fnsim {
 
             // Basic simulation functionality
 
-            status start(address_t start_location = 0);
-            status run(address_t start_location = 0);
-            status cont();
-            status step();
-            status until(address_t location);
-            status reset();
-            status quit();
+            status start(address_t start_location = 0) noexcept;
+            status run(address_t start_location = 0) noexcept;
+            status cont() noexcept;
+            status step() noexcept;
+            status until(address_t location) noexcept;
+            status reset() noexcept;
+            status quit() noexcept;
 
             // Program loading
 
-            status load_pfile(std::string filename, address_t start_location = 0);   // TODO: Start location? What if code not PIC?
+            status load_pfile(std::string filename, address_t start_location = 0) noexcept;   // TODO: Start location? What if code not PIC?
 
             // Memory
             auto get_memory_contents(address_t location, size_t amount)
@@ -90,7 +90,7 @@ namespace ucle::fnsim {
 
             // Devices
 
-            std::optional<identifier_t> add_device(device_ptr dev_ptr, device_config cfg)
+            std::optional<identifier_t> add_device(device_ptr dev_ptr, device_config cfg) noexcept
             {
                 try {
                     return fnsim_->add_device(dev_ptr, cfg);
@@ -99,7 +99,7 @@ namespace ucle::fnsim {
                 }
             }
 
-            status remove_device(identifier_t dev_id)
+            status remove_device(identifier_t dev_id) noexcept
             {
                 try {
                     fnsim_->remove_device(dev_id);
@@ -121,17 +121,21 @@ namespace ucle::fnsim {
 
             void step_()
             {
-                auto status = fnsim_->execute_single();
+                try {
+                    auto status = fnsim_->execute_single();
 
-                if (is_error(status)) {
-                    fnsim_->set_state(simulator_state::exception);
-                } else {
-                    auto pc = fnsim_->get_program_counter();
+                    if (is_error(status)) {
+                        fnsim_->set_state(simulator_state::exception);
+                    } else {
+                        auto pc = fnsim_->get_program_counter();
 
-                    if (is_breakpoint_(pc)) {
-                        fnsim_->set_state(simulator_state::stopped);
-                        clear_tmp_breakpoints_(pc);
+                        if (is_breakpoint_(pc)) {
+                            fnsim_->set_state(simulator_state::stopped);
+                            clear_tmp_breakpoints_(pc);
+                        }
                     }
+                } catch (std::exception& e) {
+                    fnsim_->set_state(simulator_state::exception);
                 }
             }
 
@@ -144,10 +148,10 @@ namespace ucle::fnsim {
             bool is_breakpoint_(address_t location) const { return breakpts_.count(location) || tmp_breakpts_.count(location); }
             void clear_tmp_breakpoints_(address_t location) { tmp_breakpts_.erase(location); }
 
-            functional_simulator_ptr fnsim_;
-            std::set<address_t> breakpts_;
-            std::set<address_t> tmp_breakpts_;
-            std::set<address_t> watches_;
+            functional_simulator_ptr    fnsim_;
+            std::set<address_t>         breakpts_;
+            std::set<address_t>         tmp_breakpts_;
+            std::set<address_t>         watches_;
             // TODO: Annotations (ASM & C source lines)
             // TODO: Call frame info
     };

@@ -14,6 +14,20 @@ namespace ucle::fnsim {
 
     enum class simulator_state { initialized, loaded, running, stopped, exception, terminated };
 
+    enum class status {
+        ok,
+        invalid_state,
+        invalid_address_range,
+        invalid_identifier,
+        invalid_instruction,
+        invalid_program,
+        runtime_exception,
+        filesystem_error
+    };
+
+    constexpr bool is_success(status stat) { return stat == status::ok; }
+    constexpr bool is_error(status stat) { return stat != status::ok; }
+
     class device {
         public:
             virtual ~device() = default;

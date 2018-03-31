@@ -19,15 +19,15 @@ namespace ucle {
             class reference {
                 public:
                     reference() = delete;
-                    constexpr reference(value_type& val, index_t idx) : val_(val), idx_(idx) {}
-                    constexpr reference(const reference& other) : val_(other.val_), idx_(other.idx_) {}
-                    constexpr reference(reference&& other) : val_(other.val_), idx_(other.idx_) {}
+                    constexpr reference(value_type& val, index_t idx) noexcept : val_(val), idx_(idx) {}
+                    constexpr reference(const reference& other) noexcept : val_(other.val_), idx_(other.idx_) {}
+                    constexpr reference(reference&& other) noexcept : val_(other.val_), idx_(other.idx_) {}
 
-                    reference& operator=(bool val)
+                    reference& operator=(bool val) noexcept
                         { set_(val); return *this; }
-                    reference& operator=(const reference& ref)
+                    reference& operator=(const reference& ref) noexcept
                         { set_(ref.get_()); return *this; }
-                    reference& operator=(reference&& ref)
+                    reference& operator=(reference&& ref) noexcept
                         { set_(ref.get_()); return *this; }
 
                     operator bool() const { return get_() != 0; }
@@ -52,16 +52,16 @@ namespace ucle {
                     index_t idx_;
             };
 
-            constexpr bitfield() {}
-            constexpr bitfield(value_type value) : value_(value) {}
-            constexpr bitfield(const bitfield<N>& other) : value_(other.value_) {}
-            constexpr bitfield(bitfield<N>&& other) : value_(other.value_) {}
+            constexpr bitfield() noexcept {}
+            constexpr bitfield(value_type value) noexcept : value_(value) {}
+            constexpr bitfield(const bitfield<N>& other) noexcept : value_(other.value_) {}
+            constexpr bitfield(bitfield<N>&& other) noexcept : value_(other.value_) {}
 
-            constexpr bitfield<N>& operator=(value_type value)
+            constexpr bitfield<N>& operator=(value_type value) noexcept
                 { value_ = value; return *this; }
-            constexpr bitfield<N>& operator=(const bitfield<N>& other)
+            constexpr bitfield<N>& operator=(const bitfield<N>& other) noexcept
                 { value_ = other.value_; return *this; }
-            constexpr bitfield<N>& operator=(bitfield<N>&& other)
+            constexpr bitfield<N>& operator=(bitfield<N>&& other) noexcept
                 { value_ = other.value_; return *this; }
 
             constexpr explicit operator value_type() const { return value_; }
@@ -127,16 +127,16 @@ namespace ucle {
             using reference = value_type&;
             using const_reference = const value_type&;
 
-            constexpr small_vector() {}
-            constexpr small_vector(size_t size) : tsize_(size) {}
-            constexpr small_vector(const small_vector<T, N>& other)
+            constexpr small_vector() noexcept {}
+            constexpr small_vector(size_t size) noexcept : tsize_(size) {}
+            constexpr small_vector(const small_vector<T, N>& other) noexcept
                 : tsize_(other.tsize_), data_(other.data_) {}
-            constexpr small_vector(small_vector<T, N>&& other)
+            constexpr small_vector(small_vector<T, N>&& other) noexcept
                 : tsize_(other.tsize_), data_(std::move(other.data_)) {}
 
-            constexpr small_vector<T, N>& operator=(const small_vector<T, N>& other)
+            constexpr small_vector<T, N>& operator=(const small_vector<T, N>& other) noexcept
                 { if (*this != other) { tsize_ = other.tsize_; data_ = other.data_; } return *this; }
-            constexpr small_vector<T, N>& operator=(small_vector<T, N>&& other)
+            constexpr small_vector<T, N>& operator=(small_vector<T, N>&& other) noexcept
                 { if (*this != other) { tsize_ = other.tsize_; data_ = std::move(other.data_); } return *this; }
 
             constexpr reference at(index_t idx) { return data_[idx]; }

@@ -76,7 +76,7 @@ namespace ucle::fnsim {
 
             constexpr bool eval_cond_(word_t cond) const;
 
-            frisc_register_file            regs_;
+            frisc_register_file regs_;
     };
 
 }

@@ -8,7 +8,7 @@
 #include <memory>
 
 
-ucle::status ucle::fnsim::frisc_simulator::execute_move_(word_t, bool fn, const reg<32>& IR)
+ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_move_(word_t, bool fn, const reg<32>& IR)
 {
     // std::cout << "MOVE" << "\n";
 
@@ -22,7 +22,7 @@ ucle::status ucle::fnsim::frisc_simulator::execute_move_(word_t, bool fn, const 
     return status::ok;
 }
 
-ucle::status ucle::fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, const reg<32>& IR)
+ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, const reg<32>& IR)
 {
     auto& dest = regs_.R[IR[{25, 23}]];
     auto src1 = word_t(regs_.R[IR[{22, 20}]]);
@@ -120,7 +120,7 @@ ucle::status ucle::fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, 
     return status::ok;
 }
 
-ucle::status ucle::fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, const reg<32>& IR)
+ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, const reg<32>& IR)
 {
     auto& reg = regs_.R[IR[{25, 23}]];
     auto addr = unop::sign_extend(IR[{19, 0}], 20) + (fn ? word_t(regs_.R[IR[{22, 20}]]) : 0);
@@ -167,7 +167,7 @@ ucle::status ucle::fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, 
     return status::ok;
 }
 
-ucle::status ucle::fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, const reg<32>& IR)
+ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, const reg<32>& IR)
 {
     if (!eval_cond_(IR[{25, 22}]))
         return status::ok;
@@ -234,7 +234,7 @@ constexpr bool ucle::fnsim::frisc_simulator::eval_cond_(word_t cond) const
     }
 }
 
-ucle::status ucle::fnsim::frisc_simulator::execute_single() {
+ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_single() {
     // std::cout << word_t(regs_.PC) << "\n";
 
     reg<32> IR = read_<word_t>(address_t(regs_.PC));
@@ -264,7 +264,6 @@ ucle::status ucle::fnsim::frisc_simulator::execute_single() {
 int main(int, char* argv[]) {
     ucle::fnsim::simulator_config cfg {0x1000};
     ucle::fnsim::functional_simulation sim(std::make_unique<ucle::fnsim::frisc_simulator>(cfg));
-    // sim.
-    // fs.load_pfile(argv[1]);
-    // fs.run();
+    sim.load_pfile(argv[1]);
+    sim.run();
 }
