@@ -56,25 +56,25 @@ namespace ucle::fnsim {
                 mem_id_ = add_device(std::dynamic_pointer_cast<mapped_device_type>(mem_ptr_), mem_cfg);
             }
 
-            virtual ~functional_simulator_impl() override { remove_device(mem_id_); }
+            ~functional_simulator_impl() override { remove_device(mem_id_); }
 
-            virtual void reset() override
+            void reset() override
             {
                 clear_internals_();
                 for (auto [_, info] : devs_)
                     info.ptr->reset();
             }
 
-            virtual byte_t get_byte(address_t location) const override
+            byte_t get_byte(address_t location) const override
             {
                 return read_<byte_t>(location);
             }
-            virtual void set_byte(address_t location, byte_t value) override
+            void set_byte(address_t location, byte_t value) override
             {
                 write_<byte_t>(location, value);
             }
 
-            virtual identifier_t add_device(device_ptr dev_ptr, device_config dev_cfg) override
+            identifier_t add_device(device_ptr dev_ptr, device_config dev_cfg) override
             {
                 device_info info = { next_dev_id_++, dev_ptr, device_mapping::NONE };
 
@@ -91,7 +91,7 @@ namespace ucle::fnsim {
 
                 return info.id;
             }
-            virtual void remove_device(identifier_t dev_id) override
+            void remove_device(identifier_t dev_id) override
             {
                 auto dev_it = devs_.find(dev_id);
                 if (dev_it == devs_.end())

@@ -61,12 +61,12 @@ namespace ucle::fnsim {
         public:
             using parent::functional_simulator_impl;
 
-            virtual address_t get_program_counter() const override { return regs_.PC; };
-            virtual void set_program_counter(address_t location) override { regs_.PC = location; }
-            virtual status execute_single() override;
+            address_t get_program_counter() const override { return regs_.PC; };
+            void set_program_counter(address_t location) override { regs_.PC = location; }
+            status execute_single() override;
 
         protected:
-            virtual void clear_internals_() override { regs_.clear(); }
+            void clear_internals_() override { regs_.clear(); }
 
         private:
             status execute_move_(word_t opcode, bool fn, const reg<32>& IR);

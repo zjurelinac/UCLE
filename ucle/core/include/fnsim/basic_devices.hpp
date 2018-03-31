@@ -89,10 +89,10 @@ namespace ucle::fnsim {
             ~memory_block_device() override = default;
 
 
-            virtual void reset() override { memset(data_.get(), 0, size_); }
+            void reset() override { memset(data_.get(), 0, size_); }
 
         protected:
-            virtual small_byte_vector read_bytes_(address_t location, size_t amount) const override
+            small_byte_vector read_bytes_(address_t location, size_t amount) const override
             {
                 small_byte_vector bytes(amount);
                 for (auto i = 0u; i < amount; ++i)
@@ -100,7 +100,7 @@ namespace ucle::fnsim {
                 return bytes;
             }
 
-            virtual void write_bytes_(address_t location, small_byte_vector& bytes) override
+            void write_bytes_(address_t location, small_byte_vector& bytes) override
             {
                 for (auto i = 0u; i < bytes.size(); ++i)
                     data_[location++] = bytes[i];
@@ -117,8 +117,8 @@ namespace ucle::fnsim {
             using memory_block_device<endianness>::memory_block_device;
             using memory_block_device<endianness>::operator=;
 
-            virtual void work() override {}
-            virtual void status() override {}
+            void work() final {}
+            void status() final {}
     };
 
 
