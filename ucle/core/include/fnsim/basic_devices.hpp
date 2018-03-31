@@ -112,7 +112,7 @@ namespace ucle::fnsim {
     };
 
     template<byte_order endianness = byte_order::little_endian, typename AddressType = address_t>
-    class memory : public memory_block_device<endianness, AddressType> {
+    class memory final : public memory_block_device<endianness, AddressType> {
         public:
             using memory_block_device<endianness>::memory_block_device;
             using memory_block_device<endianness>::operator=;
