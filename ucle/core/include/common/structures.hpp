@@ -23,26 +23,26 @@ namespace ucle {
                     constexpr reference(const reference& other) noexcept : val_(other.val_), idx_(other.idx_) {}
                     constexpr reference(reference&& other) noexcept : val_(other.val_), idx_(other.idx_) {}
 
-                    reference& operator=(bool val) noexcept
+                    constexpr reference& operator=(bool val) noexcept
                         { set_(val); return *this; }
-                    reference& operator=(const reference& ref) noexcept
+                    constexpr reference& operator=(const reference& ref) noexcept
                         { set_(ref.get_()); return *this; }
-                    reference& operator=(reference&& ref) noexcept
+                    constexpr reference& operator=(reference&& ref) noexcept
                         { set_(ref.get_()); return *this; }
 
-                    operator bool() const { return get_() != 0; }
-                    bool operator~() const { return !get_(); }
+                    constexpr operator bool() const { return get_(); }
+                    constexpr bool operator~() const { return !get_(); }
 
-                    reference& flip() { set_(!get_()); return *this; }
+                    constexpr reference& flip() { set_(!get_()); return *this; }
 
-                    friend constexpr bool operator==(const reference& lhs, const reference& rhs)
+                    friend constexpr bool operator==(const reference& lhs, const reference& rhs) noexcept
                         { return lhs.val_ == rhs.val_ && lhs.idx_ == rhs.idx_; }
-                    friend constexpr bool operator!=(const reference& lhs, const reference& rhs)
+                    friend constexpr bool operator!=(const reference& lhs, const reference& rhs) noexcept
                         { return lhs.val_ != rhs.val_ || lhs.idx_ != rhs.idx_; }
 
                 private:
                     constexpr bool get_() const { return val_ & cbu::nth_bit(idx_); }
-                    void set_(bool x)
+                    constexpr void set_(bool x)
                     {
                         if (x) val_ |=  cbu::nth_bit(idx_);
                         else   val_ &= ~cbu::nth_bit(idx_);
@@ -71,49 +71,56 @@ namespace ucle {
             constexpr reference operator[](index_t idx)
                 { return reference(value_, idx); }
 
-            constexpr bitfield<N>& operator&=(const bitfield<N>& other)
+            constexpr bitfield<N>& operator&=(const bitfield<N>& other) noexcept
                 { value_ &= other.value_; return *this; }
-            constexpr bitfield<N>& operator|=(const bitfield<N>& other)
+            constexpr bitfield<N>& operator|=(const bitfield<N>& other) noexcept
                 { value_ |= other.value_; return *this; }
-            constexpr bitfield<N>& operator^=(const bitfield<N>& other)
+            constexpr bitfield<N>& operator^=(const bitfield<N>& other) noexcept
                 { value_ ^= other.value_; return *this; }
             constexpr bitfield<N> operator~() const
                 { return { ~value_ }; }
 
-            constexpr bitfield<N> operator<<(size_t shift) const
+            constexpr bitfield<N> operator<<(size_t shift) const noexcept
                 { return { value_ << shift }; }
-            constexpr bitfield<N> operator>>(size_t shift) const
+            constexpr bitfield<N> operator>>(size_t shift) const noexcept
                 { return { value_ >> shift }; }
-            constexpr bitfield<N>& operator<<=(size_t shift)
+            constexpr bitfield<N>& operator<<=(size_t shift) noexcept
                 { value_ <<= shift; return *this; }
-            constexpr bitfield<N>& operator>>=(size_t shift)
+            constexpr bitfield<N>& operator>>=(size_t shift) noexcept
                 { value_ >>= shift; return *this; }
 
-            constexpr bool test(index_t idx) const
-                { return value_ & cbu::nth_bit(idx); }
+            // size_t count() const noexcept { /* TODO */ }
+            constexpr size_t size() const noexcept { return N; }
 
-            constexpr bool all() const { return value_ == cbu::all_bits(); }
-            constexpr bool any() const { return value_ != 0; }
-            constexpr bool none() const { return value_ == 0; }
+            constexpr bool test(index_t idx) const noexcept { return value_ & cbu::nth_bit(idx); }
 
-            // size_t count() const { /* TODO */ }
+            constexpr bool any() const noexcept { return value_ != 0; }
+            constexpr bool all() const noexcept { return value_ == cbu::all_bits(); }
+            constexpr bool none() const noexcept { return value_ == 0; }
 
-            constexpr size_t size() const { return N; }
+            constexpr bitfield<N>& set() noexcept
+                { value_ = -1; return *this; }
+            constexpr bitfield<N>& set (index_t idx, bool val = true)
+                { value_[idx] = val; return *this; }
 
-            constexpr bitfield<N>& reset()
+            constexpr bitfield<N>& reset() noexcept
                 { value_ = 0; return *this; }
             constexpr bitfield<N>& reset(index_t idx)
                 { value_ &= ~cbu::nth_bit(idx); return *this; }
 
-            constexpr bitfield<N>& flip()
+            constexpr bitfield<N>& flip() noexcept
                 { value_ = ~value_; return *this; }
             constexpr bitfield<N>& flip(index_t idx)
                 { value_[idx].flip(); return *this; }
 
-            friend constexpr bool operator==(const bitfield<N>& lhs, const bitfield<N>& rhs) { return lhs.value_ == rhs.value_; }
-            friend constexpr bool operator!=(const bitfield<N>& lhs, const bitfield<N>& rhs) { return lhs.value_ != rhs.value_; }
+            friend constexpr bool operator==(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ == rhs.value_; }
+            friend constexpr bool operator!=(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ != rhs.value_; }
 
-        private:
+            friend constexpr bitfield<N> operator&(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ & rhs.value_; }
+            friend constexpr bitfield<N> operator|(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ | rhs.value_; }
+            friend constexpr bitfield<N> operator^(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ ^ rhs.value_; }
+
+        public:
             value_type value_ = 0;
     };
 
