@@ -54,13 +54,11 @@ namespace ucle::fnsim {
                 auto size = sizeof(T);
                 small_byte_vector bytes(size);
 
-                for (auto i = 0u; i < size; ++i) {
+                for (auto i = 0u; i < size; ++i, value >>= 8) {
                     if constexpr (endianness == byte_order::LE)
                         bytes[i] = value & 0xFF;
                     else
                         bytes[size - i - 1] = value & 0xFF;
-
-                    value >>= 8;
                 }
 
                 write_bytes_(location, bytes);

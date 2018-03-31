@@ -14,7 +14,7 @@
 #include <sstream>
 #include <vector>
 
-ucle::status ucle::fnsim::functional_simulator::start(address_t start_location) {
+ucle::status ucle::fnsim::functional_simulation::start(address_t start_location) {
     if (fnsim_->get_state() != simulator_state::loaded)
         return status::invalid_state;
 
@@ -24,17 +24,17 @@ ucle::status ucle::fnsim::functional_simulator::start(address_t start_location) 
     return status::ok;
 }
 
-ucle::status ucle::fnsim::functional_simulator::run(address_t start_location) {
+ucle::status ucle::fnsim::functional_simulation::run(address_t start_location) {
     if (fnsim_->get_state() != simulator_state::loaded)
         return status::invalid_state;
 
     fnsim_->set_state(simulator_state::running);
-    fnsim_.set_program_counter(start_location);
+    fnsim_->set_program_counter(start_location);
 
     return run_();
 }
 
-ucle::status ucle::fnsim::functional_simulator::cont() {
+ucle::status ucle::fnsim::functional_simulation::cont() {
      if (fnsim_->get_state() != simulator_state::stopped)
         return status::invalid_state;
 
@@ -43,38 +43,38 @@ ucle::status ucle::fnsim::functional_simulator::cont() {
     return run_();
 }
 
-ucle::status ucle::fnsim::functional_simulator::step() {
+ucle::status ucle::fnsim::functional_simulation::step() {
     if (fnsim_->get_state() != simulator_state::stopped)
         return status::invalid_state;
 
     fnsim_->set_state(simulator_state::running);
     step_();
 
-    return state_ != simulator_state::exception ? status::ok : status::runtime_exception;
+    return fnsim_->get_state() != simulator_state::exception ? status::ok : status::runtime_exception;
 }
 
-ucle::status ucle::fnsim::functional_simulator::until(address_t location) {
-     if (state_ != simulator_state::stopped)
+ucle::status ucle::fnsim::functional_simulation::until(address_t location) {
+     if (fnsim_->get_state() != simulator_state::stopped)
         return status::invalid_state;
 
-    state_ = simulator_state::running;
+    fnsim_->set_state(simulator_state::running);
 
     tmp_breakpts_.insert(location);
     return run_();
 }
 
-ucle::status ucle::fnsim::functional_simulator::reset() {
-    reset_();
-    state_ = simulator_state::initialized;
+ucle::status ucle::fnsim::functional_simulation::reset() {
+    fnsim_->reset();
+    fnsim_->set_state(simulator_state::initialized);
     return status::ok;
 }
 
-ucle::status ucle::fnsim::functional_simulator::quit() {
-    state_ = simulator_state::terminated;
+ucle::status ucle::fnsim::functional_simulation::quit() {
+    fnsim_->set_state(simulator_state::terminated);
     return status::ok;
 }
 
-ucle::status ucle::fnsim::functional_simulator::load_pfile(std::string filename, address_t start_location) {
+ucle::status ucle::fnsim::functional_simulation::load_pfile(std::string filename, address_t start_location) {
     constexpr int pf_line_bound = 21;
 
     std::ifstream pfile(filename);
@@ -108,7 +108,7 @@ ucle::status ucle::fnsim::functional_simulator::load_pfile(std::string filename,
     }
 
     pfile.close();
-    state_ = simulator_state::loaded;
+    fnsim_->set_state(simulator_state::loaded);
 
     return status::ok;
 }

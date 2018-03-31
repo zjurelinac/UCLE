@@ -13,21 +13,21 @@
 
 namespace ucle::fnsim {
 
-    template <typename MappedDevicePointer>
+    template <typename MappedDeviceType>
     class address_space {
         public:
-            using mapped_device_type = typename MappedDevicePointer::element_type;
-            using mapped_device_ptr = MappedDevicePointer;
+            using mapped_device_type = MappedDeviceType;
+            using mapped_device_ptr = std::shared_ptr<mapped_device_type>;
             using mapped_device_info = std::pair<address_range, mapped_device_ptr>;
 
             address_space() = delete;
             address_space(address_range total_range) : total_range_(total_range) {}
 
-            address_space(const address_space<MappedDevicePointer>&) = delete;
-            address_space& operator=(const address_space<MappedDevicePointer>&) = delete;
+            address_space(const address_space<MappedDeviceType>&) = delete;
+            address_space& operator=(const address_space<MappedDeviceType>&) = delete;
 
-            address_space(address_space<MappedDevicePointer>&&) = default;
-            address_space& operator=(address_space<MappedDevicePointer>&&) = default;
+            address_space(address_space<MappedDeviceType>&&) = default;
+            address_space& operator=(address_space<MappedDeviceType>&&) = default;
 
             ~address_space() = default;
 

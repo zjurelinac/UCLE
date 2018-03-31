@@ -11,12 +11,10 @@
 namespace ucle::util {
 
     struct arith_flags : public bitfield<4> {
-        using parent = bitfield<4>;
-
-        parent::reference C = operator[](3);
-        parent::reference V = operator[](2);
-        parent::reference N = operator[](1);
-        parent::reference Z = operator[](0);
+        reference C = operator[](3);
+        reference V = operator[](2);
+        reference N = operator[](1);
+        reference Z = operator[](0);
 
         constexpr arith_flags(bool c, bool v, bool n, bool z)
             { C = c; V = v; N = n; Z = z; }

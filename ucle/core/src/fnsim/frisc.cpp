@@ -263,8 +263,7 @@ ucle::status ucle::fnsim::frisc_simulator::execute_single() {
 /* Test */
 int main(int, char* argv[]) {
     ucle::fnsim::simulator_config cfg {0x1000};
-    ucle::fnsim::functional_simulator_ptr fs_ptr = std::make_unique<ucle::fnsim::frisc_simulator>(cfg);
-    ucle::fnsim::functional_simulation sim(fs_ptr);
+    ucle::fnsim::functional_simulation sim(std::make_unique<ucle::fnsim::frisc_simulator>(cfg));
     // sim.
     // fs.load_pfile(argv[1]);
     // fs.run();

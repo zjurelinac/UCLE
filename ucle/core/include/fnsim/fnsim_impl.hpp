@@ -23,15 +23,17 @@ namespace ucle::fnsim {
         address_range   devices_addr_range = {0, 0};
     };
 
-    template <byte_order endianness,                // Processor's endianness
-              typename AddressSpace,                // Processor's address space type
-        template <byte_order>
-              typename Memory,                      // Processor's internal memory
-              typename Config = simulator_config    // Processor config class
+    template <byte_order endianness,                // Is processor little- or big-endian
+              typename AddressType,                 // Primitive type used for memory addressing (ie. uint32_t)
+        template<byte_order, typename AddrType>
+              typename MappedDeviceType,            // Base class for all devices that could be added to the simulator
+        template <typename MappedDevType>
+              typename AddressSpace,                // Processor's address space class
+        template <byte_order, typename AddrType>
+              typename Memory,                      // Processor's internal memory device class
+              typename Config = simulator_config    // Processor config parameters class
     >
     class functional_simulator_impl : public functional_simulator {
-            // using memory_ptr = std::shared_ptr<mapped_device>;
-
             struct device_info {
                 identifier_t    id;
                 device_ptr      ptr;
@@ -39,12 +41,12 @@ namespace ucle::fnsim {
             };
 
         public:
-            using address_space_type = AddressSpace;
-            using memory_type = Memory<endianness>;
+            using address_type = AddressType;
+            using mapped_device_type = MappedDeviceType<endianness, address_type>;
+            using address_space_type = AddressSpace<mapped_device_type>;
+            using mapped_device_ptr = typename address_space_type::mapped_device_ptr;
+            using memory_type = Memory<endianness, address_type>;
             using config_type = Config;
-
-            using mapped_device_type = typename AddressSpace::mapped_device_type;
-            using mapped_device_ptr = typename AddressSpace::mapped_device_ptr;
 
             functional_simulator_impl(config_type cfg)
                 : cfg_(cfg), mem_asp_(cfg.memory_addr_range), dev_asp_(cfg.devices_addr_range)

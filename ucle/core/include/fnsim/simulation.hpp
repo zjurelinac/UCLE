@@ -8,6 +8,7 @@
 #include <fnsim/base.hpp>
 #include <fnsim/fnsim.hpp>
 
+#include <memory>
 #include <set>
 #include <utility>
 
@@ -17,7 +18,7 @@ namespace ucle::fnsim {
         public:
 
             functional_simulation() = delete;
-            functional_simulator(functional_simulator_ptr fnsim_ptr) : fnsim_(fnsim_ptr) {}
+            functional_simulation(functional_simulator_ptr fnsim_ptr) : fnsim_(std::move(fnsim_ptr)) {}
 
             // Basic simulation functionality
 
