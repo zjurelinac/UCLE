@@ -61,8 +61,8 @@ namespace ucle::fnsim {
             void reset() override
             {
                 clear_internals_();
-                for (auto [_, info] : devs_)
-                    info.ptr->reset();
+                for (auto &dev : devs_)
+                    dev.second.ptr->reset();
             }
 
             byte_t get_byte(address_t location) const override

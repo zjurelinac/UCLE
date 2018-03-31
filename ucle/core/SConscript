@@ -8,7 +8,7 @@ cpp_flags 		= ['-Wall', '-Wextra',
                    '-Wctor-dtor-privacy', '-Wredundant-decls',
                    '-Wformat=2', '-Wmissing-format-attribute',
                    '-Wlogical-op', '-Wshadow', '-Wuseless-cast', # '-Wconversion', '-Wsign-conversion',
-                   '-Wstrict-overflow=5', '-Wswitch-default', '-Winline', '-Wimplicit-fallthrough=5',
+                   '-Wstrict-overflow=5', '-Wswitch-default', '-Wimplicit-fallthrough=5', # '-Winline',
                    '-Wmissing-declarations', '-Wmissing-field-initializers', # '-Wmissing-include-dirs',
                    '-Wsuggest-final-types', '-Wsuggest-final-methods', '-Wsuggest-override',
                    '-Wundef', '-Wunused', '-Wuninitialized',
@@ -35,7 +35,7 @@ common.Append(CXXFLAGS 		= cxx_flags)
 
 debug = common.Clone()
 # debug.Append(CPPDEFINES=['DEBUG'], CCFLAGS=['-g'])
-debug.Append(CCFLAGS=['-O0', '-march=native'])
+debug.Append(CCFLAGS=['-O3', '-march=native'])
 debug.VariantDir('debug', 'src', duplicate=0)
 debug.VariantDir('debug/tests', 'tests', duplicate=0)
 
