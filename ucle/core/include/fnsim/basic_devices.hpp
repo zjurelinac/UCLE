@@ -40,7 +40,7 @@ namespace ucle::fnsim {
                 T value = 0;
 
                 for (auto i = 0u; i < size; ++i) {
-                    if constexpr (endianness == byte_order::LE)
+                    if constexpr (endianness == byte_order::little_endian)
                         value = value << 8 | bytes[size - i - 1];
                     else
                         value = value << 8 | bytes[i];
@@ -55,7 +55,7 @@ namespace ucle::fnsim {
                 small_byte_vector bytes(size);
 
                 for (auto i = 0u; i < size; ++i, value >>= 8) {
-                    if constexpr (endianness == byte_order::LE)
+                    if constexpr (endianness == byte_order::little_endian)
                         bytes[i] = value & 0xFF;
                     else
                         bytes[size - i - 1] = value & 0xFF;
@@ -111,7 +111,7 @@ namespace ucle::fnsim {
             std::unique_ptr<byte_t[]> data_;
     };
 
-    template<byte_order endianness = byte_order::LE, typename AddressType = address_t>
+    template<byte_order endianness = byte_order::little_endian, typename AddressType = address_t>
     class memory : public memory_block_device<endianness, AddressType> {
         public:
             using memory_block_device<endianness>::memory_block_device;

@@ -52,11 +52,11 @@ namespace ucle::fnsim {
         }
     };
 
-    class frisc_simulator : public functional_simulator_impl<byte_order::LE, address_t, mapped_device, address_space, memory> {
+    class frisc_simulator : public functional_simulator_impl<byte_order::little_endian, address_t, mapped_device, address_space, memory> {
         using cbu = util::const_bit_util<word_t>;
         using unop = util::unop<word_t>;
         using binop = util::binop<word_t, frisc_arith_flags>;
-        using parent = functional_simulator_impl<byte_order::LE, address_t, mapped_device, address_space, memory>;
+        using parent = functional_simulator_impl<byte_order::little_endian, address_t, mapped_device, address_space, memory>;
 
         public:
             using parent::functional_simulator_impl;

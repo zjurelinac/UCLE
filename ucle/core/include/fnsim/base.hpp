@@ -7,9 +7,9 @@
 
 namespace ucle::fnsim {
 
-    enum class byte_order { LE, BE };
+    enum class byte_order { little_endian, big_endian };
 
-    enum class device_mapping { DEFAULT, MEMORY, PORT, NONE };
+    enum class device_mapping { simulator_default, memory_mapping, port_mapping, no_mapping };
     enum class device_status {};  // TODO: Select possible options
 
     enum class simulator_state { initialized, loaded, running, stopped, exception, terminated };
@@ -42,7 +42,7 @@ namespace ucle::fnsim {
     struct device_config {
         bool            is_addressable = true;
         bool            uses_interrupts = false;
-        device_mapping  mapping = device_mapping::DEFAULT;
+        device_mapping  mapping = device_mapping::simulator_default;
         address_range   addr_range = {0, 0};
         priority_t      interrupt_priority;
     };
