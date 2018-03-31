@@ -46,18 +46,22 @@ namespace ucle {
     struct address_range {
         address_t low_addr, high_addr;
 
-        bool operator==(const address_range& other) const
-            { return low_addr == other.low_addr && high_addr == other.high_addr; }
-        bool operator!=(const address_range& other) const
-            { return low_addr != other.low_addr || high_addr != other.high_addr; }
-        bool operator<(const address_range& other) const
-            { return (low_addr == other.low_addr) ? (high_addr < other.high_addr) : (low_addr < other.low_addr); }
-        bool operator>(const address_range& other) const
-            { return (low_addr == other.low_addr) ? (high_addr > other.high_addr) : (low_addr > other.low_addr); }
-
-        bool contains(address_t location) const { return low_addr <= location && location <= high_addr; }
-        bool contains(const address_range& other) const { return low_addr <= other.low_addr && other.high_addr <= high_addr; }
+        constexpr bool contains(address_t location) const { return low_addr <= location && location <= high_addr; }
+        constexpr bool contains(const address_range& rhs) const { return low_addr <= rhs.low_addr && rhs.high_addr <= high_addr; }
     };
+
+    constexpr bool operator==(const address_range& lhs, const address_range& rhs)
+        { return lhs.low_addr == rhs.low_addr && lhs.high_addr == rhs.high_addr; }
+    constexpr bool operator!=(const address_range& lhs, const address_range& rhs)
+        { return lhs.low_addr != rhs.low_addr || lhs.high_addr != rhs.high_addr; }
+    constexpr bool operator<(const address_range& lhs, const address_range& rhs)
+        { return (lhs.low_addr == rhs.low_addr) ? (lhs.high_addr < rhs.high_addr) : (lhs.low_addr < rhs.low_addr); }
+    constexpr bool operator>(const address_range& lhs, const address_range& rhs)
+        { return (lhs.low_addr == rhs.low_addr) ? (lhs.high_addr > rhs.high_addr) : (lhs.low_addr > rhs.low_addr); }
+    constexpr bool operator<=(const address_range& lhs, const address_range& rhs)
+        { return lhs < rhs || lhs == rhs; }
+    constexpr bool operator>=(const address_range& lhs, const address_range& rhs)
+        { return lhs > rhs || lhs == rhs; }
 
     struct bitrange {
         index_t low, high;

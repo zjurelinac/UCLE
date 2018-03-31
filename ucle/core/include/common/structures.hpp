@@ -24,29 +24,25 @@ namespace ucle {
                     constexpr reference(reference&& other) : val_(other.val_), idx_(other.idx_) {}
 
                     reference& operator=(bool val)
-                        { set(val); return *this; }
+                        { set_(val); return *this; }
                     reference& operator=(const reference& ref)
-                        { set(ref.get()); return *this; }
+                        { set_(ref.get_()); return *this; }
                     reference& operator=(reference&& ref)
-                        { set(ref.get()); return *this; }
+                        { set_(ref.get_()); return *this; }
 
-                    operator bool() const
-                        { return get() != 0; }
+                    operator bool() const { return get_() != 0; }
+                    bool operator~() const { return !get_(); }
 
-                    constexpr bool operator==(const reference& other) const
-                        { return val_ == other.val_ && idx_ == other.idx_; }
-                    constexpr bool operator!=(const reference& other) const
-                        { return val_ != other.val_ || idx_ != other.idx_; }
+                    reference& flip() { set_(!get_()); return *this; }
 
-                    bool operator~() const
-                        { return !get(); }
-
-                    reference& flip()
-                        { set(!get()); return *this; }
+                    friend constexpr bool operator==(const reference& lhs, const reference& rhs)
+                        { return lhs.val_ == rhs.val_ && lhs.idx_ == rhs.idx_; }
+                    friend constexpr bool operator!=(const reference& lhs, const reference& rhs)
+                        { return lhs.val_ != rhs.val_ || lhs.idx_ != rhs.idx_; }
 
                 private:
-                    constexpr bool get() const { return val_ & cbu::nth_bit(idx_); }
-                    void set(bool x)
+                    constexpr bool get_() const { return val_ & cbu::nth_bit(idx_); }
+                    void set_(bool x)
                     {
                         if (x) val_ |=  cbu::nth_bit(idx_);
                         else   val_ &= ~cbu::nth_bit(idx_);
@@ -69,15 +65,6 @@ namespace ucle {
                 { value_ = other.value_; return *this; }
 
             constexpr explicit operator value_type() const { return value_; }
-
-            constexpr bool operator==(value_type value) const
-                { return value_ == value; }
-            constexpr bool operator!=(value_type value) const
-                { return value_ != value; }
-            constexpr bool operator==(const bitfield<N>& other) const
-                { return value_ == other.value_; }
-            constexpr bool operator!=(const bitfield<N>& other) const
-                { return value_ != other.value_; }
 
             constexpr bool operator[](index_t idx) const
                 { return value_ & cbu::nth_bit(idx); }
@@ -122,6 +109,9 @@ namespace ucle {
                 { value_ = ~value_; return *this; }
             constexpr bitfield<N>& flip(index_t idx)
                 { value_[idx].flip(); return *this; }
+
+            friend constexpr bool operator==(const bitfield<N>& lhs, const bitfield<N>& rhs) { return lhs.value_ == rhs.value_; }
+            friend constexpr bool operator!=(const bitfield<N>& lhs, const bitfield<N>& rhs) { return lhs.value_ != rhs.value_; }
 
         private:
             value_type value_ = 0;

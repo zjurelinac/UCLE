@@ -37,13 +37,18 @@ namespace ucle::fnsim {
             constexpr reg<N>& operator|=(value_type v) { value_ |= v; return *this; }
             constexpr reg<N>& operator^=(value_type v) { value_ ^= v; return *this; }
 
-            constexpr bool operator<(value_type v) const { return value_ < v; }
-            constexpr bool operator>(value_type v) const { return value_ > v; }
-            constexpr bool operator<=(value_type v) const { return value_ <= v; }
-            constexpr bool operator>=(value_type v) const { return value_ >= v; }
-            constexpr bool operator==(value_type v) const { return value_ == v; }
-            constexpr bool operator!=(value_type v) const { return value_ != v; }
+            friend constexpr bool operator==(const reg<N>& lhs, const reg<N>& rhs)  { return lhs.value_ == rhs.value_; }
+            friend constexpr bool operator!=(const reg<N>& lhs, const reg<N>& rhs)  { return lhs.value_ != rhs.value_; }
+            friend constexpr bool operator<(const reg<N>& lhs, const reg<N>& rhs) { return lhs.value_ < rhs.value_; }
+            friend constexpr bool operator>(const reg<N>& lhs, const reg<N>& rhs) { return lhs.value_ > rhs.value_; }
+            friend constexpr bool operator<=(const reg<N>& lhs, const reg<N>& rhs) { return lhs.value_ <= rhs.value_; }
+            friend constexpr bool operator>=(const reg<N>& lhs, const reg<N>& rhs) { return lhs.value_ >= rhs.value_; }
 
+            friend constexpr value_type operator+(reg<N> lhs, reg<N> rhs) { return lhs.value_ + rhs.value_; }
+            friend constexpr value_type operator-(reg<N> lhs, reg<N> rhs) { return lhs.value_ - rhs.value_; }
+            friend constexpr value_type operator&(reg<N> lhs, reg<N> rhs) { return lhs.value_ & rhs.value_; }
+            friend constexpr value_type operator|(reg<N> lhs, reg<N> rhs) { return lhs.value_ | rhs.value_; }
+            friend constexpr value_type operator^(reg<N> lhs, reg<N> rhs) { return lhs.value_ ^ rhs.value_; }
         private:
             value_type value_;
     };
@@ -78,6 +83,12 @@ namespace ucle::fnsim {
             constexpr value_type operator|=(value_type v) { return value_ |= v; }
             constexpr value_type operator^=(value_type v) { return value_ ^= v; }
 
+            friend constexpr bool operator==(const flags_reg<N>& lhs, const flags_reg<N>& rhs) { return lhs.value_ == rhs.value_; }
+            friend constexpr bool operator!=(const flags_reg<N>& lhs, const flags_reg<N>& rhs) { return lhs.value_ != rhs.value_; }
+            friend constexpr bool operator<(const flags_reg<N>& lhs, const flags_reg<N>& rhs) { return lhs.value_ < rhs.value_; }
+            friend constexpr bool operator>(const flags_reg<N>& lhs, const flags_reg<N>& rhs) { return lhs.value_ > rhs.value_; }
+            friend constexpr bool operator<=(const flags_reg<N>& lhs, const flags_reg<N>& rhs) { return lhs.value_ <= rhs.value_; }
+            friend constexpr bool operator>=(const flags_reg<N>& lhs, const flags_reg<N>& rhs) { return lhs.value_ >= rhs.value_; }
         private:
             bitfield<N> value_;
     };
