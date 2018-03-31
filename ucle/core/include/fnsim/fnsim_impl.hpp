@@ -51,29 +51,28 @@ namespace ucle::fnsim {
             {
                 mem_ptr_ = std::make_shared<memory_type>(cfg.memory_size);
                 device_config mem_cfg { true, false, device_mapping::MEMORY, cfg.memory_addr_range, 0 };
-                mem_id_ = add_device_(std::dynamic_pointer_cast<mapped_device_type>(mem_ptr_), mem_cfg);
+                mem_id_ = add_device(std::dynamic_pointer_cast<mapped_device_type>(mem_ptr_), mem_cfg);
             }
 
-            virtual ~functional_simulator_impl() override { remove_device_(mem_id_); }
+            virtual ~functional_simulator_impl() override { remove_device(mem_id_); }
 
-        protected:
-            virtual void reset_() override
+            virtual void reset() override
             {
                 clear_internals_();
                 for (auto [_, info] : devs_)
                     info.ptr->reset();
             }
 
-            virtual byte_t get_byte_(address_t location) const override
+            virtual byte_t get_byte(address_t location) const override
             {
                 return read_<byte_t>(location);
             }
-            virtual void set_byte_(address_t location, byte_t value) override
+            virtual void set_byte(address_t location, byte_t value) override
             {
                 write_<byte_t>(location, value);
             }
 
-            virtual identifier_t add_device_(device_ptr dev_ptr, device_config dev_cfg) override
+            virtual identifier_t add_device(device_ptr dev_ptr, device_config dev_cfg) override
             {
                 device_info info = { next_dev_id_++, dev_ptr, device_mapping::NONE };
 
@@ -90,7 +89,7 @@ namespace ucle::fnsim {
 
                 return info.id;
             }
-            virtual void remove_device_(identifier_t dev_id) override
+            virtual void remove_device(identifier_t dev_id) override
             {
                 auto dev_it = devs_.find(dev_id);
                 if (dev_it == devs_.end())
@@ -106,6 +105,7 @@ namespace ucle::fnsim {
                 }
             }
 
+        protected:
             virtual void clear_internals_() = 0;
 
             template <typename T, typename = meta::is_storage_t<T>>
@@ -114,11 +114,11 @@ namespace ucle::fnsim {
             void write_(address_t location, T value) { mem_asp_.template write<T>(location & util::const_bit_util<T>::address_round_mask(), value); }
 
         private:
-            config_type             cfg_;           /* Simulator config parameters */
-            address_space_type      mem_asp_;       /* Memory address space (for memory and optionally other devices) */
-            address_space_type      dev_asp_;       /* Device address space (if devices are memory-mapped, then it's unused) */
-            mapped_device_ptr       mem_ptr_;       /* Internal memory device pointer */
-            identifier_t            mem_id_;        /* Internal memory device ID */
+            config_type             cfg_;
+            address_space_type      mem_asp_;
+            address_space_type      dev_asp_;
+            mapped_device_ptr       mem_ptr_;                       /* Internal memory device pointer */
+            identifier_t            mem_id_;                        /* Internal memory device ID */
             std::unordered_map<identifier_t, device_info> devs_;    /* Pointers and info about all used devices */
             identifier_t            next_dev_id_ = 0;               /* Next unique ID to be assigned to a device upon registration */
             // TODO: Interrupt handling

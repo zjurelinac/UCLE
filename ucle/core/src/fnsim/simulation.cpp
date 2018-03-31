@@ -1,7 +1,9 @@
-#include <fnsim/fnsim.hpp>
+#include <fnsim/simulation.hpp>
 
 #include <common/types.hpp>
 #include <common/structures.hpp>
+
+#include <fnsim/base.hpp>
 
 #include <util/string.hpp>
 
@@ -13,39 +15,39 @@
 #include <vector>
 
 ucle::status ucle::fnsim::functional_simulator::start(address_t start_location) {
-    if (state_ != simulator_state::loaded)
+    if (fnsim_->get_state() != simulator_state::loaded)
         return status::invalid_state;
 
-    state_ = simulator_state::stopped;
-    set_program_counter_(start_location);
+    fnsim_->set_state(simulator_state::stopped);
+    fnsim_->set_program_counter(start_location);
 
     return status::ok;
 }
 
 ucle::status ucle::fnsim::functional_simulator::run(address_t start_location) {
-    if (state_ != simulator_state::loaded)
+    if (fnsim_->get_state() != simulator_state::loaded)
         return status::invalid_state;
 
-    state_ = simulator_state::running;
-    set_program_counter_(start_location);
+    fnsim_->set_state(simulator_state::running);
+    fnsim_.set_program_counter(start_location);
 
     return run_();
 }
 
 ucle::status ucle::fnsim::functional_simulator::cont() {
-     if (state_ != simulator_state::stopped)
+     if (fnsim_->get_state() != simulator_state::stopped)
         return status::invalid_state;
 
-    state_ = simulator_state::running;
+    fnsim_->set_state(simulator_state::running);
 
     return run_();
 }
 
 ucle::status ucle::fnsim::functional_simulator::step() {
-    if (state_ != simulator_state::stopped)
+    if (fnsim_->get_state() != simulator_state::stopped)
         return status::invalid_state;
 
-    state_ = simulator_state::running;
+    fnsim_->set_state(simulator_state::running);
     step_();
 
     return state_ != simulator_state::exception ? status::ok : status::runtime_exception;

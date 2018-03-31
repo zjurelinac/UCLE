@@ -35,10 +35,10 @@ common.Append(CXXFLAGS 		= cxx_flags)
 
 debug = common.Clone()
 # debug.Append(CPPDEFINES=['DEBUG'], CCFLAGS=['-g'])
-debug.Append(CCFLAGS=['-O1', '-march=native'])
+debug.Append(CCFLAGS=['-O0', '-march=native'])
 debug.VariantDir('debug', 'src', duplicate=0)
 debug.VariantDir('debug/tests', 'tests', duplicate=0)
 
-debug.Program('debug/frisc-fnsim', ['debug/fnsim/frisc.cpp', 'debug/fnsim/fnsim.cpp'])
+debug.Program('debug/frisc-fnsim', ['debug/fnsim/frisc.cpp', 'debug/fnsim/simulation.cpp'])
 
 # debug.Program('debug/tests/common/structures_bitfield', ['debug/tests/common/test_structures_bitfield.cpp'])

@@ -3,8 +3,9 @@
 
 #include <common/types.hpp>
 
-#include <fnsim/fnsim.hpp>
 #include <fnsim/address_space.hpp>
+#include <fnsim/base.hpp>
+#include <fnsim/fnsim.hpp>
 #include <fnsim/basic_devices.hpp>
 #include <fnsim/fnsim_impl.hpp>
 #include <fnsim/registers.hpp>
@@ -61,13 +62,12 @@ namespace ucle::fnsim {
         public:
             using parent::functional_simulator_impl;
 
+            virtual address_t get_program_counter() const override { return regs_.PC; };
+            virtual void set_program_counter(address_t location) override { regs_.PC = location; }
+            virtual status execute_single() override;
+
         protected:
-            virtual address_t get_program_counter_() const override { return regs_.PC; };
-            virtual void set_program_counter_(address_t location) override { regs_.PC = location; }
-
             virtual void clear_internals_() override { regs_.clear(); }
-
-            virtual status execute_single_() override;
 
         private:
             status execute_move_(word_t opcode, bool fn, const reg<32>& IR);
@@ -77,7 +77,7 @@ namespace ucle::fnsim {
 
             constexpr bool eval_cond_(word_t cond) const;
 
-            frisc_register_file            regs_;          /* Internal register file keeping the state of all registers and flags */
+            frisc_register_file            regs_;
     };
 
 }

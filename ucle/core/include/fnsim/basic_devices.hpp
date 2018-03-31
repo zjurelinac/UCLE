@@ -6,8 +6,8 @@
 #include <common/structures.hpp>
 #include <common/types.hpp>
 
-#include <fnsim/fnsim.hpp>
 #include <fnsim/address_space.hpp>
+#include <fnsim/base.hpp>
 #include <fnsim/registers.hpp>
 
 #include <array>

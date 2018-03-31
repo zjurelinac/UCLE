@@ -5,7 +5,7 @@
 #include <common/meta.hpp>
 #include <common/types.hpp>
 
-#include <fnsim/fnsim.hpp>
+#include <fnsim/base.hpp>
 
 #include <algorithm>
 #include <utility>

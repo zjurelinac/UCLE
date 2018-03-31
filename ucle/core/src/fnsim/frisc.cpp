@@ -2,7 +2,10 @@
 
 #include <common/types.hpp>
 
+#include <fnsim/simulation.hpp>
+
 #include <iostream>
+#include <memory>
 
 
 ucle::status ucle::fnsim::frisc_simulator::execute_move_(word_t, bool fn, const reg<32>& IR)
@@ -231,7 +234,7 @@ constexpr bool ucle::fnsim::frisc_simulator::eval_cond_(word_t cond) const
     }
 }
 
-ucle::status ucle::fnsim::frisc_simulator::execute_single_() {
+ucle::status ucle::fnsim::frisc_simulator::execute_single() {
     // std::cout << word_t(regs_.PC) << "\n";
 
     reg<32> IR = read_<word_t>(address_t(regs_.PC));
@@ -260,7 +263,9 @@ ucle::status ucle::fnsim::frisc_simulator::execute_single_() {
 /* Test */
 int main(int, char* argv[]) {
     ucle::fnsim::simulator_config cfg {0x1000};
-    ucle::fnsim::frisc_simulator fs(cfg);
-    fs.load_pfile(argv[1]);
-    fs.run();
+    ucle::fnsim::functional_simulator_ptr fs_ptr = std::make_unique<ucle::fnsim::frisc_simulator>(cfg);
+    ucle::fnsim::functional_simulation sim(fs_ptr);
+    // sim.
+    // fs.load_pfile(argv[1]);
+    // fs.run();
 }
