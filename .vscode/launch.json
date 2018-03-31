@@ -9,7 +9,7 @@
         "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceFolder}/ucle/build/core/debug/frisc-fnsim",
-        "args": ["ucle/core/tests/hls/test_cmp.p"],
+        "args": ["ucle/core/tests/hls/test_perf.p"],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}",
         "environment": [],

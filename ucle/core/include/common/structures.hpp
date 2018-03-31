@@ -101,7 +101,7 @@ namespace ucle {
             constexpr bitfield<N>& set() noexcept
                 { value_ = -1; return *this; }
             constexpr bitfield<N>& set (index_t idx, bool val = true)
-                { value_[idx] = val; return *this; }
+                { (*this)[idx] = val; return *this; }
 
             constexpr bitfield<N>& reset() noexcept
                 { value_ = 0; return *this; }
@@ -111,7 +111,7 @@ namespace ucle {
             constexpr bitfield<N>& flip() noexcept
                 { value_ = ~value_; return *this; }
             constexpr bitfield<N>& flip(index_t idx)
-                { value_[idx].flip(); return *this; }
+                { (*this)[idx].flip(); return *this; }
 
             friend constexpr bool operator==(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ == rhs.value_; }
             friend constexpr bool operator!=(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ != rhs.value_; }

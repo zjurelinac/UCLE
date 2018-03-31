@@ -29,13 +29,9 @@ namespace ucle::fnsim {
     struct frisc_arith_flags : public bitfield<4> {
         using bitfield<4>::bitfield;
 
-        reference Z = operator[](3);
-        reference V = operator[](2);
-        reference C = operator[](1);
-        reference N = operator[](0);
-
+        constexpr frisc_arith_flags() = default;
         constexpr frisc_arith_flags(bool c, bool v, bool n, bool z)
-            { C = c; V = v; N = n; Z = z; }
+            { set(0, n); set(1, c); set(2, v); set(3, z); }
     };
 
     struct frisc_register_file : public register_file {
