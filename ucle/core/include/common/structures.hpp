@@ -158,7 +158,7 @@ namespace ucle {
 
         private:
             size_t tsize_ = 0;
-            std::array<T, N> data_ = {0};
+            std::array<T, N> data_;
     };
 
     using small_byte_vector = small_vector<byte_t, 8>;
