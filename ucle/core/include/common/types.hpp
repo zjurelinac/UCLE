@@ -64,13 +64,12 @@ namespace ucle {
         { return lhs > rhs || lhs == rhs; }
 
     struct bitrange {
-        index_t low, high;
+        index_t low = 0;
+        index_t high = 0;
 
-        constexpr bitrange(index_t hi, index_t lo) : low(lo), high(hi) {
-            if (lo > hi) {
-                low = hi;
-                high = lo;
-            }
+        constexpr bitrange(index_t hi, index_t lo) {
+            if (lo > hi) std::swap(lo, hi);
+            low = lo; high = hi;
         }
         constexpr auto mask() const { return (1 << (high - low + 1)) - 1; }
         constexpr auto shift() const { return low; }

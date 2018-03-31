@@ -20,15 +20,26 @@ namespace ucle::fnsim {
             using mapped_device_ptr = MappedDevicePointer;
             using mapped_device_info = std::pair<address_range, mapped_device_ptr>;
 
+            address_space() = delete;
             address_space(address_range total_range) : total_range_(total_range) {}
 
-            void register_device(mapped_device_ptr dev_ptr, address_range range) {
+            address_space(const address_space<MappedDevicePointer>&) = delete;
+            address_space& operator=(const address_space<MappedDevicePointer>&) = delete;
+
+            address_space(address_space<MappedDevicePointer>&&) = default;
+            address_space& operator=(address_space<MappedDevicePointer>&&) = default;
+
+            ~address_space() = default;
+
+            void register_device(mapped_device_ptr dev_ptr, address_range range)
+            {
                 if (!total_range_.contains(range))
                     throw invalid_address_range("Device address range overflows the available address space.");
 
                 devices_.emplace_back(range, dev_ptr);
             }
-            void unregister_device(mapped_device_ptr dev_ptr) {
+            void unregister_device(mapped_device_ptr dev_ptr)
+            {
                 auto dev_it = std::find_if(devices_.cbegin(), devices_.cend(),
                     [dev_ptr](auto mapped){ return mapped.second == dev_ptr; });
 
@@ -46,14 +57,15 @@ namespace ucle::fnsim {
             }
 
             template <typename T, typename = meta::is_storage_t<T>>
-            void write(address_t location, T value) {
+            void write(address_t location, T value)
+            {
                 auto [dev_range, dev_ptr] = *find_device_(location);
                 return dev_ptr->template write<T>(location - dev_range.low_addr, value);
             }
 
         protected:
-
-            auto find_device_(address_t location) const {
+            auto find_device_(address_t location) const
+            {
                 auto dev_it = std::find_if(devices_.cbegin(), devices_.cend(),
                     [location](auto mapped){ return mapped.first.contains(location); });
 
@@ -64,8 +76,8 @@ namespace ucle::fnsim {
             }
 
         private:
-            address_range total_range_;
-            std::vector<mapped_device_info> devices_;
+            address_range total_range_ = {0, 0};
+            std::vector<mapped_device_info> devices_ = {};
     };
 }
 

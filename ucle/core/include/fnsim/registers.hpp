@@ -50,7 +50,7 @@ namespace ucle::fnsim {
             friend constexpr value_type operator|(reg<N> lhs, reg<N> rhs) { return lhs.value_ | rhs.value_; }
             friend constexpr value_type operator^(reg<N> lhs, reg<N> rhs) { return lhs.value_ ^ rhs.value_; }
         private:
-            value_type value_;
+            value_type value_ = 0;
     };
 
     template<unsigned N, typename T = meta::sized_uint<N>>
@@ -90,7 +90,7 @@ namespace ucle::fnsim {
             friend constexpr bool operator<=(const flags_reg<N>& lhs, const flags_reg<N>& rhs) { return lhs.value_ <= rhs.value_; }
             friend constexpr bool operator>=(const flags_reg<N>& lhs, const flags_reg<N>& rhs) { return lhs.value_ >= rhs.value_; }
         private:
-            bitfield<N> value_;
+            bitfield<N> value_ = 0;
     };
 
     class register_file {

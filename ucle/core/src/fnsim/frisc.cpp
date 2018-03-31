@@ -102,8 +102,8 @@ ucle::status ucle::fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, 
             break;
         } case 0b01101: {
             // std::cout << "CMP" << "\n";
-            auto [_, new_flags] = binop::op_sub(src1, src2, old_flags);
-            flags = new_flags;
+            auto res = binop::op_sub(src1, src2, old_flags);
+            flags = res.second;
             break;
         } default:
             return status::invalid_instruction;

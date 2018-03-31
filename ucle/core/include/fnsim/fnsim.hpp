@@ -18,9 +18,9 @@ namespace ucle::fnsim {
     enum class device_status {};
 
     class device {
-        // Abstract base class for all devices, both memory-mapped and isolated
-
         public:
+            virtual ~device() = default;
+
             virtual void work() = 0;
             virtual void status() = 0;
             virtual void reset() = 0;
