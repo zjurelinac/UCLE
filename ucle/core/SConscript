@@ -2,19 +2,18 @@ libraries 		= []
 library_paths 	= ''
 cpp_defines 	= {}
 cpp_paths       = ['include', 'include/libs/fmt']
-cpp_flags 		= ['-Wall', '-Wextra',
-                   '-pedantic-errors',
-                   '-Wcast-align', '-Wcast-qual', '-Wfloat-equal', '-Wpointer-arith',
-                   '-Wctor-dtor-privacy', '-Wredundant-decls',
-                   '-Wformat=2', '-Wmissing-format-attribute',
-                   '-Wlogical-op', # '-Wuseless-cast', '-Wshadow', '-Wconversion', '-Wsign-conversion',
-                   '-Wstrict-overflow=5', '-Wimplicit-fallthrough=5', # '-Wswitch-default', '-Winline',
-                   '-Wmissing-declarations', '-Wmissing-field-initializers', # '-Wmissing-include-dirs',
-                   '-Wsuggest-final-types', '-Wsuggest-final-methods', '-Wsuggest-override',
-                   '-Wunused', '-Wuninitialized', # '-Wundef',
-                   '-Wnull-dereference', '-Wpacked', # '-Wpadded',
-                   '-Wzero-as-null-pointer-constant', '-Wmisleading-indentation',
-                   '-Wdisabled-optimization']
+cpp_flags 		= ['-Wall', '-Wextra', '-pedantic-errors' ]
+                #    '-Wcast-align', '-Wcast-qual', '-Wfloat-equal', '-Wpointer-arith',
+                #    '-Wctor-dtor-privacy', '-Wredundant-decls',
+                #    '-Wformat=2', '-Wmissing-format-attribute',
+                #    '-Wlogical-op', # '-Wuseless-cast', '-Wshadow', '-Wconversion', '-Wsign-conversion',
+                #    '-Wstrict-overflow=5', '-Wimplicit-fallthrough=5', # '-Wswitch-default', '-Winline',
+                #    '-Wmissing-declarations', '-Wmissing-field-initializers', # '-Wmissing-include-dirs',
+                #    '-Wsuggest-final-types', '-Wsuggest-final-methods', '-Wsuggest-override',
+                #    '-Wunused', '-Wuninitialized', # '-Wundef',
+                #    '-Wnull-dereference', '-Wpacked', # '-Wpadded',
+                #    '-Wzero-as-null-pointer-constant', '-Wmisleading-indentation',
+                #    '-Wdisabled-optimization']
 cxx_flags 		= ['-std=c++17']
 
 common = Environment()
@@ -37,11 +36,16 @@ common.Library('fmt', ['debug/libs/fmt/format.cc'], CPPFLAGS=[])
 # release.VariantDir('../build/release/test', 'test', duplicate=0)
 
 debug = common.Clone()
-# debug.Append(CPPDEFINES=['DEBUG'], CCFLAGS=['-g'])
-debug.Append(CCFLAGS=['-O3', '-march=native'])
+debug.Append(CPPDEFINES=['DEBUG'], CCFLAGS=['-O1', '-g'])
+# debug.Append(CCFLAGS=['-O3', '-march=native'])
 debug.VariantDir('debug', 'src', duplicate=0)
 debug.VariantDir('debug/tests', 'tests', duplicate=0)
 
-debug.Program('debug/frisc-fnsim', ['debug/fnsim/frisc.cpp', 'debug/fnsim/simulation.cpp'], LIBS=['fmt'], LIBPATH='.')
+simulators = ['debug/fnsim/frisc.cpp']
 
-# debug.Program('debug/tests/common/structures_bitfield', ['debug/tests/common/test_structures_bitfield.cpp'])
+debug.Program(
+    'debug/fnsim-cli',
+    ['debug/fnsim/cli.cpp', 'debug/fnsim/simulation.cpp', 'debug/fnsim/checker.cpp'] + simulators,
+    LIBS=['fmt'],
+    LIBPATH='.'
+)
