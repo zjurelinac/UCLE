@@ -1,17 +1,17 @@
 libraries 		= []
 library_paths 	= ''
 cpp_defines 	= {}
-cpp_paths       = ['include']
+cpp_paths       = ['include', 'include/libs/fmt']
 cpp_flags 		= ['-Wall', '-Wextra',
                    '-pedantic-errors',
                    '-Wcast-align', '-Wcast-qual', '-Wfloat-equal', '-Wpointer-arith',
                    '-Wctor-dtor-privacy', '-Wredundant-decls',
                    '-Wformat=2', '-Wmissing-format-attribute',
                    '-Wlogical-op', '-Wshadow', '-Wuseless-cast', # '-Wconversion', '-Wsign-conversion',
-                   '-Wstrict-overflow=5', '-Wswitch-default', '-Wimplicit-fallthrough=5', # '-Winline',
+                   '-Wstrict-overflow=5', '-Wimplicit-fallthrough=5', # '-Wswitch-default', '-Winline',
                    '-Wmissing-declarations', '-Wmissing-field-initializers', # '-Wmissing-include-dirs',
                    '-Wsuggest-final-types', '-Wsuggest-final-methods', '-Wsuggest-override',
-                   '-Wundef', '-Wunused', '-Wuninitialized',
+                   '-Wunused', '-Wuninitialized', # '-Wundef',
                    '-Wnull-dereference', '-Wpacked', # '-Wpadded',
                    '-Wzero-as-null-pointer-constant', '-Wmisleading-indentation',
                    '-Wdisabled-optimization']
@@ -28,6 +28,9 @@ common.Append(CPPDEFINES 	= cpp_defines)
 common.Append(CPPFLAGS 		= cpp_flags)
 common.Append(CXXFLAGS 		= cxx_flags)
 
+# fmt: C++ modern formatting library
+common.Library('fmt', ['debug/libs/fmt/format.cc'], CPPFLAGS=[])
+
 # release = common.Clone()
 # release.Append(CPPDEFINES=['RELEASE'])
 # release.VariantDir('../build/release', '.', duplicate=0)
@@ -39,6 +42,6 @@ debug.Append(CCFLAGS=['-O3', '-march=native'])
 debug.VariantDir('debug', 'src', duplicate=0)
 debug.VariantDir('debug/tests', 'tests', duplicate=0)
 
-debug.Program('debug/frisc-fnsim', ['debug/fnsim/frisc.cpp', 'debug/fnsim/simulation.cpp'])
+debug.Program('debug/frisc-fnsim', ['debug/fnsim/frisc.cpp', 'debug/fnsim/simulation.cpp'], LIBS=['fmt'], LIBPATH='.')
 
 # debug.Program('debug/tests/common/structures_bitfield', ['debug/tests/common/test_structures_bitfield.cpp'])
