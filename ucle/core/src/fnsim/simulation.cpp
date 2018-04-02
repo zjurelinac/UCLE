@@ -14,7 +14,9 @@
 #include <sstream>
 #include <vector>
 
-ucle::fnsim::status ucle::fnsim::functional_simulation::start(address_t start_location) noexcept {
+namespace fnsim = ucle::fnsim;
+
+fnsim::status fnsim::functional_simulation::start(address_t start_location) noexcept {
     if (fnsim_->get_state() != simulator_state::loaded)
         return status::invalid_state;
 
@@ -24,7 +26,7 @@ ucle::fnsim::status ucle::fnsim::functional_simulation::start(address_t start_lo
     return status::ok;
 }
 
-ucle::fnsim::status ucle::fnsim::functional_simulation::run(address_t start_location) noexcept {
+fnsim::status fnsim::functional_simulation::run(address_t start_location) noexcept {
     if (fnsim_->get_state() != simulator_state::loaded)
         return status::invalid_state;
 
@@ -34,7 +36,7 @@ ucle::fnsim::status ucle::fnsim::functional_simulation::run(address_t start_loca
     return run_();
 }
 
-ucle::fnsim::status ucle::fnsim::functional_simulation::cont() noexcept {
+fnsim::status fnsim::functional_simulation::cont() noexcept {
      if (fnsim_->get_state() != simulator_state::stopped)
         return status::invalid_state;
 
@@ -43,7 +45,7 @@ ucle::fnsim::status ucle::fnsim::functional_simulation::cont() noexcept {
     return run_();
 }
 
-ucle::fnsim::status ucle::fnsim::functional_simulation::step() noexcept {
+fnsim::status fnsim::functional_simulation::step() noexcept {
     if (fnsim_->get_state() != simulator_state::stopped)
         return status::invalid_state;
 
@@ -53,7 +55,7 @@ ucle::fnsim::status ucle::fnsim::functional_simulation::step() noexcept {
     return fnsim_->get_state() != simulator_state::exception ? status::ok : status::runtime_exception;
 }
 
-ucle::fnsim::status ucle::fnsim::functional_simulation::until(address_t location) noexcept {
+fnsim::status fnsim::functional_simulation::until(address_t location) noexcept {
      if (fnsim_->get_state() != simulator_state::stopped)
         return status::invalid_state;
 
@@ -63,18 +65,18 @@ ucle::fnsim::status ucle::fnsim::functional_simulation::until(address_t location
     return run_();
 }
 
-ucle::fnsim::status ucle::fnsim::functional_simulation::reset() noexcept {
+fnsim::status fnsim::functional_simulation::reset() noexcept {
     fnsim_->reset();
     fnsim_->set_state(simulator_state::initialized);
     return status::ok;
 }
 
-ucle::fnsim::status ucle::fnsim::functional_simulation::quit() noexcept {
+fnsim::status fnsim::functional_simulation::quit() noexcept {
     fnsim_->set_state(simulator_state::terminated);
     return status::ok;
 }
 
-ucle::fnsim::status ucle::fnsim::functional_simulation::load_pfile(std::string filename, address_t start_location) noexcept {
+fnsim::status fnsim::functional_simulation::load_pfile(std::string filename, address_t start_location) noexcept {
     constexpr int pf_line_bound = 21;
 
     std::ifstream pfile(filename);

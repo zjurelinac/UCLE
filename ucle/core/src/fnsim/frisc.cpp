@@ -2,13 +2,13 @@
 
 #include <common/types.hpp>
 
-#include <fnsim/simulation.hpp>
+#include <fnsim/fnsim_impl.hpp>
 
-#include <iostream>
 #include <memory>
 
+namespace fnsim = ucle::fnsim;
 
-ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_move_(word_t, bool fn, const reg<32>& IR)
+fnsim::status fnsim::frisc_simulator::execute_move_(word_t, bool fn, const reg<32>& IR)
 {
     // std::cout << "MOVE" << "\n";
 
@@ -22,7 +22,7 @@ ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_move_(word_t, bool fn,
     return status::ok;
 }
 
-ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, const reg<32>& IR)
+fnsim::status fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, const reg<32>& IR)
 {
     auto& dest = regs_.R[IR[{25, 23}]];
     auto src1 = word_t(regs_.R[IR[{22, 20}]]);
@@ -120,7 +120,7 @@ ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_alu_(word_t opcode, bo
     return status::ok;
 }
 
-ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, const reg<32>& IR)
+fnsim::status fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, const reg<32>& IR)
 {
     auto& reg = regs_.R[IR[{25, 23}]];
     auto addr = unop::sign_extend(IR[{19, 0}], 20) + (fn ? word_t(regs_.R[IR[{22, 20}]]) : 0);
@@ -167,7 +167,7 @@ ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_mem_(word_t opcode, bo
     return status::ok;
 }
 
-ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, const reg<32>& IR)
+fnsim::status fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, const reg<32>& IR)
 {
     if (!eval_cond_(IR[{25, 22}]))
         return status::ok;
@@ -191,13 +191,13 @@ ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_ctrl_(word_t opcode, b
             break;
         case 0b11011: {
             // std::cout << "RETX" << "\n";
-            // auto rtcode = IR[{1, 0}];
+            auto rtcode = IR[{1, 0}];
             regs_.PC = read_<word_t>(regs_.SP);
             regs_.SP += 4;
-            // if (rtcode == 0b01)      /* RETI */
-            //      /* set GIE = 1 */
-            // else if (rtcode == 0b11) /* RETN */
-            //      /* set IIF = 1 */
+            if (rtcode == 0b01)      /* RETI */
+                regs_.SR.GIE = 1;
+            else if (rtcode == 0b11) /* RETN */
+                regs_.IIF = 1;
             break;
         }
         case 0b11111:
@@ -211,7 +211,7 @@ ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_ctrl_(word_t opcode, b
     return status::ok;
 }
 
-constexpr bool ucle::fnsim::frisc_simulator::eval_cond_(word_t cond) const
+constexpr bool fnsim::frisc_simulator::eval_cond_(word_t cond) const
 {
     auto& SR = regs_.SR;
     switch (cond) {
@@ -234,7 +234,7 @@ constexpr bool ucle::fnsim::frisc_simulator::eval_cond_(word_t cond) const
     }
 }
 
-ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_single() {
+fnsim::status fnsim::frisc_simulator::execute_single() {
     // std::cout << word_t(regs_.PC) << "\n";
 
     reg<32> IR = read_<word_t>(address_t(regs_.PC));
@@ -260,10 +260,7 @@ ucle::fnsim::status ucle::fnsim::frisc_simulator::execute_single() {
     return stat;
 }
 
-/* Test */
-int main(int, char* argv[]) {
-    ucle::fnsim::simulator_config cfg {0x1000};
-    ucle::fnsim::functional_simulation sim(std::make_unique<ucle::fnsim::frisc_simulator>(cfg));
-    sim.load_pfile(argv[1]);
-    sim.run();
+fnsim::functional_simulator_ptr fnsim::make_frisc_simulator(fnsim::simulator_config cfg)
+{
+    return std::make_unique<frisc_simulator>(cfg);
 }
