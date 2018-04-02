@@ -28,6 +28,9 @@ namespace ucle::meta {
                                                    std::is_same_v<T, word_t> ||
                                                    std::is_same_v<T, dword_t> >;
 
+    template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+    template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
 }
 
 #endif  /* _UCLE_CORE_COMMON_META_HPP_ */

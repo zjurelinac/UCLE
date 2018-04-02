@@ -5,6 +5,8 @@
 
 #include <fnsim/base.hpp>
 
+#include <libs/fmt/format.h>
+
 #include <util/string.hpp>
 
 #include <cstdio>
@@ -118,4 +120,10 @@ fnsim::status fnsim::functional_simulation::load_pfile(std::string filename, add
     fnsim_->set_state(simulator_state::loaded);
 
     return status::ok;
+}
+
+void fnsim::print_reg_info(reg_info ri)
+{
+    for (const auto [name, value] : ri)
+        fmt::print("{} = {} = {}\n", name, fnsim::to_xstring(value), fnsim::to_string(value));
 }

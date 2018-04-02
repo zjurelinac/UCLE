@@ -260,6 +260,24 @@ fnsim::status fnsim::frisc_simulator::execute_single() {
     return stat;
 }
 
+fnsim::reg_info fnsim::frisc_simulator::get_reg_info()
+{
+    return {
+        {"R0", regs_.R[0]},
+        {"R1", regs_.R[1]},
+        {"R2", regs_.R[2]},
+        {"R3", regs_.R[3]},
+        {"R4", regs_.R[4]},
+        {"R5", regs_.R[5]},
+        {"R6", regs_.R[6]},
+        {"SP", regs_.SP},
+
+        {"PC", regs_.PC},
+        {"SR", regs_.SR},
+        {"IIF", regs_.IIF},
+    };
+}
+
 fnsim::functional_simulator_ptr fnsim::make_frisc_simulator(fnsim::simulator_config cfg)
 {
     return std::make_unique<frisc_simulator>(cfg);

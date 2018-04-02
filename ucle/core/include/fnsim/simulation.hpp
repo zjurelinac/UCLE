@@ -111,8 +111,12 @@ namespace ucle::fnsim {
 
             // Runtime info
 
+            reg_info get_reg_info()
+            {
+                return fnsim_->get_reg_info();
+            }
+
             // state_info
-            // reg_info
             // mem_info
             // backtrace
             // frame_info (?)
@@ -155,6 +159,8 @@ namespace ucle::fnsim {
             // TODO: Annotations (ASM & C source lines)
             // TODO: Call frame info
     };
+
+    void print_reg_info(reg_info ri);
 
 }
 
