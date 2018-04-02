@@ -16,13 +16,6 @@
 
 namespace ucle::fnsim {
 
-    struct simulator_config {
-        size_t          memory_size;
-        address_range   memory_addr_range = {0, 0xFFFFFFFF};
-        device_mapping  devices_default_mapping = device_mapping::memory_mapping;
-        address_range   devices_addr_range = {0, 0};
-    };
-
     template <byte_order endianness,                // Is processor little- or big-endian
               typename AddressType,                 // Primitive type used for memory addressing (ie. uint32_t)
         template<byte_order, typename AddrType>

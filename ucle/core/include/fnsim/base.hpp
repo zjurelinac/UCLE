@@ -47,6 +47,12 @@ namespace ucle::fnsim {
         priority_t      interrupt_priority;
     };
 
+    struct simulator_config {
+        size_t          memory_size;
+        address_range   memory_addr_range = {0, 0xFFFFFFFF};
+        device_mapping  devices_default_mapping = device_mapping::memory_mapping;
+        address_range   devices_addr_range = {0, 0};
+    };
 }
 
 #endif  /* _UCLE_CORE_FNSIM_BASE_HPP_ */
