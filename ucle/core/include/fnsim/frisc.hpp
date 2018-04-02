@@ -39,9 +39,11 @@ namespace ucle::fnsim {
         reg<32>& SP = R[7];
         reg<32> PC;
         frisc_status_reg SR;
+        bool IIF = 0;
 
         void clear() override
         {
+            IIF = 0;
             PC = 0; SR = 0;
             for (auto i = 0u; i < R.size(); ++i)
                 R[i] = 0;
@@ -74,6 +76,8 @@ namespace ucle::fnsim {
 
             frisc_register_file regs_;
     };
+
+    functional_simulator_ptr make_frisc_simulator(simulator_config cfg);
 
 }
 

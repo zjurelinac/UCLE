@@ -89,6 +89,10 @@ namespace ucle::fnsim {
             friend constexpr bool operator>(const flags_reg<N>& lhs, const flags_reg<N>& rhs) { return lhs.value_ > rhs.value_; }
             friend constexpr bool operator<=(const flags_reg<N>& lhs, const flags_reg<N>& rhs) { return lhs.value_ <= rhs.value_; }
             friend constexpr bool operator>=(const flags_reg<N>& lhs, const flags_reg<N>& rhs) { return lhs.value_ >= rhs.value_; }
+
+            friend constexpr value_type operator&(flags_reg<N> lhs, flags_reg<N> rhs) { return lhs.value_ & rhs.value_; }
+            friend constexpr value_type operator|(flags_reg<N> lhs, flags_reg<N> rhs) { return lhs.value_ | rhs.value_; }
+            friend constexpr value_type operator^(flags_reg<N> lhs, flags_reg<N> rhs) { return lhs.value_ ^ rhs.value_; }
         private:
             bitfield<N> value_ = 0;
     };
