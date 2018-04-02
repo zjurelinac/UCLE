@@ -28,8 +28,6 @@ std::unordered_map<std::string, fnsim_factory> factory = {
 int main(int argc, char* argv[]) {
     CLI::App app {"Functional simulator CLI"};
 
-    app.set_config("--config");
-
     std::string simulator_name;
     app.add_set_ignore_case("simulator", simulator_name, factory_options, "Processor simulator to use for simulation")->required();
 
