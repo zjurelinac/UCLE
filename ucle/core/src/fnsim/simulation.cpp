@@ -54,6 +54,9 @@ fnsim::status fnsim::functional_simulation::step() noexcept {
     fnsim_->set_state(simulator_state::running);
     step_();
 
+    if (fnsim_->get_state() == simulator_state::running)
+        fnsim_->set_state(simulator_state::stopped);
+
     return fnsim_->get_state() != simulator_state::exception ? status::ok : status::runtime_exception;
 }
 
