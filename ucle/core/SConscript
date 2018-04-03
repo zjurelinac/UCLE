@@ -45,7 +45,7 @@ simulators = ['debug/fnsim/frisc.cpp']
 
 debug.Program(
     'debug/fnsim-cli',
-    ['debug/fnsim/cli.cpp', 'debug/fnsim/simulation.cpp', 'debug/fnsim/checker.cpp'] + simulators,
+    ['debug/fnsim/cli.cpp', 'debug/fnsim/simulation.cpp', 'debug/fnsim/checker.cpp', 'debug/fnsim/interactive_sim.cpp'] + simulators,
     LIBS=['fmt'],
     LIBPATH='.'
 )
