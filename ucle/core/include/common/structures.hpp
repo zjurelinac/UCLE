@@ -120,6 +120,8 @@ namespace ucle {
             friend constexpr bitfield<N> operator|(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ | rhs.value_; }
             friend constexpr bitfield<N> operator^(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ ^ rhs.value_; }
 
+            friend constexpr void swap(bitfield<N>& lhs, bitfield<N>& rhs) noexcept { std::swap(lhs.value_, rhs.value_); }
+
         public:
             value_type value_ = 0;
     };
@@ -162,6 +164,8 @@ namespace ucle {
             constexpr void pop_back() { --tsize_; }
 
             // TODO: Implement iterators
+
+            friend constexpr void swap(small_vector<T, N>& lhs, small_vector<T, N>& rhs) noexcept { std::swap(lhs.data_, rhs.data_); }
 
         private:
             size_t tsize_ = 0;

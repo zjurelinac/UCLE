@@ -49,6 +49,8 @@ namespace ucle::fnsim {
             friend constexpr value_type operator&(reg<N> lhs, reg<N> rhs) { return lhs.value_ & rhs.value_; }
             friend constexpr value_type operator|(reg<N> lhs, reg<N> rhs) { return lhs.value_ | rhs.value_; }
             friend constexpr value_type operator^(reg<N> lhs, reg<N> rhs) { return lhs.value_ ^ rhs.value_; }
+
+            friend constexpr void swap(reg<N>& lhs, reg<N>& rhs) { std::swap(lhs.value_, rhs.value_); }
         private:
             value_type value_ = 0;
     };
@@ -93,6 +95,8 @@ namespace ucle::fnsim {
             friend constexpr value_type operator&(flags_reg<N> lhs, flags_reg<N> rhs) { return lhs.value_ & rhs.value_; }
             friend constexpr value_type operator|(flags_reg<N> lhs, flags_reg<N> rhs) { return lhs.value_ | rhs.value_; }
             friend constexpr value_type operator^(flags_reg<N> lhs, flags_reg<N> rhs) { return lhs.value_ ^ rhs.value_; }
+
+            friend constexpr void swap(flags_reg<N>& lhs, flags_reg<N>& rhs) noexcept { swap(lhs.value_, rhs.value_); }
         private:
             bitfield<N> value_ = 0;
     };
