@@ -3,7 +3,9 @@
 
 #include <algorithm>
 #include <cctype>
+#include <sstream>
 #include <string>
+#include <vector>
 
 namespace ucle::util {
 
@@ -51,6 +53,19 @@ namespace ucle::util {
         return s;
     }
 
+    // split string into words
+    static std::vector<std::string> split(std::string s, char delim = ' ')
+    {
+        std::istringstream iss {s};
+        std::vector<std::string> tokens;
+        std::string token;
+
+        while (std::getline(iss, token, delim)) {
+            tokens.push_back(token);
+        }
+
+        return tokens;
+    }
 }
 
 #endif  /* _UCLE_CORE_UTIL_STRING_HPP_ */

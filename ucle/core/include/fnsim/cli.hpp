@@ -20,9 +20,9 @@ namespace ucle::fnsim {
 
     struct cli_config {
         std::string simulator_name;
-        std::string pfile;
-
         uint32_t fnsim_mem_size = 4096;
+
+        std::string pfile;
 
         bool run_interactive = false;
         bool run_checker = false;

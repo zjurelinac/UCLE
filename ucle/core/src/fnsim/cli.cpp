@@ -2,6 +2,7 @@
 
 #include <fnsim/base.hpp>
 #include <fnsim/checker.hpp>
+#include <fnsim/interactive_sim.hpp>
 #include <fnsim/simulation.hpp>
 
 #include <libs/cli/cli11.hpp>
@@ -23,6 +24,8 @@ int main(int argc, char* argv[]) {
     app.add_option("pfile", cli_cfg.pfile, "A path to the machine-code .p file to be executed")->required()->check(CLI::ExistingFile);
 
     app.add_option("-m,--memory_size", cli_cfg.fnsim_mem_size, "Internal memory size for the processor in the simulation", true);
+
+    app.add_flag("-i,--run-interactive", cli_cfg.run_interactive, "Run the simulation interactively");
     app.add_flag("-p,--print_reg_info", cli_cfg.print_reg_info, "Print register info after simulation run");
 
     auto checker_cmd = app.add_subcommand("check", "Simulation results checker");
@@ -35,7 +38,11 @@ int main(int argc, char* argv[]) {
     functional_simulation sim(factory[cli_cfg.simulator_name](sim_cfg));
 
     sim.load_pfile(cli_cfg.pfile);
-    sim.run();
+
+    if (cli_cfg.run_interactive)
+        run_interactive_simulation(sim);
+    else
+        sim.run();
 
     if (cli_cfg.print_reg_info)
         print_reg_info(sim.get_reg_info());
