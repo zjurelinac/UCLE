@@ -20,6 +20,19 @@ namespace ucle::fnsim {
 
     enum class simulator_state { initialized, loaded, running, stopped, exception, terminated };
 
+    inline std::string to_string(simulator_state state)
+    {
+        switch (state) {
+            case simulator_state::initialized:  return "initialized";
+            case simulator_state::loaded:       return "loaded";
+            case simulator_state::running:      return "running";
+            case simulator_state::stopped:      return "stopped";
+            case simulator_state::exception:    return "exception";
+            case simulator_state::terminated:   return "terminated";
+            default:                            return "unknown";
+        }
+    }
+
     enum class status {
         ok,
         invalid_state,
@@ -33,6 +46,21 @@ namespace ucle::fnsim {
 
     constexpr bool is_success(status stat) { return stat == status::ok; }
     constexpr bool is_error(status stat) { return stat != status::ok; }
+
+    inline std::string to_string(status stat)
+    {
+        switch (stat) {
+            case status::ok:                    return "ok";
+            case status::invalid_state:         return "invalid state";
+            case status::invalid_address_range: return "invalid address range";
+            case status::invalid_identifier:    return "invalid identifier";
+            case status::invalid_instruction:   return "invalid instruction";
+            case status::invalid_program:       return "invalid program";
+            case status::runtime_exception:     return "runtime exception";
+            case status::filesystem_error:      return "filesystem error";
+            default:                            return "unknown";
+        }
+    }
 
     class device {
         public:
