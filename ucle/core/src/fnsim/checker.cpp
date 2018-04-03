@@ -8,6 +8,8 @@ void fnsim::run_checks(std::vector<std::string>& checks, fnsim::functional_simul
 {
     fmt::print_colored(fmt::YELLOW, "Running checker...\n");
 
+    auto reg_vals = sim.get_reg_info();
+
     for (auto check : checks) {
         fmt::print("{}\n", check);
 
