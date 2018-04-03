@@ -116,7 +116,11 @@ namespace ucle::fnsim {
                 return fnsim_->get_reg_info();
             }
 
-            // state_info
+            state_info get_state_info()
+            {
+                return { fnsim_->get_state(), fnsim_->get_program_counter() };
+            }
+
             // mem_info
             // backtrace
             // frame_info (?)
