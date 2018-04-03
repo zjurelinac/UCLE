@@ -11,7 +11,33 @@ namespace fnsim = ucle::fnsim;
 
 void fnsim::interactive_simulation::cmd_help(fnsim::args_list)
 {
-    fmt::print_colored(fmt::BLUE, "Help!\n");
+    fmt::print("  Help - interactive processor simulation\n");
+    fmt::print("==============================================================\n");
+    std::vector<std::pair<std::string, std::string>> help = {
+        {"[r]un", "Run simulation from the start"},
+        {"[c]ont", "Continue paused simulation"},
+        {"[s]tep", "Execute one simulation step (ie. instruction)"},
+        {"[u]ntil ADDR", "Run simulation until reaching ADDR"},
+        {"rese[t]", "Reset simulator - clear registers and memory contents"},
+        {"[q]uit", "Quit interactive simulation"},
+        {"", ""},
+        {"[b]reak add ADDR", "Add a breakpoint at the ADDR"},
+        {"[b]reak del ADDR", "Remove breakpoint from the ADDR"},
+        {"[b]reak clear", "Remove all breakpoints"},
+        {"", ""},
+        {"[w]atch add ADDR", "N/A"},
+        {"[w]atch del ADDR", "N/A"},
+        {"[w]atch clear", "N/A"},
+        {"", ""},
+        {"[i]nfo", "Display processor state (= value of it's registers)"}
+    };
+
+    for (const auto& [help_cmd, help_desc] : help) {
+        fmt::print_colored(fmt::CYAN, "  {:<20}", help_cmd);
+        fmt::print("{} {}\n", (help_desc.size() > 0 ? '-' : ' '), help_desc);
+    }
+
+    fmt::print("\n");
 }
 
 void fnsim::interactive_simulation::cmd_run(fnsim::args_list)
@@ -42,6 +68,7 @@ void fnsim::interactive_simulation::cmd_reset(fnsim::args_list)
 void fnsim::interactive_simulation::cmd_quit(fnsim::args_list)
 {
     fmt::print_colored(fmt::BLUE, "Quit!\n");
+    running_ = false;
 }
 
 void fnsim::interactive_simulation::cmd_break(fnsim::args_list)
@@ -69,6 +96,11 @@ static std::string get_user_cmd()
     return cmd;
 }
 
+void fnsim::interactive_simulation::show_simulation_state()
+{
+
+}
+
 // fmt colors { BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE };
 void fnsim::interactive_simulation::run()
 {
@@ -89,9 +121,9 @@ void fnsim::interactive_simulation::run()
 
     fmt::print_colored(fmt::YELLOW, "Starting interactive simulation...\n");
 
-    // sim.start();
+    sim_.load_pfile(pfile_);
 
-    while (running) {
+    while (running_) {
         auto cmd = util::trim_copy(get_user_cmd());
         auto cmd_tokens = util::split(cmd);
 
@@ -114,16 +146,18 @@ void fnsim::interactive_simulation::run()
                     break;
                 }
 
-        if (!found_cmd)
+        if (!found_cmd) {
+            fmt::print_colored(fmt::RED, "  Unknown command: {}!\n\n", cmd_name);
             cmd_help({});
-
+        }
     }
 
+    fmt::print_colored(fmt::YELLOW, "Ending interactive simulation.\n");
 }
 
 
-void fnsim::run_interactive_simulation(functional_simulation& sim)
+void fnsim::run_interactive_simulation(functional_simulation& sim, std::string pfile)
 {
-    interactive_simulation isim {sim};
+    interactive_simulation isim {sim, pfile};
     isim.run();
 }

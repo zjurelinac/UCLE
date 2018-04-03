@@ -35,7 +35,8 @@ namespace ucle::fnsim {
     class interactive_simulation {
         public:
             interactive_simulation() = delete;
-            interactive_simulation(functional_simulation& sim) : sim_(sim) {};
+            interactive_simulation(functional_simulation& sim, std::string pfile)
+                : sim_(sim), pfile_(pfile) {};
 
             void run();
 
@@ -53,8 +54,12 @@ namespace ucle::fnsim {
             void cmd_watch(args_list);
             void cmd_info(args_list);
 
+            void show_simulation_state();
+
             functional_simulation& sim_;
-            bool running {true};
+            std::string pfile_;
+
+            bool running_ {true};
     };
 
     using interactive_cmd = std::function<void(interactive_simulation&, args_list)>;
@@ -65,7 +70,7 @@ namespace ucle::fnsim {
         interactive_cmd cmd;
     };
 
-    void run_interactive_simulation(functional_simulation& sim);
+    void run_interactive_simulation(functional_simulation& sim, std::string pfile);
 }
 
 #endif  /* _UCLE_CORE_FNSIM_INTERACTIVE_SIM_HPP_ */

@@ -37,17 +37,15 @@ int main(int argc, char* argv[]) {
     simulator_config sim_cfg {cli_cfg.fnsim_mem_size};
     functional_simulation sim(factory[cli_cfg.simulator_name](sim_cfg));
 
-    sim.load_pfile(cli_cfg.pfile);
-
-    if (cli_cfg.run_interactive)
-        run_interactive_simulation(sim);
-    else
+    if (cli_cfg.run_interactive) {
+        run_interactive_simulation(sim, cli_cfg.pfile);
+    } else {
         sim.run();
+        sim.load_pfile(cli_cfg.pfile);
 
-    if (cli_cfg.print_reg_info)
-        print_reg_info(sim.get_reg_info());
-
-    if (cli_cfg.run_checker)
-        run_checks(cli_cfg.checks, sim);
-
+        if (cli_cfg.print_reg_info)
+            print_reg_info(sim.get_reg_info());
+        if (cli_cfg.run_checker)
+            run_checks(cli_cfg.checks, sim);
+    }
 }
