@@ -38,6 +38,7 @@ namespace ucle::fnsim {
             void cmd_start(args_list);
             void cmd_cont(args_list);
             void cmd_step(args_list);
+            void cmd_step_n(args_list);
             void cmd_until(args_list);
             void cmd_reset(args_list);
             void cmd_quit(args_list);

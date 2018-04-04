@@ -11,8 +11,17 @@
 #include <cstdlib>
 #include <memory>
 
+/*
+    fmt colors { BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE };
 
-// fmt colors { BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE };
+    Color codes:
+        - YELLOW - important events
+        - GREEN - success
+        - RED - errors
+        - BLUE - info
+        - CYAN - regular highlight
+*/
+
 int main(int argc, char* argv[]) {
     using namespace ucle::fnsim;
 
