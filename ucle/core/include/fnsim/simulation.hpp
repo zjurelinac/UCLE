@@ -50,6 +50,13 @@ namespace ucle::fnsim {
 
             // Breakpoints
 
+            auto get_breakpoints()
+            {
+                std::vector<address_t> breakpoints (breakpts_.size());
+                std::copy(breakpts_.begin(), breakpts_.end(), breakpoints);
+                return breakpoints;
+            }
+
             void add_breakpoint(address_t breakpoint)
             {
                 breakpts_.insert(breakpoint);
@@ -72,6 +79,13 @@ namespace ucle::fnsim {
             }
 
             // Watches
+
+            auto get_watches()
+            {
+                std::vector<address_t> get_watches (watches_.size());
+                std::copy(watches_.begin(), watches_.end(), get_watches);
+                return get_watches;
+            }
 
             void add_watch(address_t location)
             {
