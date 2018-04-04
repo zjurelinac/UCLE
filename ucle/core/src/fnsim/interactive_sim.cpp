@@ -93,10 +93,7 @@ void fnsim::interactive_simulation::cmd_until(fnsim::args_list)
 
 void fnsim::interactive_simulation::cmd_reset(fnsim::args_list)
 {
-    fmt::print("* Reseting simulator...\n");
-
     sim_.reset();
-
     fmt::print("* Reset devices, processor memory and registers\n");
 
     if (auto stat = sim_.load_pfile(pfile_); is_error(stat)) {
@@ -116,17 +113,51 @@ void fnsim::interactive_simulation::cmd_quit(fnsim::args_list)
 
 void fnsim::interactive_simulation::cmd_break(fnsim::args_list args)
 {
-    if (args.size() == 0)
+    if (args.size() == 0) {
         warn_incorrect_use_("break");
+        return;
+    }
 
-    if (args[0] == "show") {
-        fmt::print("Showing all breakpoints");
+    if (args[0] == "list") {
+        auto breakpoints = sim_.get_breakpoints();
+        fmt::print_colored(fmt::BLUE, "Active breakpoints ({}):\n", breakpoints.size());
+
+        auto i = 0u;
+        for (const auto bp : breakpoints)
+            fmt::print("Breakpoint {} @ 0x{:08X}\n", ++i, bp);
+
     } else if (args[0] == "add") {
-        fmt::print("Adding a breakpoint");
+        if (args.size() < 2) {
+            warn_incorrect_use_("break");
+            return;
+        }
+
+        auto location = std::strtol(args[1].c_str(), nullptr, 0);
+        if (location == 0) {
+            fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be a base-8/10/16 integer larger than 0).\n", args[1]);
+            return;
+        }
+
+        sim_.add_breakpoint(location);
+        fmt::print_colored(fmt::GREEN, "* Added a breakpoint @ 0x{:08X}\n", location);
+
     } else if (args[0] == "del") {
-        fmt::print("Removing a breakpoint");
+        if (args.size() < 2) {
+            warn_incorrect_use_("break");
+            return;
+        }
+
+        auto location = std::strtol(args[1].c_str(), nullptr, 0);
+        if (location == 0) {
+            fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be a base-8/10/16 integer larger than 0).\n", args[1]);
+            return;
+        }
+        sim_.remove_breakpoint(location);
+        fmt::print_colored(fmt::GREEN, "* Removed a breakpoint @ 0x{:08X}\n", location);
+
     } else if (args[0] == "clear") {
-        fmt::print("Clearing all breakpoints");
+        sim_.clear_breakpoints();
+        fmt::print_colored(fmt::GREEN, "* Cleared all breakpoints\n");
     } else {
         warn_incorrect_use_("break");
     }
@@ -168,6 +199,7 @@ void fnsim::interactive_simulation::show_simulation_state_()
 {
     auto [state, location] = sim_.get_state_info();
     fmt::print_colored(fmt::BLUE, "* Simulator {} @ 0x{:08X}\n", to_string(state), location);
+    // TODO: Test if stopped at a breakpoint
 }
 
 static std::string get_user_cmd()
@@ -194,8 +226,8 @@ void fnsim::interactive_simulation::init_cmd_descrs_()
         {'t', "reset", &interactive_simulation::cmd_reset, "rese[t]", "Reset simulator - clear registers and memory contents"},
         {'q', "quit", &interactive_simulation::cmd_quit, "[q]uit", "Quit interactive simulation"},
 
-        {'b', "break", &interactive_simulation::cmd_break, "[b]reak (show | add ADDR | del ADDR | clear)", "Show breakpoints | Add/remove breakpoint at ADDR | Clear all breakpoints"},
-        {'w', "watch", &interactive_simulation::cmd_watch, "[w]atch (show | add ADDR | del ADDR | clear)", "Show watches | Add/remove watch at ADDR | Clear all watches"},
+        {'b', "break", &interactive_simulation::cmd_break, "[b]reak (list | add ADDR | del ADDR | clear)", "List breakpt | Add/remove breakpt at ADDR | Clear all breakpts"},
+        {'w', "watch", &interactive_simulation::cmd_watch, "[w]atch (list | add ADDR | del ADDR | clear)", "List watches | Add/remove watch at ADDR | Clear all watches"},
         {'i', "info", &interactive_simulation::cmd_info, "[i]nfo", "Display processor state (= value of it's registers)"}
     };
 }
