@@ -18,7 +18,7 @@ namespace ucle::fnsim {
         public:
 
             functional_simulation() = delete;
-            functional_simulation(functional_simulator_ptr fnsim_ptr) : fnsim_(std::move(fnsim_ptr)) {}
+            functional_simulation(functional_processor_simulator_ptr fnsim_ptr) : fnsim_(std::move(fnsim_ptr)) {}
 
             // Basic simulation functionality
 
@@ -167,10 +167,10 @@ namespace ucle::fnsim {
             bool is_breakpoint_(address_t location) const { return breakpts_.count(location) || tmp_breakpts_.count(location); }
             void clear_tmp_breakpoints_(address_t location) { tmp_breakpts_.erase(location); }
 
-            functional_simulator_ptr    fnsim_;
-            std::set<address_t>         breakpts_;
-            std::set<address_t>         tmp_breakpts_;
-            std::set<address_t>         watches_;
+            functional_processor_simulator_ptr  fnsim_;
+            std::set<address_t>                 breakpts_;
+            std::set<address_t>                 tmp_breakpts_;
+            std::set<address_t>                 watches_;
             // TODO: Annotations (ASM & C source lines)
             // TODO: Call frame info
     };

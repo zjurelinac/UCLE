@@ -278,7 +278,7 @@ fnsim::reg_info fnsim::frisc_simulator::get_reg_info()
     };
 }
 
-fnsim::functional_simulator_ptr fnsim::make_frisc_simulator(fnsim::simulator_config cfg)
+fnsim::functional_processor_simulator_ptr fnsim::make_frisc_simulator(fnsim::simulator_config cfg)
 {
     return std::make_unique<frisc_simulator>(cfg);
 }

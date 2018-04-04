@@ -15,7 +15,7 @@ namespace ucle::fnsim {
 
     enum class byte_order { little_endian, big_endian };
 
-    enum class device_mapping { simulator_default, memory_mapping, port_mapping, no_mapping };
+    enum class device_mapping { none, memory, port };
     enum class device_status {};  // TODO: Select possible options
 
     enum class simulator_state { initialized, loaded, running, stopped, exception, terminated };
@@ -44,9 +44,6 @@ namespace ucle::fnsim {
         filesystem_error
     };
 
-    constexpr bool is_success(status stat) { return stat == status::ok; }
-    constexpr bool is_error(status stat) { return stat != status::ok; }
-
     inline std::string to_string(status stat)
     {
         switch (stat) {
@@ -62,6 +59,9 @@ namespace ucle::fnsim {
         }
     }
 
+    constexpr bool is_success(status stat) { return stat == status::ok; }
+    constexpr bool is_error(status stat) { return stat != status::ok; }
+
     class device {
         public:
             virtual ~device() = default;
@@ -73,19 +73,20 @@ namespace ucle::fnsim {
 
     using device_ptr = std::shared_ptr<device>;
 
+    enum class device_class { memory, addressable_device, non_addressable_device };
+
     struct device_config {
-        bool            is_addressable = true;
-        bool            uses_interrupts = false;
-        device_mapping  mapping = device_mapping::simulator_default;
-        address_range   addr_range = {0, 0};
-        priority_t      interrupt_priority;
+        device_class    dev_class           = device_class::addressable_device;
+        address_range   addr_range          = {0, 0};
+        bool            uses_interrupts     = false;
+        priority_t      interrupt_priority  = 0;
     };
 
     struct simulator_config {
-        size_t          memory_size;
-        address_range   memory_addr_range = {0, 0xFFFFFFFF};
-        device_mapping  devices_default_mapping = device_mapping::memory_mapping;
-        address_range   devices_addr_range = {0, 0};
+        size_t          mem_size;
+        address_range   mem_addr_range      = {0, 0xFFFFFFFF};
+        device_mapping  dev_default_mapping = device_mapping::memory;
+        address_range   dev_addr_range      = {0, 0};
     };
 
     using reg_val = std::variant<bool, byte_t, half_t, word_t, dword_t>;

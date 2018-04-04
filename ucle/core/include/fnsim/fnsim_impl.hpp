@@ -27,7 +27,7 @@ namespace ucle::fnsim {
               typename Memory,                      // Processor's internal memory device class
               typename Config = simulator_config    // Processor config parameters class
     >
-    class functional_simulator_impl : public functional_simulator {
+    class functional_processor_simulator_impl : public functional_processor_simulator {
             struct device_info {
                 identifier_t    id;
                 device_ptr      ptr;
@@ -42,15 +42,15 @@ namespace ucle::fnsim {
             using memory_type = Memory<endianness, address_type>;
             using config_type = Config;
 
-            functional_simulator_impl(config_type cfg)
-                : cfg_(cfg), mem_asp_(cfg.memory_addr_range), dev_asp_(cfg.devices_addr_range)
+            functional_processor_simulator_impl(config_type cfg)
+                : cfg_(cfg), mem_asp_(cfg.mem_addr_range), dev_asp_(cfg.dev_addr_range)
             {
-                mem_ptr_ = std::make_shared<memory_type>(cfg.memory_size);
-                device_config mem_cfg { true, false, device_mapping::memory_mapping, cfg.memory_addr_range, 0 };
+                mem_ptr_ = std::make_shared<memory_type>(cfg.mem_size);
+                device_config mem_cfg { device_class::memory, cfg.mem_addr_range, false, 0 };
                 mem_id_ = add_device(std::dynamic_pointer_cast<mapped_device_type>(mem_ptr_), mem_cfg);
             }
 
-            ~functional_simulator_impl() override { remove_device(mem_id_); }
+            ~functional_processor_simulator_impl() override { remove_device(mem_id_); }
 
             void reset() override
             {
@@ -70,21 +70,25 @@ namespace ucle::fnsim {
 
             identifier_t add_device(device_ptr dev_ptr, device_config dev_cfg) override
             {
-                device_info info = { next_dev_id_++, dev_ptr, device_mapping::no_mapping };
+                auto mapping = [&](){
+                    switch (dev_cfg.dev_class) {
+                        case device_class::memory:              return device_mapping::memory;
+                        case device_class::addressable_device:  return cfg_.dev_default_mapping;
+                        default:                                return device_mapping::none;
+                    }
+                }();
 
-                if (dev_cfg.is_addressable) {
-                    info.mapping = (dev_cfg.mapping == device_mapping::simulator_default) ? cfg_.devices_default_mapping : dev_cfg.mapping;
-
-                    if (info.mapping == device_mapping::memory_mapping)
-                        mem_asp_.register_device(std::dynamic_pointer_cast<mapped_device_type>(dev_ptr), dev_cfg.addr_range);
-                    else
-                        dev_asp_.register_device(std::dynamic_pointer_cast<mapped_device_type>(dev_ptr), dev_cfg.addr_range);
-                }
-
+                device_info info = { next_dev_id_++, dev_ptr, mapping };
                 devs_[info.id] = info;
+
+                if (info.mapping == device_mapping::memory)
+                    mem_asp_.register_device(std::dynamic_pointer_cast<mapped_device_type>(dev_ptr), dev_cfg.addr_range);
+                else if (info.mapping == device_mapping::port)
+                    dev_asp_.register_device(std::dynamic_pointer_cast<mapped_device_type>(dev_ptr), dev_cfg.addr_range);
 
                 return info.id;
             }
+
             void remove_device(identifier_t dev_id) override
             {
                 auto dev_it = devs_.find(dev_id);
@@ -93,12 +97,10 @@ namespace ucle::fnsim {
 
                 const auto &info = dev_it->second;
 
-                if (info.mapping != device_mapping::no_mapping) {
-                    if (info.mapping == device_mapping::memory_mapping)
-                        mem_asp_.unregister_device(std::dynamic_pointer_cast<mapped_device_type>(info.ptr));
-                    else
-                        dev_asp_.unregister_device(std::dynamic_pointer_cast<mapped_device_type>(info.ptr));
-                }
+                if (info.mapping == device_mapping::memory)
+                    mem_asp_.unregister_device(std::dynamic_pointer_cast<mapped_device_type>(info.ptr));
+                else if (info.mapping == device_mapping::port)
+                    dev_asp_.unregister_device(std::dynamic_pointer_cast<mapped_device_type>(info.ptr));
             }
 
         protected:

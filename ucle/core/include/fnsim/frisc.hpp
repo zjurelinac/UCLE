@@ -50,14 +50,14 @@ namespace ucle::fnsim {
         }
     };
 
-    class frisc_simulator : public functional_simulator_impl<byte_order::little_endian, address_t, mapped_device, address_space, memory> {
+    class frisc_simulator : public functional_processor_simulator_impl<byte_order::little_endian, address_t, mapped_device, address_space, memory> {
         using cbu = util::const_bit_util<word_t>;
         using unop = util::unop<word_t>;
         using binop = util::binop<word_t, frisc_arith_flags>;
-        using parent = functional_simulator_impl<byte_order::little_endian, address_t, mapped_device, address_space, memory>;
+        using parent = functional_processor_simulator_impl<byte_order::little_endian, address_t, mapped_device, address_space, memory>;
 
         public:
-            using parent::functional_simulator_impl;
+            using parent::functional_processor_simulator_impl;
 
             address_t get_program_counter() const override { return regs_.PC; };
             void set_program_counter(address_t location) override { regs_.PC = location; }
@@ -78,7 +78,7 @@ namespace ucle::fnsim {
             frisc_register_file regs_;
     };
 
-    functional_simulator_ptr make_frisc_simulator(simulator_config cfg);
+    functional_processor_simulator_ptr make_frisc_simulator(simulator_config cfg);
 
 }
 

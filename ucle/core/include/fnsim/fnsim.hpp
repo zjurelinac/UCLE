@@ -9,9 +9,9 @@
 
 namespace ucle::fnsim {
 
-    class functional_simulator {
+    class functional_processor_simulator {
         public:
-            virtual ~functional_simulator() = default;
+            virtual ~functional_processor_simulator() = default;
 
             virtual address_t get_program_counter() const = 0;
             virtual void set_program_counter(address_t location) = 0;
@@ -27,7 +27,7 @@ namespace ucle::fnsim {
             virtual identifier_t add_device(device_ptr dev_ptr, device_config cfg) = 0;
             virtual void remove_device(identifier_t dev_id) = 0;
 
-            simulator_state get_state() { return state_; }
+            auto get_state() { return state_; }
             void set_state(simulator_state state) { state_ = state; }
 
         protected:
@@ -37,7 +37,7 @@ namespace ucle::fnsim {
             simulator_state state_ = simulator_state::initialized;
     };
 
-    using functional_simulator_ptr = std::unique_ptr<functional_simulator>;
+    using functional_processor_simulator_ptr = std::unique_ptr<functional_processor_simulator>;
 
 }
 
