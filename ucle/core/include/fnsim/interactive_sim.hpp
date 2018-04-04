@@ -23,6 +23,17 @@ namespace ucle::fnsim {
         std::string descr;
     };
 
+    inline void print_icmd_descr(const interactive_cmd_descr& icmd)
+    {
+        if (icmd.use.size() > 16) {
+            fmt::print_colored(fmt::CYAN, "  {}\n", icmd.use);
+            fmt::print("  {:<16}{}\n", "", icmd.descr);
+        } else {
+            fmt::print_colored(fmt::CYAN, "  {:<16}", icmd.use);
+            fmt::print("{}\n", icmd.descr);
+        }
+    }
+
     class interactive_simulation {
         public:
             interactive_simulation() = delete;
@@ -48,8 +59,10 @@ namespace ucle::fnsim {
             void cmd_info(args_list);
 
             void init_cmd_descrs_();
-            void show_correct_use_();
             void show_simulation_state_();
+
+            void warn_unknown_cmd_(std::string cmd_name);
+            void warn_incorrect_use_(std::string cmd_name);
 
             functional_simulation& sim_;
             std::string pfile_;

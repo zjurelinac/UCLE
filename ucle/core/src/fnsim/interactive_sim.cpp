@@ -15,15 +15,8 @@ void fnsim::interactive_simulation::cmd_help(fnsim::args_list)
     fmt::print("* Help - interactive processor simulation\n");
     fmt::print("======================================================================\n");
 
-    for (const auto& icmd : icmds_) {
-        if (icmd.use.size() > 16) {
-            fmt::print_colored(fmt::CYAN, "  {}\n", icmd.use);
-            fmt::print("  {:<16}{}\n", "", icmd.descr);
-        } else {
-            fmt::print_colored(fmt::CYAN, "  {:<16}", icmd.use);
-            fmt::print("{}\n", icmd.descr);
-        }
-    }
+    for (const auto& icmd : icmds_)
+        print_icmd_descr(icmd);
 
     fmt::print("\n");
 }
@@ -123,8 +116,20 @@ void fnsim::interactive_simulation::cmd_quit(fnsim::args_list)
 
 void fnsim::interactive_simulation::cmd_break(fnsim::args_list args)
 {
-    // fmt::print_colored(fmt::BLUE, "* Break!\n");
-    // if (args.size() < 1)
+    if (args.size() == 0)
+        warn_incorrect_use_("break");
+
+    if (args[0] == "show") {
+        fmt::print("Showing all breakpoints");
+    } else if (args[0] == "add") {
+        fmt::print("Adding a breakpoint");
+    } else if (args[0] == "del") {
+        fmt::print("Removing a breakpoint");
+    } else if (args[0] == "clear") {
+        fmt::print("Clearing all breakpoints");
+    } else {
+        warn_incorrect_use_("break");
+    }
 }
 
 void fnsim::interactive_simulation::cmd_watch(fnsim::args_list)
@@ -138,9 +143,25 @@ void fnsim::interactive_simulation::cmd_info(fnsim::args_list)
     print_reg_info(sim_.get_reg_info());
 }
 
-void show_correct_use()
+void fnsim::interactive_simulation::warn_unknown_cmd_(std::string cmd_name)
 {
+    fmt::print_colored(fmt::RED, "! Unknown command: {}\n", cmd_name);
+    fmt::print("? Perhaps try one of the following:\n");
+    cmd_help({});
+}
 
+void fnsim::interactive_simulation::warn_incorrect_use_(std::string cmd_name)
+{
+    auto icmd_it = std::find_if(icmds_.begin(), icmds_.end(), [&cmd_name](auto icmd) { return icmd.name == cmd_name; });
+
+    if (icmd_it == icmds_.end()) {
+        warn_unknown_cmd_(cmd_name);
+        return;
+    }
+
+    fmt::print_colored(fmt::RED, "! Incorrect command call of: {}\n", cmd_name);
+    fmt::print("? Try matching the following format:\n");
+    print_icmd_descr(*icmd_it);
 }
 
 void fnsim::interactive_simulation::show_simulation_state_()
@@ -173,8 +194,8 @@ void fnsim::interactive_simulation::init_cmd_descrs_()
         {'t', "reset", &interactive_simulation::cmd_reset, "rese[t]", "Reset simulator - clear registers and memory contents"},
         {'q', "quit", &interactive_simulation::cmd_quit, "[q]uit", "Quit interactive simulation"},
 
-        {'b', "break", &interactive_simulation::cmd_break, "[b]reak (add ADDR | del ADDR | clear)", "Add/remove a breakpoint at the ADDR / Clear all breakpoints"},
-        {'w', "watch", &interactive_simulation::cmd_watch, "[w]atch (add ADDR | del ADDR | clear)", "Add/remove a watch at the ADDR / Clear all watches"},
+        {'b', "break", &interactive_simulation::cmd_break, "[b]reak (show | add ADDR | del ADDR | clear)", "Show breakpoints | Add/remove breakpoint at ADDR | Clear all breakpoints"},
+        {'w', "watch", &interactive_simulation::cmd_watch, "[w]atch (show | add ADDR | del ADDR | clear)", "Show watches | Add/remove watch at ADDR | Clear all watches"},
         {'i', "info", &interactive_simulation::cmd_info, "[i]nfo", "Display processor state (= value of it's registers)"}
     };
 }
@@ -213,11 +234,8 @@ void fnsim::interactive_simulation::run()
                     break;
                 }
 
-        if (!found_cmd) {
-            fmt::print_colored(fmt::RED, "! Unknown command: {}\n", cmd_name);
-            fmt::print("? Perhaps try one of the following:\n");
-            cmd_help({});
-        }
+        if (!found_cmd)
+            warn_unknown_cmd_(cmd_name);
     }
 }
 
