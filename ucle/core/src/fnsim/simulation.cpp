@@ -60,6 +60,21 @@ fnsim::status fnsim::functional_simulation::step() noexcept {
     return fnsim_->get_state() != simulator_state::exception ? status::ok : status::runtime_exception;
 }
 
+fnsim::status fnsim::functional_simulation::step_n(size_t num_steps) noexcept
+{
+    if (fnsim_->get_state() != simulator_state::stopped)
+        return status::invalid_state;
+
+    fnsim_->set_state(simulator_state::running);
+
+    do { step_(); } while (fnsim_->get_state() == simulator_state::running && num_steps-- > 0);
+
+    if (fnsim_->get_state() == simulator_state::running)
+        fnsim_->set_state(simulator_state::stopped);
+
+    return fnsim_->get_state() != simulator_state::exception ? status::ok : status::runtime_exception;
+}
+
 fnsim::status fnsim::functional_simulation::until(address_t location) noexcept {
      if (fnsim_->get_state() != simulator_state::stopped)
         return status::invalid_state;

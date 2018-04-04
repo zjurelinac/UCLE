@@ -26,6 +26,7 @@ namespace ucle::fnsim {
             status run(address_t start_location = 0) noexcept;
             status cont() noexcept;
             status step() noexcept;
+            status step_n(size_t num_steps) noexcept;
             status until(address_t location) noexcept;
             status reset() noexcept;
             status quit() noexcept;
