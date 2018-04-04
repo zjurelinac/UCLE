@@ -78,7 +78,7 @@ namespace ucle::fnsim {
             frisc_register_file regs_;
     };
 
-    functional_processor_simulator_ptr make_frisc_simulator(simulator_config cfg);
+    functional_processor_simulator_ptr make_frisc_simulator(processor_config cfg);
 
 }
 

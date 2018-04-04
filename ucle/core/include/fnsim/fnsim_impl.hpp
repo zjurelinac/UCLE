@@ -25,7 +25,7 @@ namespace ucle::fnsim {
               typename AddressSpace,                // Processor's address space class
         template <byte_order, typename AddrType>
               typename Memory,                      // Processor's internal memory device class
-              typename Config = simulator_config    // Processor config parameters class
+              typename Config = processor_config    // Processor config parameters class
     >
     class functional_processor_simulator_impl : public functional_processor_simulator {
             struct device_info {

@@ -82,7 +82,7 @@ namespace ucle::fnsim {
         priority_t      interrupt_priority  = 0;
     };
 
-    struct simulator_config {
+    struct processor_config {
         size_t          mem_size;
         address_range   mem_addr_range      = {0, 0xFFFFFFFF};
         device_mapping  dev_default_mapping = device_mapping::memory;

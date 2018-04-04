@@ -11,7 +11,7 @@
 
 namespace ucle::fnsim {
 
-    using fnsim_factory = std::function<functional_processor_simulator_ptr(fnsim::simulator_config)>;
+    using fnsim_factory = std::function<functional_processor_simulator_ptr(fnsim::processor_config)>;
 
     std::set<std::string> factory_options = {"frisc"};
     std::unordered_map<std::string, fnsim_factory> factory = {
