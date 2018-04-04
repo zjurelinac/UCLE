@@ -54,7 +54,7 @@ namespace ucle::util {
     }
 
     // split string into words
-    static std::vector<std::string> split(std::string s, char delim = ' ')
+    static inline std::vector<std::string> split(std::string s, char delim = ' ')
     {
         std::istringstream iss {s};
         std::vector<std::string> tokens;

@@ -1,11 +1,11 @@
 #ifndef _UCLE_CORE_FNSIM_SIMULATION_HPP_
 #define _UCLE_CORE_FNSIM_SIMULATION_HPP_
 
-#include <common/exceptions.hpp>
 #include <common/structures.hpp>
 #include <common/types.hpp>
 
 #include <fnsim/base.hpp>
+#include <fnsim/exceptions.hpp>
 #include <fnsim/fnsim.hpp>
 
 #include <memory>

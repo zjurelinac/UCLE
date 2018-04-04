@@ -1,13 +1,13 @@
 #ifndef _UCLE_CORE_FNSIM_BASIC_DEVICES_HPP_
 #define _UCLE_CORE_FNSIM_BASIC_DEVICES_HPP_
 
-#include <common/exceptions.hpp>
 #include <common/meta.hpp>
 #include <common/structures.hpp>
 #include <common/types.hpp>
 
 #include <fnsim/address_space.hpp>
 #include <fnsim/base.hpp>
+#include <fnsim/exceptions.hpp>
 #include <fnsim/registers.hpp>
 
 #include <array>

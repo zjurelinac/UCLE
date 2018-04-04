@@ -4,9 +4,10 @@
 #include <common/meta.hpp>
 #include <common/types.hpp>
 
-#include <fnsim/fnsim.hpp>
 #include <fnsim/address_space.hpp>
 #include <fnsim/basic_devices.hpp>
+#include <fnsim/exceptions.hpp>
+#include <fnsim/fnsim.hpp>
 
 #include <util/const_bit_util.hpp>
 

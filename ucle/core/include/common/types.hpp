@@ -60,6 +60,14 @@ namespace ucle {
         constexpr auto shift() const { return low; }
         constexpr auto fullmask() const { return mask() << low; }
     };
+
+    class base_exception : public std::exception {
+        public:
+            base_exception(std::string desc) : desc_(desc) {}
+            virtual const char* what() const noexcept override { return desc_.c_str(); }
+        private:
+            std::string desc_;
+    };
 }
 
 
