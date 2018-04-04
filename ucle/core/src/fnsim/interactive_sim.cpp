@@ -25,10 +25,15 @@ void fnsim::interactive_simulation::cmd_run(fnsim::args_list args)
 {
     address_t start_location = 0;
 
-    if (args.size() > 0)
-        start_location = std::stol(args[0]);
+    if (args.size() > 0) {
+        start_location = std::strtol(args[0].c_str(), nullptr, 0);
+        if (start_location == 0) {
+            fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be an oct/dec/hex integer larger than 0)\n", args[0]);
+            return;
+        }
+    }
 
-    fmt::print("* Starting program from {}...\n", start_location);
+    fmt::print("* Starting program @ 0x{:08X}\n", start_location);
     if (auto stat = sim_.start(start_location); is_error(stat)) {
         fmt::print_colored(fmt::RED, "! Error occurred: {}\n", to_string(stat));
         return;
@@ -47,10 +52,15 @@ void fnsim::interactive_simulation::cmd_start(fnsim::args_list args)
 {
     address_t start_location = 0;
 
-    if (args.size() > 0)
-        start_location = std::stol(args[0]);
+    if (args.size() > 0) {
+        start_location = std::strtol(args[0].c_str(), nullptr, 0);
+        if (start_location == 0) {
+            fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be an oct/dec/hex integer larger than 0)\n", args[0]);
+            return;
+        }
+    }
 
-    fmt::print("* Starting program from {}...\n", start_location);
+    fmt::print("* Starting program @ 0x{:08X}\n", start_location);
     if (auto stat = sim_.start(start_location); is_error(stat)) {
         fmt::print_colored(fmt::RED, "! Error occurred: {}\n", to_string(stat));
         return;
@@ -72,8 +82,6 @@ void fnsim::interactive_simulation::cmd_cont(fnsim::args_list)
 
 void fnsim::interactive_simulation::cmd_step(fnsim::args_list)
 {
-    fmt::print("* Stepping...\n");
-
     if (auto stat = sim_.step(); is_error(stat)) {
         fmt::print_colored(fmt::RED, "! Error occurred: {}\n", to_string(stat));
     } else {
@@ -83,12 +91,46 @@ void fnsim::interactive_simulation::cmd_step(fnsim::args_list)
 
 void fnsim::interactive_simulation::cmd_step_n(fnsim::args_list args)
 {
+    if (args.size() == 0) {
+        warn_incorrect_use_("break");
+        return;
+    }
 
+    auto num_steps = std::strtol(args[0].c_str(), nullptr, 10);
+    if (num_steps == 0) {
+        fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as a number (must be a decimal integer larger than 0)\n", args[0]);
+        return;
+    }
+
+    fmt::print("* Executing {} steps of the simulation...\n", num_steps);
+
+    if (auto stat = sim_.step_n(num_steps); is_error(stat)) {
+        fmt::print_colored(fmt::RED, "! Error occurred: {}\n", to_string(stat));
+    } else {
+        show_simulation_state_();
+    }
 }
 
-void fnsim::interactive_simulation::cmd_until(fnsim::args_list)
+void fnsim::interactive_simulation::cmd_until(fnsim::args_list args)
 {
-    fmt::print("* Until!\n");
+    if (args.size() == 0) {
+        warn_incorrect_use_("break");
+        return;
+    }
+
+    auto location = std::strtol(args[0].c_str(), nullptr, 0);
+    if (location == 0) {
+        fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be an oct/dec/hex integer larger than 0)\n", args[0]);
+        return;
+    }
+
+    fmt::print("* Executing simulation until @ 0x{:08X}\n", location);
+
+    if (auto stat = sim_.until(location); is_error(stat)) {
+        fmt::print_colored(fmt::RED, "! Error occurred: {}\n", to_string(stat));
+    } else {
+        show_simulation_state_();
+    }
 }
 
 void fnsim::interactive_simulation::cmd_reset(fnsim::args_list)
@@ -134,7 +176,7 @@ void fnsim::interactive_simulation::cmd_break(fnsim::args_list args)
 
         auto location = std::strtol(args[1].c_str(), nullptr, 0);
         if (location == 0) {
-            fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be a base-8/10/16 integer larger than 0).\n", args[1]);
+            fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be an oct/dec/hex integer larger than 0)\n", args[1]);
             return;
         }
 
@@ -149,7 +191,7 @@ void fnsim::interactive_simulation::cmd_break(fnsim::args_list args)
 
         auto location = std::strtol(args[1].c_str(), nullptr, 0);
         if (location == 0) {
-            fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be a base-8/10/16 integer larger than 0).\n", args[1]);
+            fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be an oct/dec/hex integer larger than 0)\n", args[1]);
             return;
         }
         sim_.remove_breakpoint(location);
