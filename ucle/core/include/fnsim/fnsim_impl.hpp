@@ -73,7 +73,7 @@ namespace ucle::fnsim {
                 auto mapping = [&](){
                     switch (dev_cfg.dev_class) {
                         case device_class::memory:              return device_mapping::memory;
-                        case device_class::addressable_device:  return cfg_.dev_default_mapping;
+                        case device_class::addressable_device:  return cfg_.default_mapping;
                         default:                                return device_mapping::none;
                     }
                 }();

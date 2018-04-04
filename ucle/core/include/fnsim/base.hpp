@@ -13,10 +13,17 @@
 
 namespace ucle::fnsim {
 
+    // Enumerations
+
     enum class byte_order { little_endian, big_endian };
 
+    enum class device_class { memory, addressable_device, non_addressable_device };
+
     enum class device_mapping { none, memory, port };
-    enum class device_status {};  // TODO: Select possible options
+
+    // enum class device_status {};  // TODO: Select possible options
+
+    enum class detail_level { none, medium, maximum };
 
     enum class simulator_state { initialized, loaded, running, stopped, exception, terminated };
 
@@ -62,6 +69,8 @@ namespace ucle::fnsim {
     constexpr bool is_success(status stat) { return stat == status::ok; }
     constexpr bool is_error(status stat) { return stat != status::ok; }
 
+    // Device interface
+
     class device {
         public:
             virtual ~device() = default;
@@ -73,7 +82,7 @@ namespace ucle::fnsim {
 
     using device_ptr = std::shared_ptr<device>;
 
-    enum class device_class { memory, addressable_device, non_addressable_device };
+    // Config structures
 
     struct device_config {
         device_class    dev_class           = device_class::addressable_device;
@@ -85,8 +94,25 @@ namespace ucle::fnsim {
     struct processor_config {
         size_t          mem_size;
         address_range   mem_addr_range      = {0, 0xFFFFFFFF};
-        device_mapping  dev_default_mapping = device_mapping::memory;
+        device_mapping  default_mapping     = device_mapping::memory;
         address_range   dev_addr_range      = {0, 0};
+        detail_level    detailness          = detail_level::none;
+    };
+
+    struct simulation_config {
+        bool            allow_breakpoints   = true;
+        bool            allow_watches       = false;
+        bool            count_exec_cycles   = false;
+        bool            measure_exec_time   = false;
+        bool            use_fixed_frequency = false;
+        frequency_t     fixed_frequency     = 0;
+    };
+
+    // Utility structures
+
+    struct state_info {
+        simulator_state state;
+        address_t program_location;
     };
 
     using reg_val = std::variant<bool, byte_t, half_t, word_t, dword_t>;
@@ -113,14 +139,6 @@ namespace ucle::fnsim {
             [](dword_t val) { return fmt::format("0x{:016X}", val); },
         }, rv);
     }
-
-    // enum class
-    // struct watch_info {  };
-
-    struct state_info {
-        simulator_state state;
-        address_t program_location;
-    };
 
 }
 

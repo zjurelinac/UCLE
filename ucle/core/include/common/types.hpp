@@ -28,6 +28,9 @@ namespace ucle {
     using identifier_t = uint32_t;
     using priority_t = uint32_t;
 
+    using counter_t = uint64_t;
+    using frequency_t = uint64_t;
+
     struct address_range {
         address_t low_addr, high_addr;
 
