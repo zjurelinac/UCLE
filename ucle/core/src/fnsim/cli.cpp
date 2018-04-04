@@ -49,8 +49,8 @@ int main(int argc, char* argv[]) {
     if (cli_cfg.run_interactive) {
         run_interactive_simulation(sim, cli_cfg.pfile);
     } else {
-        sim.run();
         sim.load_pfile(cli_cfg.pfile);
+        sim.run();
 
         if (cli_cfg.print_reg_info)
             print_reg_info(sim.get_reg_info());
