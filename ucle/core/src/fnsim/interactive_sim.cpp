@@ -1,6 +1,5 @@
 #include <fnsim/interactive_sim.hpp>
 
-#include <fnsim/base.hpp>
 #include <libs/fmt/format.h>
 #include <util/string.hpp>
 

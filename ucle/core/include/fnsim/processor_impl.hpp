@@ -7,7 +7,7 @@
 #include <fnsim/address_space.hpp>
 #include <fnsim/basic_devices.hpp>
 #include <fnsim/exceptions.hpp>
-#include <fnsim/fnsim.hpp>
+#include <fnsim/processor.hpp>
 
 #include <util/const_bit_util.hpp>
 

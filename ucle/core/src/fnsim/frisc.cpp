@@ -1,9 +1,5 @@
 #include <fnsim/frisc.hpp>
 
-#include <common/types.hpp>
-
-#include <fnsim/fnsim_impl.hpp>
-
 #include <memory>
 
 namespace fnsim = ucle::fnsim;

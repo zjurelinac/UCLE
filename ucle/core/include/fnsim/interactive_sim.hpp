@@ -1,6 +1,7 @@
 #ifndef _UCLE_CORE_FNSIM_INTERACTIVE_SIM_HPP_
 #define _UCLE_CORE_FNSIM_INTERACTIVE_SIM_HPP_
 
+#include <fnsim/base.hpp>
 #include <fnsim/simulation.hpp>
 
 #include <functional>

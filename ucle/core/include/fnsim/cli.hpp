@@ -1,6 +1,11 @@
 #ifndef _UCLE_CORE_FNSIM_CLI_HPP_
 #define _UCLE_CORE_FNSIM_CLI_HPP_
 
+#include <fnsim/base.hpp>
+#include <fnsim/checker.hpp>
+#include <fnsim/interactive_sim.hpp>
+#include <fnsim/simulation.hpp>
+
 #include <fnsim/frisc.hpp>
 
 #include <functional>

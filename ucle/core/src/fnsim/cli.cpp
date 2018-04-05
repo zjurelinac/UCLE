@@ -1,10 +1,5 @@
 #include <fnsim/cli.hpp>
 
-#include <fnsim/base.hpp>
-#include <fnsim/checker.hpp>
-#include <fnsim/interactive_sim.hpp>
-#include <fnsim/simulation.hpp>
-
 #include <libs/cli/cli11.hpp>
 #include <libs/fmt/format.h>
 

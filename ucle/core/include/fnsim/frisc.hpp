@@ -5,9 +5,9 @@
 
 #include <fnsim/address_space.hpp>
 #include <fnsim/base.hpp>
-#include <fnsim/fnsim.hpp>
+#include <fnsim/processor.hpp>
 #include <fnsim/basic_devices.hpp>
-#include <fnsim/fnsim_impl.hpp>
+#include <fnsim/processor_impl.hpp>
 #include <fnsim/registers.hpp>
 
 #include <util/binary.hpp>

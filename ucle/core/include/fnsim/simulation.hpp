@@ -6,7 +6,7 @@
 
 #include <fnsim/base.hpp>
 #include <fnsim/exceptions.hpp>
-#include <fnsim/fnsim.hpp>
+#include <fnsim/processor.hpp>
 
 #include <memory>
 #include <set>
