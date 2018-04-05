@@ -40,14 +40,14 @@ namespace ucle::fnsim {
             using address_space_type = AddressSpace<mapped_device_type>;
             using mapped_device_ptr = typename address_space_type::mapped_device_ptr;
             using memory_type = Memory<endianness, address_type>;
+            using memory_ptr = std::unique_ptr<memory_type>;
             using config_type = Config;
 
             functional_processor_simulator_impl(config_type cfg)
                 : cfg_(cfg), mem_asp_(cfg.mem_addr_range), dev_asp_(cfg.dev_addr_range)
             {
-                mem_ptr_ = std::make_shared<memory_type>(cfg.mem_size);
-                device_config mem_cfg { device_class::memory, cfg.mem_addr_range, false, 0 };
-                mem_id_ = add_device(std::dynamic_pointer_cast<mapped_device_type>(mem_ptr_), mem_cfg);
+                device_config mem_cfg { device_class::memory, {0, cfg.mem_size}, false, 0 };
+                mem_id_ = add_device(std::make_unique<memory_type>(cfg.mem_size), mem_cfg);
             }
 
             ~functional_processor_simulator_impl() override { remove_device(mem_id_); }
@@ -78,15 +78,14 @@ namespace ucle::fnsim {
                     }
                 }();
 
-                device_info info = { next_dev_id_++, dev_ptr, mapping };
-                devs_[info.id] = info;
+                devs_[next_dev_id_] = { next_dev_id_, std::move(dev_ptr), mapping };
 
-                if (info.mapping == device_mapping::memory)
-                    mem_asp_.register_device(std::dynamic_pointer_cast<mapped_device_type>(dev_ptr), dev_cfg.addr_range);
-                else if (info.mapping == device_mapping::port)
-                    dev_asp_.register_device(std::dynamic_pointer_cast<mapped_device_type>(dev_ptr), dev_cfg.addr_range);
+                if (mapping == device_mapping::memory)
+                    mem_asp_.register_device(dynamic_cast<mapped_device_ptr>(dev_ptr.get()), dev_cfg.addr_range);
+                else if (mapping == device_mapping::port)
+                    dev_asp_.register_device(dynamic_cast<mapped_device_ptr>(dev_ptr.get()), dev_cfg.addr_range);
 
-                return info.id;
+                return next_dev_id_++;
             }
 
             void remove_device(identifier_t dev_id) override
@@ -98,9 +97,9 @@ namespace ucle::fnsim {
                 const auto &info = dev_it->second;
 
                 if (info.mapping == device_mapping::memory)
-                    mem_asp_.unregister_device(std::dynamic_pointer_cast<mapped_device_type>(info.ptr));
+                    mem_asp_.unregister_device(dynamic_cast<mapped_device_ptr>(info.ptr.get()));
                 else if (info.mapping == device_mapping::port)
-                    dev_asp_.unregister_device(std::dynamic_pointer_cast<mapped_device_type>(info.ptr));
+                    dev_asp_.unregister_device(dynamic_cast<mapped_device_ptr>(info.ptr.get()));
             }
 
         protected:
@@ -115,8 +114,7 @@ namespace ucle::fnsim {
             config_type             cfg_;
             address_space_type      mem_asp_;
             address_space_type      dev_asp_;
-            mapped_device_ptr       mem_ptr_;                       /* Internal memory device pointer */
-            identifier_t            mem_id_;                        /* Internal memory device ID */
+            identifier_t            mem_id_;
             std::unordered_map<identifier_t, device_info> devs_;    /* Pointers and info about all used devices */
             identifier_t            next_dev_id_ = 0;               /* Next unique ID to be assigned to a device upon registration */
             // TODO: Interrupt handling

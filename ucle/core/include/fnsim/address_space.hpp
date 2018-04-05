@@ -17,7 +17,7 @@ namespace ucle::fnsim {
     class address_space {
         public:
             using mapped_device_type = MappedDeviceType;
-            using mapped_device_ptr = std::shared_ptr<mapped_device_type>;
+            using mapped_device_ptr = mapped_device_type*;
             using mapped_device_info = std::pair<address_range, mapped_device_ptr>;
 
             address_space() = delete;

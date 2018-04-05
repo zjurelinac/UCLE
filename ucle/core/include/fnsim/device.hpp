@@ -25,7 +25,7 @@ namespace ucle::fnsim {
             virtual void reset() = 0;
     };
 
-    using device_ptr = std::shared_ptr<device>;
+    using device_ptr = std::unique_ptr<device>;
 
     template<byte_order endianness, typename AddressType = address_t>
     class mapped_device : public device {

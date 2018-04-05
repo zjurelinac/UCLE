@@ -105,7 +105,7 @@ namespace ucle::fnsim {
             std::optional<identifier_t> add_device(device_ptr dev_ptr, device_config cfg) noexcept
             {
                 try {
-                    return fnsim_->add_device(dev_ptr, cfg);
+                    return fnsim_->add_device(std::move(dev_ptr), cfg);
                 } catch (std::exception &e) {
                     return std::nullopt;
                 }
