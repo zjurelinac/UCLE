@@ -69,19 +69,6 @@ namespace ucle::fnsim {
     constexpr bool is_success(status stat) { return stat == status::ok; }
     constexpr bool is_error(status stat) { return stat != status::ok; }
 
-    // Device interface
-
-    class device {
-        public:
-            virtual ~device() = default;
-
-            virtual void work() = 0;
-            virtual void status() = 0;
-            virtual void reset() = 0;
-    };
-
-    using device_ptr = std::shared_ptr<device>;
-
     // Config structures
 
     struct device_config {

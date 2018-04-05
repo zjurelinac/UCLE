@@ -4,6 +4,7 @@
 #include <common/types.hpp>
 
 #include <fnsim/base.hpp>
+#include <fnsim/device.hpp>
 
 #include <memory>
 

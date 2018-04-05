@@ -16,6 +16,17 @@
 
 namespace ucle::fnsim {
 
+    class device {
+        public:
+            virtual ~device() = default;
+
+            virtual void work() = 0;
+            virtual void status() = 0;
+            virtual void reset() = 0;
+    };
+
+    using device_ptr = std::shared_ptr<device>;
+
     template<byte_order endianness, typename AddressType = address_t>
     class mapped_device : public device {
         public:

@@ -4,10 +4,10 @@
 #include <common/meta.hpp>
 #include <common/types.hpp>
 
-#include <fnsim/base.hpp>
 #include <fnsim/exceptions.hpp>
 
 #include <algorithm>
+#include <memory>
 #include <utility>
 #include <vector>
 
