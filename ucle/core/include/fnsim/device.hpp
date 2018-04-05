@@ -68,9 +68,6 @@ namespace ucle::fnsim {
             virtual void write_bytes_(address_type location, small_byte_vector& bytes) = 0;
     };
 
-    template <byte_order endianness, typename AddressType = address_t>
-    using mapped_device_ptr = std::shared_ptr<mapped_device<endianness, AddressType>>;
-
     template<byte_order endianness, typename AddressType = address_t>
     class memory_block_device : public mapped_device<endianness, AddressType> {
         public:
