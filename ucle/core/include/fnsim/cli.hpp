@@ -6,7 +6,7 @@
 #include <fnsim/interactive_sim.hpp>
 #include <fnsim/simulation.hpp>
 
-#include <fnsim/frisc.hpp>
+#include <fnsim/processors/frisc.hpp>
 
 #include <functional>
 #include <set>

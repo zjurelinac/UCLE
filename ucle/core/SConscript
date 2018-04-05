@@ -41,11 +41,11 @@ debug.Append(CPPDEFINES=['DEBUG'], CCFLAGS=['-O1', '-g'])
 debug.VariantDir('debug', 'src', duplicate=0)
 debug.VariantDir('debug/tests', 'tests', duplicate=0)
 
-simulators = ['debug/fnsim/frisc.cpp']
+processors = ['debug/fnsim/processors/frisc.cpp']
 
 debug.Program(
     'debug/fnsim-cli',
-    ['debug/fnsim/cli.cpp', 'debug/fnsim/simulation.cpp', 'debug/fnsim/checker.cpp', 'debug/fnsim/interactive_sim.cpp'] + simulators,
+    ['debug/fnsim/cli.cpp', 'debug/fnsim/simulation.cpp', 'debug/fnsim/checker.cpp', 'debug/fnsim/interactive_sim.cpp'] + processors,
     LIBS=['fmt'],
     LIBPATH='.'
 )

@@ -1,5 +1,5 @@
-#ifndef _UCLE_CORE_FNSIM_BASIC_DEVICES_HPP_
-#define _UCLE_CORE_FNSIM_BASIC_DEVICES_HPP_
+#ifndef _UCLE_CORE_FNSIM_DEVICE_HPP_
+#define _UCLE_CORE_FNSIM_DEVICE_HPP_
 
 #include <common/meta.hpp>
 #include <common/structures.hpp>
@@ -132,4 +132,4 @@ namespace ucle::fnsim {
 
 }
 
-#endif  /* _UCLE_CORE_FNSIM_BASIC_DEVICES_HPP_ */
+#endif  /* _UCLE_CORE_FNSIM_DEVICE_HPP_ */

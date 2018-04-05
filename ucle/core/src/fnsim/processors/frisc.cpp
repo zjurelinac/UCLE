@@ -1,4 +1,4 @@
-#include <fnsim/frisc.hpp>
+#include <fnsim/processors/frisc.hpp>
 
 #include <memory>
 

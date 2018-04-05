@@ -1,11 +1,11 @@
-#ifndef _UCLE_CORE_FNSIM_FNSIM_IMPL_HPP_
-#define _UCLE_CORE_FNSIM_FNSIM_IMPL_HPP_
+#ifndef _UCLE_CORE_FNSIM_PROCESSOR_IMPL_HPP_
+#define _UCLE_CORE_FNSIM_PROCESSOR_IMPL_HPP_
 
 #include <common/meta.hpp>
 #include <common/types.hpp>
 
 #include <fnsim/address_space.hpp>
-#include <fnsim/basic_devices.hpp>
+#include <fnsim/device.hpp>
 #include <fnsim/exceptions.hpp>
 #include <fnsim/processor.hpp>
 
@@ -125,4 +125,4 @@ namespace ucle::fnsim {
 
 }
 
-#endif  /* _UCLE_CORE_FNSIM_FNSIM_IMPL_HPP_ */
+#endif  /* _UCLE_CORE_FNSIM_PROCESSOR_IMPL_HPP_ */

@@ -1,5 +1,5 @@
-#ifndef _UCLE_CORE_FNSIM_FNSIM_HPP_
-#define _UCLE_CORE_FNSIM_FNSIM_HPP_
+#ifndef _UCLE_CORE_FNSIM_PROCESSOR_HPP_
+#define _UCLE_CORE_FNSIM_PROCESSOR_HPP_
 
 #include <common/types.hpp>
 
@@ -41,4 +41,4 @@ namespace ucle::fnsim {
 
 }
 
-#endif  /* _UCLE_CORE_FNSIM_FNSIM_HPP_ */
+#endif  /* _UCLE_CORE_FNSIM_PROCESSOR_HPP_ */
