@@ -87,6 +87,7 @@ namespace ucle::fnsim {
     };
 
     struct simulation_config {
+        bool            allow_annotations   = true;
         bool            allow_breakpoints   = true;
         bool            allow_watches       = false;
         bool            count_exec_cycles   = false;

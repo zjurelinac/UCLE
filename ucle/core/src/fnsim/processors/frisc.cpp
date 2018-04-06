@@ -278,3 +278,16 @@ fnsim::functional_processor_simulator_ptr fnsim::make_frisc_simulator(fnsim::pro
 {
     return std::make_unique<frisc_simulator>(cfg);
 }
+
+#include <fnsim/simulation.hpp>
+
+int main(int, char* argv[]) {
+    using namespace ucle::fnsim;
+
+    processor_config sim_cfg {4096};
+    functional_simulation<> sim(make_frisc_simulator(sim_cfg));
+
+    auto x = sim.load_pfile(argv[1]);
+    sim.run();
+    print_reg_info(sim.get_reg_info());
+}

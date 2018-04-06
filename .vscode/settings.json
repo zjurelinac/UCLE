@@ -47,6 +47,7 @@
         "fstream": "cpp",
         "iostream": "cpp",
         "streambuf": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "unordered_map": "cpp"
     }
 }
