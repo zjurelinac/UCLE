@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <set>
+#include <unordered_map>
 #include <utility>
 
 namespace ucle::fnsim {
@@ -130,7 +131,11 @@ namespace ucle::fnsim {
 
             state_info get_state_info()
             {
-                return { fnsim_->get_state(), fnsim_->get_program_counter() };
+                return { 
+                    fnsim_->get_state(),
+                    fnsim_->get_program_counter(),
+                    get_asm_annotation_(fnsim_->get_program_counter())
+                };
             }
 
             // mem_info
@@ -165,15 +170,24 @@ namespace ucle::fnsim {
                 return fnsim_->get_state() != simulator_state::exception ? status::ok : status::runtime_exception;
             }
 
+            std::string get_asm_annotation_(address_t location)
+            {
+                return asm_annotations_[location];
+            }
+
+            void set_asm_annotation_(address_t location, std::string annotation)
+            {
+                asm_annotations_[location] = annotation;
+            }
+
             bool is_breakpoint_(address_t location) const { return breakpts_.count(location) || tmp_breakpts_.count(location); }
             void clear_tmp_breakpoints_(address_t location) { tmp_breakpts_.erase(location); }
 
-            functional_processor_simulator_ptr  fnsim_;
-            std::set<address_t>                 breakpts_;
-            std::set<address_t>                 tmp_breakpts_;
-            std::set<address_t>                 watches_;
-            // TODO: Annotations (ASM & C source lines)
-            // TODO: Call frame info
+            functional_processor_simulator_ptr          fnsim_;
+            std::set<address_t>                         breakpts_;
+            std::set<address_t>                         tmp_breakpts_;
+            std::set<address_t>                         watches_;
+            std::unordered_map<address_t, std::string>  asm_annotations_;
     };
 
     void print_reg_info(reg_info ri);

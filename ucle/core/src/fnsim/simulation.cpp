@@ -116,7 +116,7 @@ fnsim::status fnsim::functional_simulation::load_pfile(std::string filename, add
             iss >> std::hex >> address;
             address += start_location;
 
-            // Store the annotation
+            set_asm_annotation_(address, annotation);
 
             small_byte_vector bytes;
             while (iss >> byte)

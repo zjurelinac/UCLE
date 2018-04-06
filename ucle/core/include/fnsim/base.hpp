@@ -99,7 +99,8 @@ namespace ucle::fnsim {
 
     struct state_info {
         simulator_state state;
-        address_t program_location;
+        address_t       program_location;
+        std::string     asm_annotation;
     };
 
     using reg_val = std::variant<bool, byte_t, half_t, word_t, dword_t>;
