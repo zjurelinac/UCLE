@@ -78,12 +78,12 @@ namespace ucle::fnsim {
                     }
                 }();
 
-                devs_[next_dev_id_] = { next_dev_id_, std::move(dev_ptr), mapping };
-
                 if (mapping == device_mapping::memory)
                     mem_asp_.register_device(dynamic_cast<mapped_device_ptr>(dev_ptr.get()), dev_cfg.addr_range);
                 else if (mapping == device_mapping::port)
                     dev_asp_.register_device(dynamic_cast<mapped_device_ptr>(dev_ptr.get()), dev_cfg.addr_range);
+
+                devs_[next_dev_id_] = { next_dev_id_, std::move(dev_ptr), mapping };
 
                 return next_dev_id_++;
             }
