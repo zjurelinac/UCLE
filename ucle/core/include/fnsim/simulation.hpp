@@ -24,9 +24,49 @@
 #include <vector>
 
 namespace ucle::fnsim {
+    
+    template <typename AddressType>
+    class breakpoint_provider {
+        public:
+            using address_type = AddressType;
+
+            auto get_breakpoints()
+            {
+                return breakpts_;
+            }
+
+            void add_breakpoint(address_type breakpoint)
+            {
+                breakpts_.insert(breakpoint);
+            }
+
+            void remove_breakpoint(address_type breakpoint)
+            {
+                breakpts_.erase(breakpoint);
+            }
+
+            void clear_breakpoints()
+            {
+                breakpts_.clear();
+            }
+
+            void clear_all_breakpoints()
+            {
+                breakpts_.clear();
+                tmp_breakpts_.clear();
+            }
+        
+        protected:
+            bool is_breakpoint_(address_type location) const { return breakpts_.count(location) || tmp_breakpts_.count(location); }
+            void clear_tmp_breakpoints_(address_type location) { tmp_breakpts_.erase(location); }
+
+        private:
+            std::set<address_type> breakpts_;
+            std::set<address_type> tmp_breakpts_;
+    };
 
     template <typename AddressType = address_t>
-    class functional_simulation {
+    class functional_simulation: public breakpoint_provider<address_t> {
         public:
             using address_type = AddressType;
 
@@ -60,34 +100,6 @@ namespace ucle::fnsim {
             {
                 for (auto i = 0u; i < bytes.size(); ++i)
                     fnsim_->set_byte(location++, bytes[i]);
-            }
-
-            // Breakpoints
-
-            auto get_breakpoints()
-            {
-                return breakpts_;
-            }
-
-            void add_breakpoint(address_type breakpoint)
-            {
-                breakpts_.insert(breakpoint);
-            }
-
-            void remove_breakpoint(address_type breakpoint)
-            {
-                breakpts_.erase(breakpoint);
-            }
-
-            void clear_breakpoints()
-            {
-                breakpts_.clear();
-            }
-
-            void clear_all_breakpoints()
-            {
-                breakpts_.clear();
-                tmp_breakpts_.clear();
             }
 
             // Watches
@@ -191,12 +203,7 @@ namespace ucle::fnsim {
                 asm_annotations_[location] = annotation;
             }
 
-            bool is_breakpoint_(address_type location) const { return breakpts_.count(location) || tmp_breakpts_.count(location); }
-            void clear_tmp_breakpoints_(address_type location) { tmp_breakpts_.erase(location); }
-
             functional_processor_simulator_ptr fnsim_;
-            std::set<address_type> breakpts_;
-            std::set<address_type> tmp_breakpts_;
             std::set<address_type> watches_;
             std::unordered_map<address_type, std::string> asm_annotations_;
     };
