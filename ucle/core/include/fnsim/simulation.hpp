@@ -24,13 +24,22 @@
 #include <vector>
 
 namespace ucle::fnsim {
-    
+
     template <typename AddressType>
-    class breakpoint_provider {
+    class void_breakpoint_provider {
+        public:
+            std::set<address_type> get_breakpoints() { throw unsupported_feature("Breakpoints not supported!"); }
+            void add_breakpoint(address_type) { throw unsupported_feature("Breakpoints not supported!"); }
+            void remove_breakpoint(address_type breakpoint) { throw unsupported_feature("Breakpoints not supported!"); }
+            void clear_breakpoints() { throw unsupported_feature("Breakpoints not supported!"); }
+    };
+
+    template <typename AddressType>
+    class basic_breakpoint_provider {
         public:
             using address_type = AddressType;
 
-            auto get_breakpoints()
+            std::set<address_type> get_breakpoints()
             {
                 return breakpts_;
             }
@@ -50,14 +59,9 @@ namespace ucle::fnsim {
                 breakpts_.clear();
             }
 
-            void clear_all_breakpoints()
-            {
-                breakpts_.clear();
-                tmp_breakpts_.clear();
-            }
-        
         protected:
             bool is_breakpoint_(address_type location) const { return breakpts_.count(location) || tmp_breakpts_.count(location); }
+            void add_tmp_breakpoint_(address_type location) { tmp_breakpts_.insert(location); }
             void clear_tmp_breakpoints_(address_type location) { tmp_breakpts_.erase(location); }
 
         private:
@@ -65,8 +69,18 @@ namespace ucle::fnsim {
             std::set<address_type> tmp_breakpts_;
     };
 
-    template <typename AddressType = address_t>
-    class functional_simulation: public breakpoint_provider<address_t> {
+    template <
+        typename AddressType = address_t,
+        bool supports_breakpoints = true,
+
+        typename BreakpointProvider = std::conditional_t<supports_breakpoints,
+                                                            basic_breakpoint_provider<AddressType>,
+                                                            void_breakpoint_provider<AddressType>>
+    >
+    class functional_simulation:
+        public BreakpointProvider
+        // public
+    {
         public:
             using address_type = AddressType;
 
@@ -154,7 +168,7 @@ namespace ucle::fnsim {
 
             state_info get_state_info()
             {
-                return { 
+                return {
                     fnsim_->get_state(),
                     fnsim_->get_program_counter(),
                     get_asm_annotation_(fnsim_->get_program_counter())
@@ -177,9 +191,9 @@ namespace ucle::fnsim {
                     } else {
                         auto pc = fnsim_->get_program_counter();
 
-                        if (is_breakpoint_(pc)) {
+                        if (this->is_breakpoint_(pc)) {
                             fnsim_->set_state(simulator_state::stopped);
-                            clear_tmp_breakpoints_(pc);
+                            this->clear_tmp_breakpoints_(pc);
                         }
                     }
                 } catch (std::exception& e) {
@@ -277,7 +291,7 @@ namespace ucle::fnsim {
 
         fnsim_->set_state(simulator_state::running);
 
-        tmp_breakpts_.insert(location);
+        this->add_tmp_breakpoint_(location);
         return run_();
     }
 
