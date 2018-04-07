@@ -30,10 +30,10 @@ namespace ucle::fnsim {
         public:
             using address_type = AddressType;
 
-            std::set<address_type> get_breakpoints() { throw unsupported_feature("Breakpoints not supported!"); }
-            void add_breakpoint(address_type) { throw unsupported_feature("Breakpoints not supported!"); }
-            void remove_breakpoint(address_type breakpoint) { throw unsupported_feature("Breakpoints not supported!"); }
-            void clear_breakpoints() { throw unsupported_feature("Breakpoints not supported!"); }
+            std::set<address_type> get_breakpoints()    { throw unsupported_feature("Breakpoints not supported!"); }
+            void add_breakpoint(address_type)           { throw unsupported_feature("Breakpoints not supported!"); }
+            void remove_breakpoint(address_type)        { throw unsupported_feature("Breakpoints not supported!"); }
+            void clear_breakpoints()                    { throw unsupported_feature("Breakpoints not supported!"); }
     };
 
     template <typename AddressType>
@@ -41,25 +41,10 @@ namespace ucle::fnsim {
         public:
             using address_type = AddressType;
 
-            std::set<address_type> get_breakpoints()
-            {
-                return breakpts_;
-            }
-
-            void add_breakpoint(address_type breakpoint)
-            {
-                breakpts_.insert(breakpoint);
-            }
-
-            void remove_breakpoint(address_type breakpoint)
-            {
-                breakpts_.erase(breakpoint);
-            }
-
-            void clear_breakpoints()
-            {
-                breakpts_.clear();
-            }
+            std::set<address_type> get_breakpoints() { return breakpts_; }
+            void add_breakpoint(address_type breakpoint) { breakpts_.insert(breakpoint); }
+            void remove_breakpoint(address_type breakpoint) { breakpts_.erase(breakpoint); }
+            void clear_breakpoints() { breakpts_.clear(); }
 
         protected:
             bool is_breakpoint_(address_type location) const { return breakpts_.count(location) || tmp_breakpts_.count(location); }
@@ -71,19 +56,77 @@ namespace ucle::fnsim {
             std::set<address_type> tmp_breakpts_;
     };
 
+    template <typename AddressType>
+    class void_watches_provider {
+        public:
+            using address_type = AddressType;
+
+            std::set<address_type> get_watches()    { throw unsupported_feature("Watches not supported!"); }
+            void add_watch(address_type)            { throw unsupported_feature("Watches not supported!"); }
+            void remove_watch(address_type)         { throw unsupported_feature("Watches not supported!"); }
+            void clear_watches()                    { throw unsupported_feature("Watches not supported!"); }
+    };
+
+    template <typename AddressType>
+    class basic_watches_provider {
+        public:
+            using address_type = AddressType;
+
+            std::set<address_type> get_watches() { return watches_; }
+            void add_watch(address_type location) { watches_.insert(location); }
+            void remove_watch(address_type location) { watches_.erase(location); }
+            void clear_watches() { watches_.clear();  }
+
+        private:
+            std::set<address_type> watches_;
+    };
+
+    template <typename AddressType>
+    class void_annotation_provider {
+        public:
+            using address_type = AddressType;
+
+        protected:
+            std::string get_asm_annotation_(address_type)       { return ""; }
+            void set_asm_annotation_(address_type, std::string) {}
+
+    };
+
+    template <typename AddressType>
+    class basic_annotation_provider {
+        public:
+            using address_type = AddressType;
+
+        protected:
+            std::string get_asm_annotation_(address_type location) { return asm_annotations_[location]; }
+            void set_asm_annotation_(address_type location, std::string annotation) { asm_annotations_[location] = annotation; }
+
+        private:
+            std::unordered_map<address_type, std::string> asm_annotations_;
+    };
+
     template <
         bool has_breakpoints = true,
-        bool has_watches = false,
+        bool has_watches     = false,
+        bool has_annotations = true,
 
         typename AddressType = address_t,
 
-        typename BreakpointProvider = std::conditional_t<has_breakpoints,
-                                                         basic_breakpoint_provider<AddressType>,
-                                                         void_breakpoint_provider<AddressType>>
+        typename BreakpointProvider     = std::conditional_t<has_breakpoints,
+                                                             basic_breakpoint_provider<AddressType>,
+                                                             void_breakpoint_provider<AddressType>>,
+        typename WatchesProvider        = std::conditional_t<has_watches,
+                                                             basic_watches_provider<AddressType>,
+                                                             void_watches_provider<AddressType>>,
+        typename AnnotationProvider     = std::conditional_t<has_breakpoints,
+                                                             basic_annotation_provider<AddressType>,
+                                                             void_annotation_provider<AddressType>>,
+        typename ExecutionProvider      = void
     >
     class functional_simulation:
-        public BreakpointProvider
-        // public
+        public BreakpointProvider,
+        public WatchesProvider,
+        public AnnotationProvider
     {
         public:
             using address_type = AddressType;
@@ -120,28 +163,6 @@ namespace ucle::fnsim {
                     fnsim_->set_byte(location++, bytes[i]);
             }
 
-            // Watches
-
-            auto get_watches()
-            {
-                return watches_;
-            }
-
-            void add_watch(address_type location)
-            {
-                watches_.insert(location);
-            }
-
-            void remove_watch(address_type location)
-            {
-                watches_.erase(location);
-            }
-
-            void clear_watches()
-            {
-                watches_.clear();
-            }
-
             // Devices
 
             std::optional<identifier_t> add_device(device_ptr dev_ptr, device_config cfg) noexcept
@@ -175,7 +196,7 @@ namespace ucle::fnsim {
                 return {
                     fnsim_->get_state(),
                     fnsim_->get_program_counter(),
-                    get_asm_annotation_(fnsim_->get_program_counter())
+                    this->get_asm_annotation_(fnsim_->get_program_counter())
                 };
             }
 
@@ -214,24 +235,12 @@ namespace ucle::fnsim {
                 return fnsim_->get_state() != simulator_state::exception ? status::ok : status::runtime_exception;
             }
 
-            std::string get_asm_annotation_(address_type location)
-            {
-                return asm_annotations_[location];
-            }
-
-            void set_asm_annotation_(address_type location, std::string annotation)
-            {
-                asm_annotations_[location] = annotation;
-            }
-
             functional_processor_simulator_ptr fnsim_;
-            std::set<address_type> watches_;
-            std::unordered_map<address_type, std::string> asm_annotations_;
     };
 
 
-    template <bool has_bps, bool has_wts, typename AT, typename BPP>
-    inline status functional_simulation<has_bps, has_wts, AT, BPP>::start(address_type start_location) noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::start(address_type start_location) noexcept {
         if (fnsim_->get_state() != simulator_state::loaded)
             return status::invalid_state;
 
@@ -241,8 +250,8 @@ namespace ucle::fnsim {
         return status::ok;
     }
 
-    template <bool has_bps, bool has_wts, typename AT, typename BPP>
-    inline status functional_simulation<has_bps, has_wts, AT, BPP>::run(address_type start_location) noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::run(address_type start_location) noexcept {
         if (fnsim_->get_state() != simulator_state::loaded)
             return status::invalid_state;
 
@@ -252,8 +261,8 @@ namespace ucle::fnsim {
         return run_();
     }
 
-    template <bool has_bps, bool has_wts, typename AT, typename BPP>
-    inline status functional_simulation<has_bps, has_wts, AT, BPP>::cont() noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::cont() noexcept {
         if (fnsim_->get_state() != simulator_state::stopped)
             return status::invalid_state;
 
@@ -262,8 +271,8 @@ namespace ucle::fnsim {
         return run_();
     }
 
-    template <bool has_bps, bool has_wts, typename AT, typename BPP>
-    inline status functional_simulation<has_bps, has_wts, AT, BPP>::step() noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::step() noexcept {
         if (fnsim_->get_state() != simulator_state::stopped)
             return status::invalid_state;
 
@@ -276,8 +285,8 @@ namespace ucle::fnsim {
         return fnsim_->get_state() != simulator_state::exception ? status::ok : status::runtime_exception;
     }
 
-    template <bool has_bps, bool has_wts, typename AT, typename BPP>
-    inline status functional_simulation<has_bps, has_wts, AT, BPP>::step_n(size_t num_steps) noexcept
+    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::step_n(size_t num_steps) noexcept
     {
         if (fnsim_->get_state() != simulator_state::stopped)
             return status::invalid_state;
@@ -292,8 +301,8 @@ namespace ucle::fnsim {
         return fnsim_->get_state() != simulator_state::exception ? status::ok : status::runtime_exception;
     }
 
-    template <bool has_bps, bool has_wts, typename AT, typename BPP>
-    inline status functional_simulation<has_bps, has_wts, AT, BPP>::until(address_type location) noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::until(address_type location) noexcept {
         if (fnsim_->get_state() != simulator_state::stopped)
             return status::invalid_state;
 
@@ -303,21 +312,21 @@ namespace ucle::fnsim {
         return run_();
     }
 
-    template <bool has_bps, bool has_wts, typename AT, typename BPP>
-    inline status functional_simulation<has_bps, has_wts, AT, BPP>::reset() noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::reset() noexcept {
         fnsim_->reset();
         fnsim_->set_state(simulator_state::initialized);
         return status::ok;
     }
 
-    template <bool has_bps, bool has_wts, typename AT, typename BPP>
-    inline status functional_simulation<has_bps, has_wts, AT, BPP>::quit() noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::quit() noexcept {
         fnsim_->set_state(simulator_state::terminated);
         return status::ok;
     }
 
-    template <bool has_bps, bool has_wts, typename AT, typename BPP>
-    inline status functional_simulation<has_bps, has_wts, AT, BPP>::load_pfile(std::string filename, address_type start_location) noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::load_pfile(std::string filename, address_type start_location) noexcept {
         constexpr int pf_line_bound = 21;
 
         std::ifstream pfile(filename);
@@ -342,7 +351,7 @@ namespace ucle::fnsim {
                 iss >> std::hex >> address;
                 address += start_location;
 
-                set_asm_annotation_(address, annotation);
+                this->set_asm_annotation_(address, annotation);
 
                 small_byte_vector bytes;
                 while (iss >> byte)
