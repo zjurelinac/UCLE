@@ -45,7 +45,7 @@ processors = ['debug/fnsim/processors/frisc.cpp']
 
 debug.Program(
     'debug/fnsim-cli',
-    ['debug/fnsim/cli.cpp', 'debug/fnsim/checker.cpp', 'debug/fnsim/interactive_sim.cpp'] + processors,
+    ['debug/fnsim/cli.cpp'] + processors,
     LIBS=['fmt'],
     LIBPATH='.'
 )

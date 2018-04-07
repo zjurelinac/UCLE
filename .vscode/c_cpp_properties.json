@@ -3,30 +3,34 @@
         {
             "name": "Linux",
             "includePath": [
-                "/usr/include/c++/5.4.0",
-                "/usr/include/x86_64-linux-gnu/c++/5.4.0",
-                "/usr/local/include",
-                "/usr/lib/clang/3.8.0/include",
                 "/usr/include",
+                "/usr/include/c++/7",
+                "/usr/include/c++/7/bits",
+                "/usr/include/c++/7/backward",
+                "/usr/include/linux",
                 "/usr/include/x86_64-linux-gnu",
+                "/usr/include/x86_64-linux-gnu/c++/7",
+                "/usr/local/include",
+                "/usr/lib/gcc/x86_64-linux-gnu/7/include",
+                "/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed",
                 "${workspaceRoot}",
                 "${workspaceRoot}/ucle/core/include",
-                "${workspaceRoot}/ucle/core/include/libs",
-                "/home/iota/Projects/ucle/ucle/core/include",
-                "/usr/include/linux",
-                "/usr/include/c++/7",
-                "/usr/lib/llvm-5.0/lib/clang/5.0.1/include"
+                "${workspaceRoot}/ucle/core/include/libs"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
                     "/usr/include",
-                    "/usr/lib/clang/4.0.0/include",
-                    "/usr/include/c++/5.4",
+                    "/usr/include/c++/7",
+                    "/usr/include/c++/7/bits",
+                    "/usr/include/c++/7/backward",
+                    "/usr/include/linux",
                     "/usr/include/x86_64-linux-gnu",
-                    "/usr/include/x86_64-linux-gnu/c++/5.4.0",
+                    "/usr/include/x86_64-linux-gnu/c++/7",
                     "/usr/local/include",
+                    "/usr/lib/gcc/x86_64-linux-gnu/7/include",
+                    "/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed",
                     "${workspaceRoot}",
                     "${workspaceRoot}/ucle/core/include",
                     "${workspaceRoot}/ucle/core/include/libs"
@@ -34,7 +38,7 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             },
-            "compilerPath": "/usr/bin/clang++-5.0",
+            "compilerPath": "/usr/bin/clang++-6.0",
             "cStandard": "c11",
             "cppStandard": "c++17"
         },

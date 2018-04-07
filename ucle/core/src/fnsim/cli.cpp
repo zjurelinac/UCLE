@@ -39,11 +39,12 @@ int main(int argc, char* argv[]) {
     CLI11_PARSE(app, argc, argv);
 
     processor_config sim_cfg {cli_cfg.fnsim_mem_size};
-    functional_simulation sim(factory[cli_cfg.simulator_name](sim_cfg));
 
     if (cli_cfg.run_interactive) {
+        functional_simulation<> sim(factory[cli_cfg.simulator_name](sim_cfg));
         run_interactive_simulation(sim, cli_cfg.pfile);
     } else {
+        functional_simulation<false, false> sim(factory[cli_cfg.simulator_name](sim_cfg));
         sim.load_pfile(cli_cfg.pfile);
         sim.run();
 

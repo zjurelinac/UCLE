@@ -28,6 +28,8 @@ namespace ucle::fnsim {
     template <typename AddressType>
     class void_breakpoint_provider {
         public:
+            using address_type = AddressType;
+
             std::set<address_type> get_breakpoints() { throw unsupported_feature("Breakpoints not supported!"); }
             void add_breakpoint(address_type) { throw unsupported_feature("Breakpoints not supported!"); }
             void remove_breakpoint(address_type breakpoint) { throw unsupported_feature("Breakpoints not supported!"); }
@@ -70,12 +72,14 @@ namespace ucle::fnsim {
     };
 
     template <
-        typename AddressType = address_t,
-        bool supports_breakpoints = true,
+        bool has_breakpoints = true,
+        bool has_watches = false,
 
-        typename BreakpointProvider = std::conditional_t<supports_breakpoints,
-                                                            basic_breakpoint_provider<AddressType>,
-                                                            void_breakpoint_provider<AddressType>>
+        typename AddressType = address_t,
+
+        typename BreakpointProvider = std::conditional_t<has_breakpoints,
+                                                         basic_breakpoint_provider<AddressType>,
+                                                         void_breakpoint_provider<AddressType>>
     >
     class functional_simulation:
         public BreakpointProvider
@@ -188,7 +192,10 @@ namespace ucle::fnsim {
 
                     if (is_error(status)) {
                         fnsim_->set_state(simulator_state::exception);
-                    } else {
+                        return;
+                    }
+
+                    if constexpr (has_breakpoints) {
                         auto pc = fnsim_->get_program_counter();
 
                         if (this->is_breakpoint_(pc)) {
@@ -222,8 +229,9 @@ namespace ucle::fnsim {
             std::unordered_map<address_type, std::string> asm_annotations_;
     };
 
-    template <typename AddressType>
-    inline status functional_simulation<AddressType>::start(address_type start_location) noexcept {
+
+    template <bool has_bps, bool has_wts, typename AT, typename BPP>
+    inline status functional_simulation<has_bps, has_wts, AT, BPP>::start(address_type start_location) noexcept {
         if (fnsim_->get_state() != simulator_state::loaded)
             return status::invalid_state;
 
@@ -233,8 +241,8 @@ namespace ucle::fnsim {
         return status::ok;
     }
 
-    template <typename AddressType>
-    inline status functional_simulation<AddressType>::run(address_type start_location) noexcept {
+    template <bool has_bps, bool has_wts, typename AT, typename BPP>
+    inline status functional_simulation<has_bps, has_wts, AT, BPP>::run(address_type start_location) noexcept {
         if (fnsim_->get_state() != simulator_state::loaded)
             return status::invalid_state;
 
@@ -244,8 +252,8 @@ namespace ucle::fnsim {
         return run_();
     }
 
-    template <typename AddressType>
-    inline status functional_simulation<AddressType>::cont() noexcept {
+    template <bool has_bps, bool has_wts, typename AT, typename BPP>
+    inline status functional_simulation<has_bps, has_wts, AT, BPP>::cont() noexcept {
         if (fnsim_->get_state() != simulator_state::stopped)
             return status::invalid_state;
 
@@ -254,8 +262,8 @@ namespace ucle::fnsim {
         return run_();
     }
 
-    template <typename AddressType>
-    inline status functional_simulation<AddressType>::step() noexcept {
+    template <bool has_bps, bool has_wts, typename AT, typename BPP>
+    inline status functional_simulation<has_bps, has_wts, AT, BPP>::step() noexcept {
         if (fnsim_->get_state() != simulator_state::stopped)
             return status::invalid_state;
 
@@ -268,8 +276,8 @@ namespace ucle::fnsim {
         return fnsim_->get_state() != simulator_state::exception ? status::ok : status::runtime_exception;
     }
 
-    template <typename AddressType>
-    inline status functional_simulation<AddressType>::step_n(size_t num_steps) noexcept
+    template <bool has_bps, bool has_wts, typename AT, typename BPP>
+    inline status functional_simulation<has_bps, has_wts, AT, BPP>::step_n(size_t num_steps) noexcept
     {
         if (fnsim_->get_state() != simulator_state::stopped)
             return status::invalid_state;
@@ -284,8 +292,8 @@ namespace ucle::fnsim {
         return fnsim_->get_state() != simulator_state::exception ? status::ok : status::runtime_exception;
     }
 
-    template <typename AddressType>
-    inline status functional_simulation<AddressType>::until(address_type location) noexcept {
+    template <bool has_bps, bool has_wts, typename AT, typename BPP>
+    inline status functional_simulation<has_bps, has_wts, AT, BPP>::until(address_type location) noexcept {
         if (fnsim_->get_state() != simulator_state::stopped)
             return status::invalid_state;
 
@@ -295,21 +303,21 @@ namespace ucle::fnsim {
         return run_();
     }
 
-    template <typename AddressType>
-    inline status functional_simulation<AddressType>::reset() noexcept {
+    template <bool has_bps, bool has_wts, typename AT, typename BPP>
+    inline status functional_simulation<has_bps, has_wts, AT, BPP>::reset() noexcept {
         fnsim_->reset();
         fnsim_->set_state(simulator_state::initialized);
         return status::ok;
     }
 
-    template <typename AddressType>
-    inline status functional_simulation<AddressType>::quit() noexcept {
+    template <bool has_bps, bool has_wts, typename AT, typename BPP>
+    inline status functional_simulation<has_bps, has_wts, AT, BPP>::quit() noexcept {
         fnsim_->set_state(simulator_state::terminated);
         return status::ok;
     }
 
-    template <typename AddressType>
-    inline status functional_simulation<AddressType>::load_pfile(std::string filename, address_type start_location) noexcept {
+    template <bool has_bps, bool has_wts, typename AT, typename BPP>
+    inline status functional_simulation<has_bps, has_wts, AT, BPP>::load_pfile(std::string filename, address_type start_location) noexcept {
         constexpr int pf_line_bound = 21;
 
         std::ifstream pfile(filename);
