@@ -26,15 +26,7 @@
 namespace ucle::fnsim {
 
     template <typename AddressType>
-    class void_breakpoint_provider {
-        public:
-            using address_type = AddressType;
-
-            std::set<address_type> get_breakpoints()    { throw unsupported_feature("Breakpoints not supported!"); }
-            void add_breakpoint(address_type)           { throw unsupported_feature("Breakpoints not supported!"); }
-            void remove_breakpoint(address_type)        { throw unsupported_feature("Breakpoints not supported!"); }
-            void clear_breakpoints()                    { throw unsupported_feature("Breakpoints not supported!"); }
-    };
+    class void_breakpoint_provider {};
 
     template <typename AddressType>
     class basic_breakpoint_provider {
@@ -57,15 +49,7 @@ namespace ucle::fnsim {
     };
 
     template <typename AddressType>
-    class void_watches_provider {
-        public:
-            using address_type = AddressType;
-
-            std::set<address_type> get_watches()    { throw unsupported_feature("Watches not supported!"); }
-            void add_watch(address_type)            { throw unsupported_feature("Watches not supported!"); }
-            void remove_watch(address_type)         { throw unsupported_feature("Watches not supported!"); }
-            void clear_watches()                    { throw unsupported_feature("Watches not supported!"); }
-    };
+    class void_watches_provider {};
 
     template <typename AddressType>
     class basic_watches_provider {
@@ -87,9 +71,8 @@ namespace ucle::fnsim {
             using address_type = AddressType;
 
         protected:
-            std::string get_asm_annotation_(address_type)       { return ""; }
+            std::string get_asm_annotation_(address_type) { return ""; }
             void set_asm_annotation_(address_type, std::string) {}
-
     };
 
     template <typename AddressType>
@@ -351,7 +334,8 @@ namespace ucle::fnsim {
                 iss >> std::hex >> address;
                 address += start_location;
 
-                this->set_asm_annotation_(address, annotation);
+                if constexpr (has_ans)
+                    this->set_asm_annotation_(address, annotation);
 
                 small_byte_vector bytes;
                 while (iss >> byte)
