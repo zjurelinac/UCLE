@@ -83,14 +83,12 @@ namespace ucle::fnsim {
         address_range   mem_addr_range      = {0, 0xFFFFFFFF};
         device_mapping  default_mapping     = device_mapping::memory;
         address_range   dev_addr_range      = {0, 0};
-        detail_level    detailness          = detail_level::none;
     };
 
     struct simulation_config {
         bool            count_exec_cycles   = false;
         bool            measure_exec_time   = false;
-        bool            use_fixed_frequency = false;
-        frequency_t     fixed_frequency     = 0;
+        detail_level    detailness          = detail_level::none;
     };
 
     // Utility structures

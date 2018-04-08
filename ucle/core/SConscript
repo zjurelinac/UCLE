@@ -36,7 +36,7 @@ common.Library('fmt', ['debug/libs/fmt/format.cc'], CPPFLAGS=[])
 # release.VariantDir('../build/release/test', 'test', duplicate=0)
 
 debug = common.Clone()
-debug.Append(CPPDEFINES=['DEBUG'], CCFLAGS=['-O1', '-g'])
+debug.Append(CPPDEFINES=['DEBUG'], CCFLAGS=['-O3', '-march=native'])
 # debug.Append(CCFLAGS=['-O3', '-march=native'])
 debug.VariantDir('debug', 'src', duplicate=0)
 debug.VariantDir('debug/tests', 'tests', duplicate=0)
