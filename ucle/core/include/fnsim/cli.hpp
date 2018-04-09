@@ -32,6 +32,7 @@ namespace ucle::fnsim {
         bool run_interactive = false;
         bool run_checker = false;
         bool print_reg_info = false;
+        bool print_exec_info = false;
 
         std::vector<std::string> checks;
     };

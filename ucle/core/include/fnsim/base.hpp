@@ -124,6 +124,10 @@ namespace ucle::fnsim {
         }, rv);
     }
 
+    struct execution_info {
+        counter_t instruction_cnt;
+        int64_t duration_ns;
+    };
 }
 
 #endif  /* _UCLE_CORE_FNSIM_BASE_HPP_ */

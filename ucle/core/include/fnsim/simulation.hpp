@@ -20,7 +20,6 @@
 #include <set>
 #include <sstream>
 #include <string>
-#include <thread>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -109,10 +108,46 @@ namespace ucle::fnsim {
             functional_processor_simulator* fnsim_;
     };
 
+    class tracked_execution_policy : public basic_execution_policy {
+        using clock_type = std::chrono::high_resolution_clock;
+        using time_point = clock_type::time_point;
+        using nseconds = std::chrono::nanoseconds;
+
+        public:
+            using basic_execution_policy::basic_execution_policy;
+
+            void step()
+            {
+                basic_execution_policy::step();
+                ++instr_cnt_;
+            }
+
+            void start()
+            {
+                instr_cnt_ = 0;
+                exec_start_ = clock_type::now();
+                exec_info_ = {};
+            }
+
+            void stop()
+            {
+                auto exec_end = clock_type::now();
+                exec_info_ = { instr_cnt_, std::chrono::duration_cast<nseconds>(exec_end - exec_start_).count() };
+            }
+
+            auto get_info() { return exec_info_; }
+
+        private:
+            counter_t instr_cnt_ = 0;
+            time_point exec_start_ {};
+            execution_info exec_info_ {};
+    };
+
     template <
         bool has_breakpoints        = true,
         bool has_watches            = false,
         bool has_annotations        = true,
+        bool has_exec_tracking      = false,
 
         typename AddressType = address_t,
 
@@ -125,9 +160,11 @@ namespace ucle::fnsim {
         typename AnnotationProvider     = std::conditional_t<has_breakpoints,
                                                              basic_annotation_provider<AddressType>,
                                                              void_annotation_provider<AddressType>>,
-        typename ExecutionPolicy        = basic_execution_policy
+        typename ExecutionPolicy        = std::conditional_t<has_exec_tracking,
+                                                             tracked_execution_policy,
+                                                             basic_execution_policy>
     >
-    class functional_simulation:
+    class functional_simulation :
         public BreakpointProvider,
         public WatchesProvider,
         public AnnotationProvider
@@ -193,11 +230,6 @@ namespace ucle::fnsim {
 
             // Runtime info
 
-            reg_info get_reg_info()
-            {
-                return fnsim_->get_reg_info();
-            }
-
             state_info get_state_info()
             {
                 return {
@@ -206,6 +238,20 @@ namespace ucle::fnsim {
                     this->get_asm_annotation_(fnsim_->get_program_counter())
                 };
             }
+
+            auto get_reg_info()
+            {
+                return fnsim_->get_reg_info();
+            }
+
+            execution_info get_exec_info()
+            {
+                if constexpr (has_exec_tracking)
+                    return exec_.get_info();
+                else
+                    return {};
+            }
+
 
         protected:
             simulator_state step_()
@@ -225,23 +271,46 @@ namespace ucle::fnsim {
 
             status run_()
             {
+                if constexpr (has_exec_tracking)
+                    exec_.start();
+
                 auto state = step_();
                 while (state == simulator_state::running)
                     state = step_();
+
+                if constexpr (has_exec_tracking)
+                    exec_.stop();
+
                 return state != simulator_state::exception ? status::ok : status::runtime_exception;
             }
 
             status run_one_()
             {
+
+                if constexpr (has_exec_tracking)
+                    exec_.start();
+
                 auto state = step_();
+
+                if constexpr (has_exec_tracking)
+                    exec_.stop();
+
                 return state != simulator_state::exception ? status::ok : status::runtime_exception;
             }
 
             status run_n_(size_t n)
             {
+
+                if constexpr (has_exec_tracking)
+                    exec_.start();
+
                 auto state = step_();
                 while (state == simulator_state::running && n-- > 0)
                     state = step_();
+
+                if constexpr (has_exec_tracking)
+                    exec_.stop();
+
                 return state != simulator_state::exception ? status::ok : status::runtime_exception;
             }
 
@@ -251,8 +320,8 @@ namespace ucle::fnsim {
     };
 
 
-    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
-    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::start(address_type start_location) noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, bool has_etr, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, has_etr, AT, BP, WP, AP, EP>::start(address_type start_location) noexcept {
         if (fnsim_->get_state() != simulator_state::loaded)
             return status::invalid_state;
 
@@ -262,8 +331,8 @@ namespace ucle::fnsim {
         return status::ok;
     }
 
-    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
-    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::run(address_type start_location) noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, bool has_etr, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, has_etr, AT, BP, WP, AP, EP>::run(address_type start_location) noexcept {
         if (fnsim_->get_state() != simulator_state::loaded)
             return status::invalid_state;
 
@@ -273,8 +342,8 @@ namespace ucle::fnsim {
         return this->run_();
     }
 
-    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
-    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::cont() noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, bool has_etr, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, has_etr, AT, BP, WP, AP, EP>::cont() noexcept {
         if (fnsim_->get_state() != simulator_state::stopped)
             return status::invalid_state;
 
@@ -283,8 +352,8 @@ namespace ucle::fnsim {
         return this->run_();
     }
 
-    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
-    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::step() noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, bool has_etr, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, has_etr, AT, BP, WP, AP, EP>::step() noexcept {
         if (fnsim_->get_state() != simulator_state::stopped)
             return status::invalid_state;
 
@@ -297,8 +366,8 @@ namespace ucle::fnsim {
         return stat;
     }
 
-    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
-    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::step_n(size_t num_steps) noexcept
+    template <bool has_bps, bool has_wts, bool has_ans, bool has_etr, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, has_etr, AT, BP, WP, AP, EP>::step_n(size_t num_steps) noexcept
     {
         if (fnsim_->get_state() != simulator_state::stopped)
             return status::invalid_state;
@@ -312,8 +381,8 @@ namespace ucle::fnsim {
         return stat;
     }
 
-    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
-    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::until(address_type location) noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, bool has_etr, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, has_etr, AT, BP, WP, AP, EP>::until(address_type location) noexcept {
         if (fnsim_->get_state() != simulator_state::stopped)
             return status::invalid_state;
 
@@ -323,21 +392,21 @@ namespace ucle::fnsim {
         return this->run_();
     }
 
-    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
-    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::reset() noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, bool has_etr, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, has_etr, AT, BP, WP, AP, EP>::reset() noexcept {
         fnsim_->reset();
         fnsim_->set_state(simulator_state::initialized);
         return status::ok;
     }
 
-    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
-    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::quit() noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, bool has_etr, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, has_etr, AT, BP, WP, AP, EP>::quit() noexcept {
         fnsim_->set_state(simulator_state::terminated);
         return status::ok;
     }
 
-    template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
-    inline status functional_simulation<has_bps, has_wts, has_ans, AT, BP, WP, AP, EP>::load_pfile(std::string filename, address_type start_location) noexcept {
+    template <bool has_bps, bool has_wts, bool has_ans, bool has_etr, typename AT, typename BP, typename WP, typename AP, typename EP>
+    inline status functional_simulation<has_bps, has_wts, has_ans, has_etr, AT, BP, WP, AP, EP>::load_pfile(std::string filename, address_type start_location) noexcept {
         constexpr int pf_line_bound = 21;
 
         std::ifstream pfile(filename);
@@ -386,6 +455,12 @@ namespace ucle::fnsim {
     {
         for (const auto [name, value] : ri)
             fmt::print("{} = {} = {}\n", name, fnsim::to_xstring(value), fnsim::to_string(value));
+    }
+
+    void print_exec_info(execution_info ei)
+    {
+        fmt::print("Executed {} instructions in {}ns (exec. frequency = {:.2f}MHz)\n",
+            ei.instruction_cnt, ei.duration_ns, 1e3 / ei.duration_ns * ei.instruction_cnt );
     }
 }
 
