@@ -231,6 +231,20 @@ namespace ucle::fnsim {
                 return state != simulator_state::exception ? status::ok : status::runtime_exception;
             }
 
+            status run_one_()
+            {
+                auto state = step_();
+                return state != simulator_state::exception ? status::ok : status::runtime_exception;
+            }
+
+            status run_n_(size_t n)
+            {
+                auto state = step_();
+                while (state == simulator_state::running && n-- > 0)
+                    state = step_();
+                return state != simulator_state::exception ? status::ok : status::runtime_exception;
+            }
+
         private:
             execution_policy exec_;
             functional_processor_simulator_ptr fnsim_;
@@ -275,12 +289,12 @@ namespace ucle::fnsim {
             return status::invalid_state;
 
         fnsim_->set_state(simulator_state::running);
-        this->step_();
+        auto stat = this->run_one_();
 
         if (fnsim_->get_state() == simulator_state::running)
             fnsim_->set_state(simulator_state::stopped);
 
-        return fnsim_->get_state() != simulator_state::exception ? status::ok : status::runtime_exception;
+        return stat;
     }
 
     template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
@@ -290,13 +304,12 @@ namespace ucle::fnsim {
             return status::invalid_state;
 
         fnsim_->set_state(simulator_state::running);
-
-        do { this->step_(); } while (fnsim_->get_state() == simulator_state::running && num_steps-- > 0);
+        auto stat = this->run_n_(num_steps);
 
         if (fnsim_->get_state() == simulator_state::running)
             fnsim_->set_state(simulator_state::stopped);
 
-        return fnsim_->get_state() != simulator_state::exception ? status::ok : status::runtime_exception;
+        return stat;
     }
 
     template <bool has_bps, bool has_wts, bool has_ans, typename AT, typename BP, typename WP, typename AP, typename EP>
