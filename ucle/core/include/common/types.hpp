@@ -31,6 +31,13 @@ namespace ucle {
     using counter_t = uint64_t;
     using frequency_t = uint64_t;
 
+    namespace literals {
+        constexpr frequency_t operator "" _Hz(frequency_t f) { return f; }
+        constexpr frequency_t operator "" _kHz(frequency_t f) { return 1000*f; }
+        constexpr frequency_t operator "" _MHz(frequency_t f) { return 1000000*f; }
+        constexpr frequency_t operator "" _GHz(frequency_t f) { return 1000000000*f; }
+    }
+
     struct address_range {
         address_t low_addr, high_addr;
 
