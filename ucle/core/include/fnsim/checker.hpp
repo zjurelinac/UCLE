@@ -59,7 +59,7 @@ namespace ucle::fnsim {
                 auto cd = detail::parse_check(check);
 
                 if (cd.op != '=' && cd.op != '<' && cd.op != '>')
-                    throw malformed_check(fmt::format("Unknown comparison operand: {}!", cd.op));
+                    throw malformed_check(fmt::format("Unknown comparison operand: {}!\n", cd.op));
 
                 if (cd.cls == "regs") {
                     auto expected = std::stoll(cd.rhs, nullptr, 0);
@@ -75,7 +75,7 @@ namespace ucle::fnsim {
                         if (verbose)
                             fmt::print_colored(fmt::RED, "Failed ({} !{} {}) [{} = {}].\n", cd.lhs, cd.op, expected, cd.lhs, actual);
                         else
-                            fmt::print_colored(fmt::RED, "Failed!");
+                            fmt::print_colored(fmt::RED, "Failed!\n");
                         ++fail_cnt;
                     }
                 }
