@@ -35,6 +35,7 @@ namespace ucle::fnsim {
         bool print_exec_info = false;
 
         std::vector<std::string> checks;
+        bool verbose_output = false;
     };
 
 }

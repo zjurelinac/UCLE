@@ -12,6 +12,8 @@ namespace ucle::fnsim {
     class invalid_memory_access : public base_exception { using base_exception::base_exception; };
     class invalid_identifier : public base_exception { using base_exception::base_exception; };
     class unsupported_feature : public base_exception { using base_exception::base_exception; };
+
+    class malformed_check : public base_exception { using base_exception::base_exception; };
 }
 
 #endif /* _UCLE_CORE_FNSIM_EXCEPTIONS_HPP_ */

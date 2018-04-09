@@ -124,6 +124,16 @@ namespace ucle::fnsim {
         }, rv);
     }
 
+    inline int64_t to_int(reg_val rv)
+    {
+        return std::stoll(to_string(rv), nullptr, 10);
+    }
+
+    inline uint64_t to_uint(reg_val rv)
+    {
+        return std::stoll(to_xstring(rv), nullptr, 16);
+    }
+
     struct execution_info {
         counter_t instruction_cnt;
         int64_t duration_ns;

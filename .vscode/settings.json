@@ -49,5 +49,6 @@
         "streambuf": "cpp",
         "algorithm": "cpp",
         "unordered_map": "cpp"
-    }
+    },
+    "python.pythonPath": "/usr/bin/python3"
 }

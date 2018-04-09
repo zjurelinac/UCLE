@@ -23,40 +23,41 @@ int main(int argc, char* argv[]) {
 
     CLI::App app {"Functional simulator CLI"};
 
-    cli_config cli_cfg {};
+    cli_config cfg {};
 
-    app.add_set_ignore_case("simulator", cli_cfg.simulator_name, factory_options, "Processor simulator to use for simulation")->required();
-    app.add_option("pfile", cli_cfg.pfile, "A path to the machine-code .p file to be executed")->required()->check(CLI::ExistingFile);
+    app.add_set_ignore_case("simulator", cfg.simulator_name, factory_options, "Processor simulator to use for simulation")->required();
+    app.add_option("pfile", cfg.pfile, "A path to the machine-code .p file to be executed")->required()->check(CLI::ExistingFile);
 
-    app.add_option("-m,--memory_size", cli_cfg.fnsim_mem_size, "Internal memory size for the processor in the simulation", true);
+    app.add_option("-m,--memory_size", cfg.fnsim_mem_size, "Internal memory size for the processor in the simulation", true);
 
-    app.add_flag("-i,--run-interactive", cli_cfg.run_interactive, "Run the simulation interactively");
-    app.add_flag("-r,--print-reg-info", cli_cfg.print_reg_info, "Print register info after simulation run");
-    app.add_flag("-x,--print-exec-info", cli_cfg.print_exec_info, "Print execution info after simulation run");
+    app.add_flag("-i,--run-interactive", cfg.run_interactive, "Run the simulation interactively");
+    app.add_flag("-r,--print-reg-info", cfg.print_reg_info, "Print register info after simulation run");
+    app.add_flag("-x,--print-exec-info", cfg.print_exec_info, "Print execution info after simulation run");
 
     auto checker_cmd = app.add_subcommand("check", "Simulation results checker");
-    checker_cmd->add_option("checks", cli_cfg.checks, "A list of checks to perform once simulation finishes")->required();
-    checker_cmd->set_callback([&cli_cfg]() { cli_cfg.run_checker = true; });
+    checker_cmd->set_callback([&cfg]() { cfg.run_checker = true; });
+    checker_cmd->add_option("check", cfg.checks, "A list of checks to perform once simulation finishes")->required();
+    checker_cmd->add_flag("-v,--verbose-output", cfg.verbose_output, "Controls whether checker output will be verbose or terse");
 
     CLI11_PARSE(app, argc, argv);
 
-    processor_config sim_cfg {cli_cfg.fnsim_mem_size};
+    processor_config sim_cfg {cfg.fnsim_mem_size};
 
-    if (cli_cfg.run_interactive) {
-        functional_simulation<> sim(factory[cli_cfg.simulator_name](sim_cfg));
-        run_interactive_simulation(sim, cli_cfg.pfile);
+    if (cfg.run_interactive) {
+        functional_simulation<> sim(factory[cfg.simulator_name](sim_cfg));
+        run_interactive_simulation(sim, cfg.pfile);
     } else {
-        functional_simulation<false, false, false, true> sim(factory[cli_cfg.simulator_name](sim_cfg));
-        sim.load_pfile(cli_cfg.pfile);
+        functional_simulation<false, false, false, true> sim(factory[cfg.simulator_name](sim_cfg));
+        sim.load_pfile(cfg.pfile);
         sim.run();
 
-        if (cli_cfg.print_reg_info)
+        if (cfg.print_reg_info)
             print_reg_info(sim.get_reg_info());
 
-        if (cli_cfg.print_exec_info)
+        if (cfg.print_exec_info)
             print_exec_info(sim.get_exec_info());
 
-        if (cli_cfg.run_checker)
-            run_checks(cli_cfg.checks, sim);
+        if (cfg.run_checker)
+            run_checks(cfg.pfile, cfg.checks, sim, cfg.verbose_output);
     }
 }
