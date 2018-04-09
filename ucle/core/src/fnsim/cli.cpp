@@ -19,6 +19,7 @@
 
 int main(int argc, char* argv[]) {
     using namespace ucle::fnsim;
+    using namespace ucle::literals;
 
     CLI::App app {"Functional simulator CLI"};
 
@@ -44,7 +45,7 @@ int main(int argc, char* argv[]) {
         functional_simulation<> sim(factory[cli_cfg.simulator_name](sim_cfg));
         run_interactive_simulation(sim, cli_cfg.pfile);
     } else {
-        functional_simulation<false, false, false, 25000000> sim(factory[cli_cfg.simulator_name](sim_cfg));
+        functional_simulation<false, false, false> sim(factory[cli_cfg.simulator_name](sim_cfg));
         sim.load_pfile(cli_cfg.pfile);
         sim.run();
 

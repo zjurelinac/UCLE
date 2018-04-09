@@ -32,10 +32,10 @@ namespace ucle {
     using frequency_t = uint64_t;
 
     namespace literals {
-        constexpr frequency_t operator "" _Hz(frequency_t f) { return f; }
-        constexpr frequency_t operator "" _kHz(frequency_t f) { return 1000*f; }
-        constexpr frequency_t operator "" _MHz(frequency_t f) { return 1000000*f; }
-        constexpr frequency_t operator "" _GHz(frequency_t f) { return 1000000000*f; }
+        constexpr frequency_t operator "" _Hz(unsigned long long f) { return f; }
+        constexpr frequency_t operator "" _kHz(unsigned long long f) { return 1000*f; }
+        constexpr frequency_t operator "" _MHz(unsigned long long f) { return 1000000*f; }
+        constexpr frequency_t operator "" _GHz(unsigned long long f) { return 1000000000*f; }
     }
 
     struct address_range {
