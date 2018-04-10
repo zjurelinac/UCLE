@@ -23,7 +23,7 @@ namespace ucle {
 
     using address_t = uint32_t;
     using size_t = uint32_t;
-    using index_t = uint32_t;
+    using index_t = int32_t;
 
     using identifier_t = uint32_t;
     using priority_t = uint32_t;

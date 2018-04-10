@@ -50,7 +50,7 @@ namespace ucle::fnsim {
         };
 
         auto regs = sim.get_reg_info();
-        auto exec_info = sim.get_exec_info();
+        // auto exec_info = sim.get_exec_info();
 
         int success_cnt = 0, fail_cnt = 0;
 
