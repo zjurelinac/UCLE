@@ -45,38 +45,27 @@ namespace ucle::fnsim {
             template <typename T, typename = meta::is_storage_t<T>>
             T read(address_type location) const
             {
-                constexpr auto size = sizeof(T);
-                auto bytes = read_bytes_(location, sizeof(T));
-
-                T value = 0;
-
-                for (auto i = 0u; i < size; ++i) {
-                    if constexpr (endianness == byte_order::little_endian)
-                        value = value << 8 | bytes[size - i - 1];
-                    else
-                        value = value << 8 | bytes[i];
-                }
-
-                return value;
+                if constexpr (std::is_same_v<T, byte_t>) return read_byte_(location);
+                if constexpr (std::is_same_v<T, half_t>) return read_half_(location);
+                if constexpr (std::is_same_v<T, word_t>) return read_word_(location);
             }
+
             template <typename T, typename = meta::is_storage_t<T>>
             void write(address_type location, T value)
             {
-                auto size = sizeof(T);
-                small_byte_vector bytes(size);
-
-                for (auto i = 0u; i < size; ++i, value >>= 8) {
-                    if constexpr (endianness == byte_order::little_endian)
-                        bytes[i] = value & 0xFF;
-                    else
-                        bytes[size - i - 1] = value & 0xFF;
-                }
-
-                write_bytes_(location, bytes);
+                if constexpr (std::is_same_v<T, byte_t>) write_byte_(location, value);
+                if constexpr (std::is_same_v<T, half_t>) write_half_(location, value);
+                if constexpr (std::is_same_v<T, word_t>) write_word_(location, value);
             }
+
         protected:
-            virtual small_byte_vector read_bytes_(address_type location, size_t amount) const = 0;
-            virtual void write_bytes_(address_type location, small_byte_vector& bytes) = 0;
+            virtual byte_t read_byte_(address_type location) const = 0;
+            virtual half_t read_half_(address_type location) const = 0;
+            virtual word_t read_word_(address_type location) const = 0;
+            
+            virtual void write_byte_(address_type location, byte_t value) = 0;
+            virtual void write_half_(address_type location, half_t value) = 0;
+            virtual void write_word_(address_type location, word_t value) = 0;
     };
 
     template<byte_order endianness, typename AddressType = address_t>
@@ -96,22 +85,37 @@ namespace ucle::fnsim {
 
             ~memory_block_device() override = default;
 
-
             void reset() override { memset(data_.get(), 0, size_); }
 
         protected:
-            small_byte_vector read_bytes_(address_t location, size_t amount) const override
+            byte_t read_byte_(address_type location) const override
             {
-                small_byte_vector bytes(amount);
-                for (auto i = 0u; i < amount; ++i)
-                    bytes[i] = data_[location++];
-                return bytes;
+                return data_[location];
             }
 
-            void write_bytes_(address_t location, small_byte_vector& bytes) override
+            half_t read_half_(address_type location) const override
             {
-                for (auto i = 0u; i < bytes.size(); ++i)
-                    data_[location++] = bytes[i];
+                return *(reinterpret_cast<half_t*>(&data_[location]));
+            }
+
+            word_t read_word_(address_type location) const override
+            {
+                return *(reinterpret_cast<word_t*>(&data_[location]));
+            }
+            
+            void write_byte_(address_type location, byte_t value) override
+            {
+                data_[location] = value;
+            }
+
+            void write_half_(address_type location, half_t value) override
+            {
+                *(reinterpret_cast<half_t*>(&data_[location])) = value;
+            }
+
+            void write_word_(address_type location, word_t value) override
+            {
+                *(reinterpret_cast<word_t*>(&data_[location])) = value;
             }
 
         private:
