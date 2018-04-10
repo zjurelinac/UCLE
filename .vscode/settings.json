@@ -48,7 +48,10 @@
         "iostream": "cpp",
         "streambuf": "cpp",
         "algorithm": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "iomanip": "cpp",
+        "numeric": "cpp",
+        "sstream": "cpp"
     },
     "python.pythonPath": "/usr/bin/python3"
 }
