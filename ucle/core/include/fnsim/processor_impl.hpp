@@ -110,6 +110,11 @@ namespace ucle::fnsim {
             template <typename T, typename = meta::is_storage_t<T>>
             void write_(address_t location, T value) { mem_asp_.template write<T>(location & util::const_bit_util<T>::address_round_mask(), value); }
 
+            template <typename T, typename = meta::is_storage_t<T>>
+            T read_dev_(address_t location) const { return dev_asp_.template read<T>(location & util::const_bit_util<T>::address_round_mask()); }
+            template <typename T, typename = meta::is_storage_t<T>>
+            void write_dev_(address_t location, T value) { dev_asp_.template write<T>(location & util::const_bit_util<T>::address_round_mask(), value); }
+
         private:
             config_type             cfg_;
             address_space_type      mem_asp_;
