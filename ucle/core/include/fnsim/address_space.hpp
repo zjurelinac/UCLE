@@ -52,27 +52,25 @@ namespace ucle::fnsim {
             template <typename T, typename = meta::is_storage_t<T>>
             T read(address_t location) const
             {
-                auto [dev_range, dev_ptr] = *find_device_(location);
+                auto [dev_range, dev_ptr] = find_device_(location);
                 return dev_ptr->template read<T>(location - dev_range.low_addr);
             }
 
             template <typename T, typename = meta::is_storage_t<T>>
             void write(address_t location, T value)
             {
-                auto [dev_range, dev_ptr] = *find_device_(location);
+                auto [dev_range, dev_ptr] = find_device_(location);
                 return dev_ptr->template write<T>(location - dev_range.low_addr, value);
             }
 
         protected:
             auto find_device_(address_t location) const
             {
-                auto dev_it = std::find_if(devices_.cbegin(), devices_.cend(),
-                    [location](auto mapped){ return mapped.first.contains(location); });
-
-                if (dev_it != devices_.cend())
-                    return dev_it;
-                else
-                    throw invalid_memory_access("No memory/device mapped to this address!");
+                for (const auto& dev : devices_)
+                    if (dev.first.contains(location))
+                        return dev;
+                
+                throw invalid_memory_access("No memory/device mapped to this address!");
             }
 
         private:
