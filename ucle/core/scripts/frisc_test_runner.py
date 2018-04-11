@@ -5,15 +5,17 @@ import subprocess
 
 
 TESTS = [
-    { "file": "fnsim/test_add.p", "checks": [ "regs.R0=1" ] },
-    { "file": "fnsim/test_jump_ucond.p", "checks": [ "regs.R1=0", "regs.R2=1", "regs.R3=1", "regs.R4=0", "regs.R5=1", "regs.R6=1", "regs.SP=0", '-v' ] },
-    { "file": "fnsim/test_jump_scond.p", "checks": [ "regs.R1=0", "regs.R2=1", "regs.R3=1", "regs.R4=0", "regs.R5=0", "regs.R6=0", "regs.SP=1", '-v' ] }
+    { "file": "fnsim/test_add.p", "checks": [ "rs.R0=1",    "rs.R1=2",      "rs.R2=4",      "rs.R3=2",      "rs.R4=0",      "rs.R5=0xFFFFFFFF", "rs.R6=12" ] },
+    { "file": "fnsim/test_sub.p", "checks": [ "rs.R0=0",    "rs.R1=0",      "rs.R2=1",      "rs.R3=2",      "rs.R4=10",     "rs.R5=0xFFFFFFFE", "rs.R6=0xFFFFFFFC" ] },
+    { "file": "fnsim/test_aox.p", "checks": [ "rs.R0=4",    "rs.R1=0xA0C0", "rs.R2=0xE",    "rs.R3=0xABCD", "rs.R4=3",      "rs.R5=0x5555",     "rs.R6=1" ] },
+    # { "file": "fnsim/test_jump_ucond.p", "checks": [ "rs.R1=0", "rs.R2=1", "rs.R3=1", "rs.R4=0", "rs.R5=1", "rs.R6=1", "rs.SP=0", '-v' ] },
+    # { "file": "fnsim/test_jump_scond.p", "checks": [ "rs.R1=0", "rs.R2=1", "rs.R3=1", "rs.R4=0", "rs.R5=0", "rs.R6=0", "rs.SP=1", '-v' ] }
 ]
 
 
 def main():
     for test in TESTS:
-        subprocess.run(["../build/core/debug/fnsim-cli", "frisc", "-r", os.path.join("tests", test["file"]), "check"] + test["checks"])
+        subprocess.run(["../build/core/debug/fnsim-cli", "frisc", os.path.join("tests", test["file"]), "check"] + test["checks"])
 
 
 if __name__ == '__main__':

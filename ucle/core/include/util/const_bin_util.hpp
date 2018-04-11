@@ -3,6 +3,7 @@
 
 #include <common/types.hpp>
 
+#include <algorithm>
 #include <type_traits>
 
 namespace ucle::util {
@@ -31,12 +32,12 @@ namespace ucle::util {
 
         static constexpr bool all_bits_set(T x) { return x == all_bits(); }
         static constexpr bool all_but_high_bit_set(T x) { return x == ~high_bit(); }
-
-        static constexpr auto rot_masked(T x) { return x & rot_mask(); }
         static constexpr auto clear_top_n_of(T x, index_t n) { return low_n_bits_of(x, bitsize() - n); }
         static constexpr auto set_top_n_of(T x, index_t n) { return x | ~low_n_bits(bitsize() - n); }
 
+        static constexpr auto rot_masked(T x) { return x & rot_mask(); }
         static constexpr auto address_rounded(T x) { return x & address_round_mask(); }
+        static constexpr auto shift_clipped(T x) { return std::min(x, static_cast<T>(bitsize()));}
 
         static constexpr auto nth_byte_of(T x, index_t n) { return (x & (static_cast<T>(0xFF) << (8 * n))) >> (8 * n); }
     };

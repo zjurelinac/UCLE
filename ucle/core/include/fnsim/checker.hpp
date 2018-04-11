@@ -32,7 +32,12 @@ namespace ucle::fnsim {
             if (dot_pos == check.npos || op_pos == check.npos || dot_pos >= op_pos)
                 throw malformed_check(fmt::format("Passed check {} is malformed!", check));
 
-            return { check[op_pos], check.substr(0, dot_pos), check.substr(dot_pos + 1, op_pos - dot_pos - 1), check.substr(op_pos + 1) };
+            return {
+                check[op_pos],
+                util::trim_copy(check.substr(0, dot_pos)),
+                util::trim_copy(check.substr(dot_pos + 1, op_pos - dot_pos - 1)),
+                util::trim_copy(check.substr(op_pos + 1))
+            };
         }
 
     }
@@ -61,7 +66,7 @@ namespace ucle::fnsim {
                 if (cd.op != '=' && cd.op != '<' && cd.op != '>')
                     throw malformed_check(fmt::format("Unknown comparison operand: {}!\n", cd.op));
 
-                if (cd.cls == "regs") {
+                if (cd.cls == "rs") {  // registers
                     auto expected = std::stoll(cd.rhs, nullptr, 0);
                     auto actual = to_int(regs[cd.lhs]);
 

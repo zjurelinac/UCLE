@@ -94,18 +94,21 @@ namespace ucle::util {
 
         static constexpr res_t op_shl(value_type op1, value_type op2)
         {
+            op2 = cbu::shift_clipped(op2);
             auto result = op1 << op2;
             return { result, { cbu::nth_bit_of(op1, cbu::bitsize() - op2), 0, cbu::high_bit_of(result), result == 0 } };
         }
 
         static constexpr res_t op_shr(value_type op1, value_type op2)
         {
+            op2 = cbu::shift_clipped(op2);
             auto result = op1 >> op2;
             return { result, { cbu::nth_bit_of(op1, op2 - 1), 0, cbu::high_bit_of(result), result == 0 } };
         }
 
         static constexpr res_t op_asr(value_type op1, value_type op2)
         {
+            op2 = cbu::shift_clipped(op2);
             using signed_value_type = std::make_signed_t<value_type>;
             value_type result = signed_value_type(op1) >> op2;
             return { result, { cbu::nth_bit_of(op1, op2 - 1), 0, cbu::high_bit_of(result), result == 0 } };
