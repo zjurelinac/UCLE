@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>UCLE</title>
+		<link rel="stylesheet" href="./style/ucle-tabs.css">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.9/css/all.css" integrity="sha384-5SOiIsAziJl6AWe0HWRKTXlfcSHKmYV4RBF18PPJ173Kzn7jzMyFuTtk8JA7QQG1" crossorigin="anonymous">
+	</head>
+	<body>
+
+		<div style="float:left; display: inline-block; width:20%; height:600px; overflow-y: auto;" id="listed-files"></div>
+
+		<div style="display: inline-block; width: 78%"">
+			<div class="ucle-tabs">
+				<div class="ucle-tabs-content"></div>
+				<div class="ucle-tabs-bottom-bar"></div>
+			</div>
+			<div id="container" style="width: 100%;height:600px;border:1px solid #ccc; border-top: none; display: inline-block; vertical-align:top;"></div>
+		</div>
+
+		<script>
+			require('./renderer')
+			require('./scripts/tabs')
+		</script>
+	</body>
+</html>
