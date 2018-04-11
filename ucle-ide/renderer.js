@@ -33,7 +33,7 @@ loader().then((monaco) => {
 	const ucleTabs = new UCLETabs({ editor, monaco });
 	ucleTabs.init(el, { tabOverlapDistance: 14, minWidth: 45, maxWidth: 243 });
 
-	monaco.editor.onDidCreateEditor(function(e) {
+	editor.onDidChangeModelContent(function(e) {
 		if(!initType && !el.querySelector('.ucle-tab-current')) {
 			ucleTabs.addTab(null, true);
 			initType = true;
