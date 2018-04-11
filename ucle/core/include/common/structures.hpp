@@ -4,7 +4,7 @@
 #include <common/types.hpp>
 #include <common/meta.hpp>
 
-#include <util/const_bit_util.hpp>
+#include <util/const_bin_util.hpp>
 
 #include <array>
 
@@ -14,7 +14,7 @@ namespace ucle {
     class bitfield {
         public:
             using value_type = meta::sized_uint<N>;
-            using cbu = util::const_bit_util<value_type>;
+            using cbu = util::const_bin_util<value_type>;
 
             class reference {
                 public:
@@ -41,7 +41,7 @@ namespace ucle {
                         { return lhs.val_ != rhs.val_ || lhs.idx_ != rhs.idx_; }
 
                 private:
-                    constexpr bool get_() const { return val_ & cbu::nth_bit(idx_); }
+                    constexpr bool get_() const { return cbu::nth_bit_of(val_, idx_); }
                     constexpr void set_(bool x)
                     {
                         if (x) val_ |=  cbu::nth_bit(idx_);
@@ -67,7 +67,7 @@ namespace ucle {
             constexpr explicit operator value_type() const { return value_; }
 
             constexpr bool operator[](index_t idx) const
-                { return value_ & cbu::nth_bit(idx); }
+                { return cbu::nth_bit_of(value_, idx); }
             constexpr reference operator[](index_t idx)
                 { return reference(value_, idx); }
 
@@ -92,10 +92,10 @@ namespace ucle {
             // size_t count() const noexcept { /* TODO */ }
             constexpr size_t size() const noexcept { return N; }
 
-            constexpr bool test(index_t idx) const noexcept { return value_ & cbu::nth_bit(idx); }
+            constexpr bool test(index_t idx) const noexcept { return cbu::nth_bit_of(value_, idx); }
 
             constexpr bool any() const noexcept { return value_ != 0; }
-            constexpr bool all() const noexcept { return value_ == cbu::all_bits(); }
+            constexpr bool all() const noexcept { return cbu::all_bits_set(value_); }
             constexpr bool none() const noexcept { return value_ == 0; }
 
             constexpr bitfield<N>& set() noexcept

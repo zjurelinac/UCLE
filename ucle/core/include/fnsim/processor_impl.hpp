@@ -9,7 +9,7 @@
 #include <fnsim/exceptions.hpp>
 #include <fnsim/processor.hpp>
 
-#include <util/const_bit_util.hpp>
+#include <util/const_bin_util.hpp>
 
 #include <set>
 #include <string>
@@ -106,14 +106,14 @@ namespace ucle::fnsim {
             virtual void clear_internals_() = 0;
 
             template <typename T, typename = meta::is_storage_t<T>>
-            T read_(address_t location) const { return mem_asp_.template read<T>(location & util::const_bit_util<T>::address_round_mask()); }
+            T read_(address_t location) const { return mem_asp_.template read<T>(util::const_bin_util<T>::address_rounded(location)); }
             template <typename T, typename = meta::is_storage_t<T>>
-            void write_(address_t location, T value) { mem_asp_.template write<T>(location & util::const_bit_util<T>::address_round_mask(), value); }
+            void write_(address_t location, T value) { mem_asp_.template write<T>(util::const_bin_util<T>::address_rounded(location), value); }
 
             template <typename T, typename = meta::is_storage_t<T>>
-            T read_dev_(address_t location) const { return dev_asp_.template read<T>(location & util::const_bit_util<T>::address_round_mask()); }
+            T read_dev_(address_t location) const { return dev_asp_.template read<T>(util::const_bin_util<T>::address_rounded(location)); }
             template <typename T, typename = meta::is_storage_t<T>>
-            void write_dev_(address_t location, T value) { dev_asp_.template write<T>(location & util::const_bit_util<T>::address_round_mask(), value); }
+            void write_dev_(address_t location, T value) { dev_asp_.template write<T>(util::const_bin_util<T>::address_rounded(location), value); }
 
         private:
             config_type             cfg_;

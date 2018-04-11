@@ -4,7 +4,7 @@
 #include <common/types.hpp>
 #include <common/structures.hpp>
 
-#include <util/const_bit_util.hpp>
+#include <util/const_bin_util.hpp>
 
 #include <iostream>
 #include <type_traits>
@@ -16,7 +16,7 @@ namespace ucle::util {
     template <typename ValueType>
     struct unop {
         using value_type = ValueType;
-        using cbu = const_bit_util<value_type>;
+        using cbu = const_bin_util<value_type>;
 
         static constexpr value_type invert(value_type op)
         {
@@ -30,8 +30,8 @@ namespace ucle::util {
 
         static constexpr value_type sign_extend(value_type op, size_t from)
         {
-            auto ext_num = cbu::bitsize() - from;
-            return (op & cbu::nth_bit(from)) ? (op | cbu::set_topn_mask(ext_num)) : (op & cbu::clear_topn_mask(ext_num));
+            auto n = cbu::bitsize() - from;
+            return cbu::nth_bit_of(op, from) ? cbu::set_top_n_of(op, n) : cbu::clear_top_n_of(op, n);
         }
     };
 
@@ -40,7 +40,7 @@ namespace ucle::util {
         using value_type = ValueType;
         using flag_type = ArithFlags;
         using res_t = std::pair<value_type, flag_type>;
-        using cbu = const_bit_util<value_type>;
+        using cbu = const_bin_util<value_type>;
 
         static constexpr res_t op_add(value_type op1, value_type op2)
         {
@@ -95,63 +95,54 @@ namespace ucle::util {
         static constexpr res_t op_shl(value_type op1, value_type op2)
         {
             auto result = op1 << op2;
-            auto nfs = flag_type(op1 & cbu::nth_bit(cbu::bitsize() - op2), 0, result & cbu::highest_bit(), result == 0);
-            return { result, nfs };
+            return { result, { cbu::nth_bit_of(op1, cbu::bitsize() - op2), 0, cbu::high_bit_of(result), result == 0 } };
         }
 
         static constexpr res_t op_shr(value_type op1, value_type op2)
         {
             auto result = op1 >> op2;
-            auto nfs = flag_type(op1 & cbu::nth_bit(op2 - 1), 0, result & cbu::highest_bit(), result == 0);
-            return { result, nfs };
+            return { result, { cbu::nth_bit_of(op1, op2 - 1), 0, cbu::high_bit_of(result), result == 0 } };
         }
 
         static constexpr res_t op_asr(value_type op1, value_type op2)
         {
-            using svalue_type = std::make_signed_t<value_type>;
-            value_type result = svalue_type(op1) >> op2;
-            auto nfs = flag_type(op1 & cbu::nth_bit(op2 - 1), 0, result & cbu::highest_bit(), result == 0);
-            return { result, nfs };
+            using signed_value_type = std::make_signed_t<value_type>;
+            value_type result = signed_value_type(op1) >> op2;
+            return { result, { cbu::nth_bit_of(op1, op2 - 1), 0, cbu::high_bit_of(result), result == 0 } };
         }
 
         static constexpr res_t op_rtl(value_type op1, value_type op2)
         {
-            op2 &= cbu::rot_mask();
+            op2 = cbu::rot_masked(op2);
             auto shift = cbu::bitsize() - op2;
             auto result = (op1 << op2) | (op1 >> shift);
-            auto nfs = flag_type(op1 & cbu::nth_bit(shift), 0, result & cbu::highest_bit(), result == 0);
-            return { result, nfs };
+            return { result, { cbu::nth_bit_of(op1, shift), 0, cbu::high_bit_of(result), result == 0 } };
         }
 
         static constexpr res_t op_rtr(value_type op1, value_type op2)
         {
-            op2 &= cbu::rot_mask();
+            op2 = cbu::rot_masked(op2);
             auto result = (op1 << (cbu::bitsize() - op2)) | (op1 >> op2);
-            auto nfs = flag_type(op1 & cbu::nth_bit(op2 - 1), 0, result & cbu::highest_bit(), result == 0);
-            return { result, nfs };
+            return { result, { cbu::nth_bit_of(op1, op2 - 1), 0, cbu::high_bit_of(result), result == 0 } };
         }
 
         private:
-            static constexpr auto determine_add_flags_(value_type op1, value_type op2, value_type result)
+            static constexpr flag_type determine_add_flags_(value_type op1, value_type op2, value_type result)
             {   // TODO: Optimize if possible!
-                auto hi_bit = cbu::highest_bit();
-                auto oth_bits = cbu::all_but_highest_bit();
-                bool C = ((op1 >> 1) + (op2 >> 1) + ((op1 & 1) + (op2 & 1))) & hi_bit;
-                bool C1 = ((op1 & oth_bits) + (op2 & oth_bits)) & hi_bit;
-                return flag_type(C, C ^ C1, result & hi_bit, result == 0);
+                bool C = cbu::high_bit_of((op1 >> 1) + (op2 >> 1) + ((op1 & 1) + (op2 & 1)));
+                bool C1 = cbu::high_bit_of(cbu::all_but_high_bit_of(op1) + cbu::all_but_high_bit_of(op2));
+                return {C, C ^ C1, cbu::high_bit_of(result), result == 0};
             }
 
-            static constexpr auto determine_addcarry_flags_(value_type op1, value_type op2, value_type result, bool carry)
+            static constexpr flag_type determine_addcarry_flags_(value_type op1, value_type op2, value_type result, bool carry)
             {   // TODO: Optimize if possible!
-                auto hi_bit = cbu::highest_bit();
-                auto oth_bits = cbu::all_but_highest_bit();
-                bool C = ((op1 >> 1) + (op2 >> 1) + ((op1 & 1) + (op2 & 1) + carry)) & hi_bit;
-                bool C1 = ((op1 & oth_bits) + (op2 & oth_bits)) & hi_bit;
-                return flag_type(C, C ^ C1, result & hi_bit, result == 0);
+                bool C = cbu::high_bit_of((op1 >> 1) + (op2 >> 1) + ((op1 & 1) + (op2 & 1) + carry));
+                bool C1 = cbu::high_bit_of(cbu::all_but_high_bit_of(op1) + cbu::all_but_high_bit_of(op2) + carry);
+                return {C, C ^ C1, cbu::high_bit_of(result), result == 0};
             }
 
-            static constexpr auto determine_axor_flags(value_type result) {
-                return flag_type(0, 0, result & cbu::highest_bit(), result == 0);
+            static constexpr flag_type determine_axor_flags(value_type result) {
+                return {0, 0, cbu::high_bit_of(result), result == 0};
             }
 
         // Additional binary AL operations, if required -> bitset, bitclear...
