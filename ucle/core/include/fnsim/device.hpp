@@ -62,7 +62,7 @@ namespace ucle::fnsim {
             virtual byte_t read_byte_(address_type location) const = 0;
             virtual half_t read_half_(address_type location) const = 0;
             virtual word_t read_word_(address_type location) const = 0;
-            
+
             virtual void write_byte_(address_type location, byte_t value) = 0;
             virtual void write_half_(address_type location, half_t value) = 0;
             virtual void write_word_(address_type location, word_t value) = 0;
@@ -102,7 +102,7 @@ namespace ucle::fnsim {
             {
                 return *(reinterpret_cast<word_t*>(&data_[location]));
             }
-            
+
             void write_byte_(address_type location, byte_t value) override
             {
                 data_[location] = value;
@@ -133,15 +133,61 @@ namespace ucle::fnsim {
             void status() override {}
     };
 
-
-    // Interrupt lines
-
-    /*template <unsigned num_levels>
-    class interrupt_lines {
+    /*
+    template<unsigned reg_num, unsigned reg_size, byte_order endianness, typename AddressType = address_t>
+    class register_set_device : public mapped_device<endianness, AddressType> {
         public:
+            using address_type = AddressType;
+            using register_type = reg<reg_size>;
+            using value_type = typename register_type::value_type;
 
-    };*/
+            register_set_device() = default;
 
+            register_set_device(const register_set_device<reg_num, reg_size, endianness, address_type>&) = delete;
+            register_set_device<reg_num, reg_size, endianness, address_type>& operator=(const register_set_device<reg_num, reg_size, endianness, address_type>&) = delete;
+
+            register_set_device(register_set_device<reg_num, reg_size, endianness, address_type>&&) = default;
+            register_set_device<reg_num, reg_size, endianness, address_type>& operator=(register_set_device<reg_num, reg_size, endianness, address_type>&&) = default;
+
+            ~register_set_device() override = default;
+
+            void reset() override { regs_.clear(); }
+
+        protected:
+            byte_t read_byte_(address_type location) const override
+            {
+                // return data_[location];
+            }
+
+            half_t read_half_(address_type location) const override
+            {
+                // return *(reinterpret_cast<half_t*>(&data_[location]));
+            }
+
+            word_t read_word_(address_type location) const override
+            {
+                // return *(reinterpret_cast<word_t*>(&data_[location]));
+            }
+
+            void write_byte_(address_type location, byte_t value) override
+            {
+                // data_[location] = value;
+            }
+
+            void write_half_(address_type location, half_t value) override
+            {
+                // *(reinterpret_cast<half_t*>(&data_[location])) = value;
+            }
+
+            void write_word_(address_type location, word_t value) override
+            {
+                // *(reinterpret_cast<word_t*>(&data_[location])) = value;
+            }
+
+        private:
+            std::array<register_type, reg_num> regs_;
+    };
+    */
 }
 
 #endif  /* _UCLE_CORE_FNSIM_DEVICE_HPP_ */
