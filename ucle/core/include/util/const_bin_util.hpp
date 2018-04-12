@@ -26,7 +26,7 @@ namespace ucle::util {
         // Operations with an operand
 
         static constexpr bool high_bit_of(T x) { return x >> (bitsize() - 1); }
-        static constexpr bool nth_bit_of(T x, index_t n) { return (x >> (n - 1)) & 1; }
+        static constexpr bool nth_bit_of(T x, index_t n) { return (x >> n) & 1; }
         static constexpr auto all_but_high_bit_of(T x) { return x & all_but_high_bit(); }
         static constexpr auto low_n_bits_of(T x, index_t n) { return x & low_n_bits(n); }
 

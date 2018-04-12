@@ -31,7 +31,7 @@ namespace ucle::util {
         static constexpr value_type sign_extend(value_type op, size_t from)
         {
             auto n = cbu::bitsize() - from;
-            return cbu::nth_bit_of(op, from) ? cbu::set_top_n_of(op, n) : cbu::clear_top_n_of(op, n);
+            return cbu::nth_bit_of(op, from - 1) ? cbu::set_top_n_of(op, n) : cbu::clear_top_n_of(op, n);
         }
     };
 
