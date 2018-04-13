@@ -46,5 +46,9 @@ loader().then((monaco) => {
 		}
 	})
 
+	ipcRenderer.on('save-file', (e) => {
+		if(fileManager.f != "") ucleTabs.updateTab(el.querySelector('.ucle-tab-current'), {title: ucleTabs.getFileName(fileManager.f)});
+	})
+
 	fileManager.readFolder('/');
 });

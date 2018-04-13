@@ -40,12 +40,14 @@ class FileManager {
 				throw err;
 			}
 		});
+
+		this.f = filename;
 	}
 
 	saveFile(file) {
-		if(!file) {
-			this.saveAsFile();
+		if(!file && this.f === "") {
 			console.log("file is " + this.f)
+			this.saveAsFile();
 			return
 		}
 
@@ -56,7 +58,7 @@ class FileManager {
 			data += line.text + model._EOL;
 		});
 
-		fs.writeFile(file, data, 'utf-8', function(err) {
+		fs.writeFile(this.f, data, 'utf-8', function(err) {
 			if(err) {
 				throw err;
 			}

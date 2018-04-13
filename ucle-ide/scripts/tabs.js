@@ -5,6 +5,7 @@ var newTab;
 var tabId = new Map();
 var idModels = new Map();
 var idView = new Map();
+var idFile = new Map();
 
 (function(){
 	const tabTemplate = `
@@ -58,10 +59,6 @@ var idView = new Map();
 
 			ipcRenderer.on('open-file', (e, file) => {
 				this.addTab({title: this.getFileName(file)}, true);
-			})
-
-			ipcRenderer.on('save-file', (e, file) => {
-				if(file) this.addTab({title: this.getFileName(file)}, true);
 			})
 		}
 
@@ -163,18 +160,56 @@ var idView = new Map();
 			return div.firstElementChild
 		}
 
+		checkIfAlreadyOpen(tabProperties) {
+			if(!tabProperties) return false;
+
+			var openedFileId;
+
+			if(idFile.size === 0) return false;
+
+			idFile.forEach(function(value, key) {
+				if(value === tabProperties.title) {
+					openedFileId = key; 
+					return;
+				}
+			})
+
+			if(openedFileId === undefined) {
+				return false;
+			}
+
+			const currentTab = this.el.querySelector('.ucle-tab-current')
+			
+			if(tabId.get(currentTab) != openedFileId) {
+				var changeTab;
+				tabId.forEach(function(value,key) {
+					if(value === openedFileId) {
+						changeTab = key;
+						return;
+					}
+				})
+
+				if(changeTab) this.setCurrentTab(changeTab);
+
+			}
+			return true;
+		}
+
 		addTab(tabProperties, start = false) {
+			if(this.checkIfAlreadyOpen(tabProperties)) return;
+
 			const tabEl = this.createNewTabEl()
 
 			tabEl.classList.add('ucle-tab-just-added')
 			setTimeout(() => tabEl.classList.remove('ucle-tab-just-added'), 500)
+
+			tabId.set(tabEl, id)
 
 			tabProperties = Object.assign({}, defaultTapProperties, tabProperties)
 			this.tabContentEl.appendChild(tabEl)
 			this.updateTab(tabEl, tabProperties)
 			this.emit('tabAdd', { tabEl })
 
-			tabId.set(tabEl, id)
 			if(start == true) {
 				idModels.set(id, this.editor.getModel())
 			} else {
@@ -217,11 +252,12 @@ var idView = new Map();
 
 			var removedId = tabId.get(tabEl)
 
+			tabId.delete(tabEl)
+
 			tabId.forEach(function(value, key) {
 				if(tabId.get(key) > removedId)
 					tabId.set(key, tabId.get(key)-1)
 			});
-			tabId.delete(tabEl)
 
 			idModels.get(removedId).dispose()
 			idModels.forEach(function(value, key) {
@@ -232,6 +268,14 @@ var idView = new Map();
 				if(key >= removedId && (key+1 < idView.size))
 					idView.set(key, idView.get(key+1))
 			});
+
+			idFile.forEach(function(value, key) {
+				if(key > removedId && (key-1 > 0)) {
+					idFile.set(key-1, value)
+				}
+			});
+
+			idFile.delete(idFile.size-1)
 
 			id--;
 
@@ -248,7 +292,9 @@ var idView = new Map();
 
 		updateTab(tabEl, tabProperties) {
 			tabEl.querySelector('.ucle-tab-title').textContent = tabProperties.title
-			tabEl.querySelector('.ucle-tab-favicon').style.backgroundImage = `url('${tabProperties.favicon}')`
+			if(tabProperties) { 
+				idFile.set(tabId.get(tabEl), tabProperties.title)
+			}
 		}
 
 		cleanUpPreviouslyDraggedTabs() {
