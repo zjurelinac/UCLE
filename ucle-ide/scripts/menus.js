@@ -20,6 +20,7 @@ module.exports = (mainWindow) => {
 			},
 			{
 				label: 'Open file',
+				accelerator: 'CmdOrCtrl+O',				
 				click () { 	
 					dialog.showOpenDialog({properties: ['openFile']}, function(filename) { 
 						if(filename !== undefined) webContents.send('open-file', filename.toString());
@@ -31,7 +32,7 @@ module.exports = (mainWindow) => {
 				label: 'Save',
 				accelerator: 'CmdOrCtrl+S',
 				click () {
-					webContents.send('save-file', null);
+					webContents.send('save-file', openedFile);
 				}
 			},
 			{
@@ -39,6 +40,7 @@ module.exports = (mainWindow) => {
 				click () { 
 					dialog.showSaveDialog(function(filename) {
 						if(!filename) return;
+						openedFile = filename;
 						webContents.send('save-file', filename.toString());
 					});
 				}
