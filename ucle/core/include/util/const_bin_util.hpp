@@ -29,11 +29,11 @@ namespace ucle::util {
         static constexpr bool nth_bit_of(T x, index_t n) { return (x >> n) & 1; }
         static constexpr auto all_but_high_bit_of(T x) { return x & all_but_high_bit(); }
         static constexpr auto low_n_bits_of(T x, index_t n) { return x & low_n_bits(n); }
+        static constexpr auto clear_top_n_of(T x, index_t n) { return low_n_bits_of(x, bitsize() - n); }
+        static constexpr auto set_top_n_of(T x, index_t n) { return x | ~low_n_bits(bitsize() - n); }
 
         static constexpr bool all_bits_set(T x) { return x == all_bits(); }
         static constexpr bool all_but_high_bit_set(T x) { return x == ~high_bit(); }
-        static constexpr auto clear_top_n_of(T x, index_t n) { return low_n_bits_of(x, bitsize() - n); }
-        static constexpr auto set_top_n_of(T x, index_t n) { return x | ~low_n_bits(bitsize() - n); }
 
         static constexpr auto rot_masked(T x) { return x & rot_mask(); }
         static constexpr auto address_rounded(T x) { return x & address_round_mask(); }

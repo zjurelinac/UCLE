@@ -58,8 +58,7 @@ namespace ucle::util {
         {
             op2 = ~op2 + 1;
             auto result = op1 + op2;
-            auto flags = determine_add_flags_(op1, op2, result);
-            return { result, flags };
+            return { result, determine_add_flags_(op1, op2, result) };
         }
 
         static constexpr res_t op_sbc(value_type op1, value_type op2, bool carry)
@@ -132,16 +131,18 @@ namespace ucle::util {
         private:
             static constexpr flag_type determine_add_flags_(value_type op1, value_type op2, value_type result)
             {   // TODO: Optimize if possible!
-                bool C = cbu::high_bit_of((op1 >> 1) + (op2 >> 1) + ((op1 & 1) + (op2 & 1)));
-                bool C1 = cbu::high_bit_of(cbu::all_but_high_bit_of(op1) + cbu::all_but_high_bit_of(op2));
-                return {C, C ^ C1, cbu::high_bit_of(result), result == 0};
+                bool C0 = (op1 & 1) + (op2 & 1) > 1;
+                bool Cn = cbu::high_bit_of((op1 >> 1) + (op2 >> 1) + C0);
+                bool Cn_1 = cbu::high_bit_of(cbu::all_but_high_bit_of(op1) + cbu::all_but_high_bit_of(op2));
+                return {Cn, Cn ^ Cn_1, cbu::high_bit_of(result), result == 0};
             }
 
             static constexpr flag_type determine_addcarry_flags_(value_type op1, value_type op2, value_type result, bool carry)
             {   // TODO: Optimize if possible!
-                bool C = cbu::high_bit_of((op1 >> 1) + (op2 >> 1) + ((op1 & 1) + (op2 & 1) + carry));
-                bool C1 = cbu::high_bit_of(cbu::all_but_high_bit_of(op1) + cbu::all_but_high_bit_of(op2) + carry);
-                return {C, C ^ C1, cbu::high_bit_of(result), result == 0};
+                bool C0 = (op1 & 1) + (op2 & 1) + carry > 1;
+                bool Cn = cbu::high_bit_of((op1 >> 1) + (op2 >> 1) + C0);
+                bool Cn_1 = cbu::high_bit_of(cbu::all_but_high_bit_of(op1) + cbu::all_but_high_bit_of(op2) + carry);
+                return {Cn, Cn ^ Cn_1, cbu::high_bit_of(result), result == 0};
             }
 
             static constexpr flag_type determine_axor_flags(value_type result) {
