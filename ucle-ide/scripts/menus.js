@@ -38,11 +38,7 @@ module.exports = (mainWindow) => {
 			{
 				label: 'Save as...',
 				click () { 
-					dialog.showSaveDialog(function(filename) {
-						if(!filename) return;
-						openedFile = filename;
-						webContents.send('save-file', filename.toString());
-					});
+					webContents.send('save-as-file');
 				}
 			},
 			{

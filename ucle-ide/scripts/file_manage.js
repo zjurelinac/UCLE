@@ -3,8 +3,6 @@ const ipcRenderer = require('electron').ipcRenderer;
 const fs = require('fs');
 const path = require('path');
 
-const {shell} = require('electron');
-
 class FileManager {
 
 	constructor({ editor, monaco }) {
@@ -15,6 +13,7 @@ class FileManager {
 		// When we receive a 'open-file' message, open the file
 		ipcRenderer.on('open-file', (e, file) => this.openFile(file));
 		ipcRenderer.on('save-file', (e, file) => this.saveFile(file));
+		ipcRenderer.on('save-as-file', (e) => this.saveAsFile());
 	}
 
 
@@ -45,11 +44,12 @@ class FileManager {
 	}
 
 	saveFile(file) {
-		if(!file && this.f === "") {
-			console.log("file is " + this.f)
+		if(!file || this.f === "" || file === 'untitled') {
 			this.saveAsFile();
 			return
 		}
+
+		console.log("file is " + this.f)
 
 		const model = this.editor.getModel();
 		let data = '';
