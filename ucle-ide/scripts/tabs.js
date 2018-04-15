@@ -1,11 +1,13 @@
 const Draggabilly = require('draggabilly');
 const ipcRenderer = require('electron').ipcRenderer;
+const { remote } = require('electron');
 
 var newTab;
 var tabId = new Map();
 var idModels = new Map();
 var idView = new Map();
 var idFile = new Map();
+var fileStartContent = new Map();
 
 (function(){
 	const tabTemplate = `
@@ -20,7 +22,7 @@ var idFile = new Map();
 	`
 
 	const defaultTapProperties = {
-		title: '',
+		title: 'untitled',
 		favicon: ''
 	}
 
@@ -28,9 +30,10 @@ var idFile = new Map();
 	let id = 0;
 
 	class UCLETabs {
-		constructor({ editor, monaco}) {
+		constructor({ editor, monaco, fileManager}) {
 			this.editor = editor;
 			this.monaco = monaco;
+			this.fileManager = fileManager;
 			this.draggabillyInstances = [];
 		}
 
@@ -49,8 +52,7 @@ var idFile = new Map();
 			this.setupDraggabilly()
 
 			ipcRenderer.on('close-file', (e) => {
-				if(el.querySelector('.ucle-tab-current') !== null) 
-					this.removeTab(el.querySelector('.ucle-tab-current'))
+				this.closeTab()		
 			});
 
 			ipcRenderer.on('new-file', (e) => {
@@ -68,6 +70,26 @@ var idFile = new Map();
 
 		emit(eventName, data) {
 			this.el.dispatchEvent(new CustomEvent(eventName, { detail: data }))
+		}
+
+		closeTab() {
+			if(this.el.querySelector('.ucle-tab-current') !== null) {
+				if(this.checkIfValueChanged(this.el.querySelector('.ucle-tab-current'))) {
+					var type = "warning"
+					var buttons = ['Cancel','Close','Save']
+					var message = 'Save changes before closing?'
+					var defaultId = 2
+					var response = remote.dialog.showMessageBox({message, type, buttons, defaultId})
+
+					if(response == 2) {
+						var tabEl = this.el.querySelector('.ucle-tab-current')
+						this.emit('tabClose', { tabEl })
+					} else if(response == 0) {
+						return;
+					}
+				}
+				this.removeTab(this.el.querySelector('.ucle-tab-current'))	
+			}
 		}
 
 		setupStyleEl() {
@@ -160,26 +182,39 @@ var idFile = new Map();
 			return div.firstElementChild
 		}
 
+		hasTitle(tabEl) {
+			if(tabEl) {
+				console.log(idFile.get(tabId.get(tabEl)))
+				return idFile.get(tabId.get(tabEl));
+			}
+			else return null
+		}
+
+		checkIfValueChanged(tabEl) {
+			return (idModels.get(tabId.get(tabEl)).getValue() != fileStartContent.get(idFile.get(tabId.get(tabEl))))
+		}
+
 		checkIfAlreadyOpen(tabProperties) {
 			if(!tabProperties) return false;
 
-			var openedFileId;
+			var openedFileId = null;
 
 			if(idFile.size === 0) return false;
 
 			idFile.forEach(function(value, key) {
 				if(value === tabProperties.title) {
+					console.log(tabProperties.title)
 					openedFileId = key; 
 					return;
 				}
 			})
 
-			if(openedFileId === undefined) {
+			if(openedFileId === undefined || openedFileId === null) {
 				return false;
 			}
 
 			const currentTab = this.el.querySelector('.ucle-tab-current')
-			
+
 			if(tabId.get(currentTab) != openedFileId) {
 				var changeTab;
 				tabId.forEach(function(value,key) {
@@ -188,9 +223,7 @@ var idFile = new Map();
 						return;
 					}
 				})
-
 				if(changeTab) this.setCurrentTab(changeTab);
-
 			}
 			return true;
 		}
@@ -199,6 +232,7 @@ var idFile = new Map();
 			if(this.checkIfAlreadyOpen(tabProperties)) return;
 
 			const tabEl = this.createNewTabEl()
+			var isBlankTab = !tabProperties
 
 			tabEl.classList.add('ucle-tab-just-added')
 			setTimeout(() => tabEl.classList.remove('ucle-tab-just-added'), 500)
@@ -206,18 +240,26 @@ var idFile = new Map();
 			tabId.set(tabEl, id)
 
 			tabProperties = Object.assign({}, defaultTapProperties, tabProperties)
+
 			this.tabContentEl.appendChild(tabEl)
 			this.updateTab(tabEl, tabProperties)
-			this.emit('tabAdd', { tabEl })
 
 			if(start == true) {
 				idModels.set(id, this.editor.getModel())
+				if(isBlankTab) {
+					fileStartContent.set(idFile.get(tabId.get(tabEl)), "")
+				} else {
+					fileStartContent.set(idFile.get(tabId.get(tabEl)),this.editor.getModel().getValue())
+				}
 			} else {
 				idModels.set(id, this.monaco.editor.createModel(""))
+				fileStartContent.set(idFile.get(tabId.get(tabEl)), "")				
 			}
+
 			idView.set(id, this.editor.saveViewState())
 			id++
 
+			this.emit('tabAdd', { tabEl })
 			this.setCurrentTab(tabEl)
 			this.layoutTabs()
 			this.fixZIndexes()
@@ -250,6 +292,10 @@ var idFile = new Map();
 				}
 			}
 
+			if(!tabEl.previousElementSibling && !tabEl.nextElementSibling) {
+				this.editor.setModel(this.monaco.editor.createModel(""))
+			}
+
 			var removedId = tabId.get(tabEl)
 
 			tabId.delete(tabEl)
@@ -270,19 +316,23 @@ var idFile = new Map();
 			});
 
 			idFile.forEach(function(value, key) {
-				if(key > removedId && (key-1 > 0)) {
+				if(key > removedId && (key-1 >= 0)) {
 					idFile.set(key-1, value)
 				}
 			});
 
 			idFile.delete(idFile.size-1)
 
+			fileStartContent.forEach(function(value, key) {
+				if(key > removedId && (key-1 >= 0)) {
+					fileStartContent.set(key-1, value)
+				}
+			});
+
+			fileStartContent.delete(fileStartContent.size-1)
+
 			id--;
-
-			if(!tabEl.previousElementSibling && !tabEl.nextElementSibling) {
-				this.editor.setModel(this.monaco.editor.createModel(""))
-			}
-
+			
 			tabEl.parentNode.removeChild(tabEl)
 			this.emit('tabRemove', { tabEl })
 			this.layoutTabs()
@@ -292,9 +342,8 @@ var idFile = new Map();
 
 		updateTab(tabEl, tabProperties) {
 			tabEl.querySelector('.ucle-tab-title').textContent = tabProperties.title
-			if(tabProperties) { 
-				idFile.set(tabId.get(tabEl), tabProperties.title)
-			}
+			idFile.set(tabId.get(tabEl), tabProperties.title)
+			fileStartContent.set(idFile.get(tabId.get(tabEl)),this.editor.getModel().getValue())
 		}
 
 		cleanUpPreviouslyDraggedTabs() {

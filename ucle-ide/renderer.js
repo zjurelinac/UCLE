@@ -7,7 +7,6 @@ const UCLETabs = require('./scripts/tabs')
 loader().then((monaco) => {
 	var initType = false;
 	var el = document.querySelector('.ucle-tabs');
-
 	var model = monaco.editor.createModel("");
 
 	monaco.editor.defineTheme('myTheme', {
@@ -19,6 +18,7 @@ loader().then((monaco) => {
 			'editor.inactiveSelectionBackground': '#88000015'
 		}
 	});
+
 	monaco.editor.setTheme('myTheme');
 
   	var editor = monaco.editor.create(document.getElementById('container'), {
@@ -40,10 +40,22 @@ loader().then((monaco) => {
 		}
 	});
 
-	el.addEventListener('tabRemove', function() {
+	editor.onDidFocusEditor(function(e) {
+		document.getElementById('line-tab').innerHTML = "Line: " + editor.getPosition().lineNumber + " | Column: " + editor.getPosition().column
+	})
+
+	editor.onDidChangeCursorPosition(function(e) {
+		document.getElementById('line-tab').innerHTML = "Line: " + editor.getPosition().lineNumber + " | Column: " + editor.getPosition().column
+	})
+
+	el.addEventListener('tabRemove', function(e) {
 		if (!el.querySelector('.ucle-tab-current')) {
 			initType = false;
 		}
+	})
+
+	el.addEventListener('tabClose', function(e) {
+		fileManager.saveFile(e.detail.tabEl.querySelector('.ucle-tab-title').textContent)
 	})
 
 	ipcRenderer.on('save-file', (e) => {
@@ -51,4 +63,6 @@ loader().then((monaco) => {
 	})
 
 	fileManager.readFolder('/');
+
+	editor.focus()
 });
