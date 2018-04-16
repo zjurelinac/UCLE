@@ -8,11 +8,9 @@ class FileManager {
 	constructor({ editor, monaco }) {
 		this.editor = editor;
 		this.monaco = monaco;
-		this.f = "";
 
 		// When we receive a 'open-file' message, open the file
 		ipcRenderer.on('open-file', (e, file) => this.openFile(file));
-		ipcRenderer.on('save-file', (e, file) => this.saveFile(file));
 		ipcRenderer.on('save-as-file', (e) => this.saveAsFile());
 	}
 
@@ -34,22 +32,17 @@ class FileManager {
 			data += line.text + model._EOL;
 		});
 
-		fs.writeFile(filename.toString(), data, 'utf-8', function(err) {
+		fs.writeFile(filename.toString(), model.getValue(), 'utf-8', function(err) {
 			if(err) {
 				throw err;
 			}
 		});
 
-		this.f = filename;
+		return filename;
 	}
 
 	saveFile(file) {
-		if(!file || this.f === "" || file === 'untitled') {
-			this.saveAsFile();
-			return
-		}
-
-		console.log("file is " + this.f)
+		console.log("file is " + file)
 
 		const model = this.editor.getModel();
 		let data = '';
@@ -58,7 +51,10 @@ class FileManager {
 			data += line.text + model._EOL;
 		});
 
-		fs.writeFile(this.f, data, 'utf-8', function(err) {
+		console.log(model.getValue())
+
+		fs.writeFile(file, model.getValue(), 'utf-8', function(err) {
+			console.log("wrote file " + data)
 			if(err) {
 				throw err;
 			}
@@ -74,8 +70,6 @@ class FileManager {
 				path = '/'
 			}
 		}
-
-		console.log(path)
 
 		fs.readdir(path, (err, files) => {
 			'use strict';
