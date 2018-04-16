@@ -52,7 +52,10 @@ module.exports = (mainWindow) => {
 				}
 			},
 			{
-				label: 'Close all files'
+				label: 'Close all files',
+				click () { 
+					webContents.send('close-all-files');
+				}
 			},
 			{
 				type: 'separator'

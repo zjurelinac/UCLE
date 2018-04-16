@@ -4,6 +4,8 @@ const ipcRenderer = require('electron').ipcRenderer;
 const FileManager = require('./scripts/file_manage');
 const UCLETabs = require('./scripts/tabs')
 
+
+
 loader().then((monaco) => {
 	var initType = false;
 	var el = document.querySelector('.ucle-tabs');
@@ -34,7 +36,7 @@ loader().then((monaco) => {
 	ucleTabs.init(el, { tabOverlapDistance: 14, minWidth: 45, maxWidth: 243 });
 
 	editor.onDidChangeModelContent(function(e) {
-		if(!initType && !el.querySelector('.ucle-tab-current')) {
+		if(!initType && !ucleTabs.currentTab) {
 			ucleTabs.addTab(null, true);
 			initType = true;
 		}
@@ -49,17 +51,28 @@ loader().then((monaco) => {
 	})
 
 	el.addEventListener('tabRemove', function(e) {
-		if (!el.querySelector('.ucle-tab-current')) {
+		if (!ucleTabs.currentTab) {
 			initType = false;
 		}
 	})
 
 	el.addEventListener('tabClose', function(e) {
-		fileManager.saveFile(e.detail.tabEl.querySelector('.ucle-tab-title').textContent)
+		fileManager.saveFile(e.detail.tabEl.querySelector('.ucle-tab-file-path').textContent)
 	})
 
 	ipcRenderer.on('save-file', (e) => {
-		if(fileManager.f != "") ucleTabs.updateTab(el.querySelector('.ucle-tab-current'), {title: ucleTabs.getFileName(fileManager.f)});
+		var currTab = ucleTabs.currentTab;
+		if(currTab) {
+			var currFileName = currTab.querySelector('.ucle-tab-title').textContent
+			var currFilePath = currTab.querySelector('.ucle-tab-file-path').textContent
+			if(currFileName == 'untitled') {
+				var savedPath = fileManager.saveAsFile();
+				ucleTabs.updateTab(currTab, {title: ucleTabs.getFileName(savedPath), fullPath: savedPath});
+			} else {
+				fileManager.saveFile(currFilePath)
+			}
+			ucleTabs.updateTabContent(currTab)
+		}
 	})
 
 	fileManager.readFolder('/');

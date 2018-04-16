@@ -1,6 +1,7 @@
 const Draggabilly = require('draggabilly');
 const ipcRenderer = require('electron').ipcRenderer;
 const { remote } = require('electron');
+const dialog = require('electron').dialog
 
 var newTab;
 var tabId = new Map();
@@ -9,7 +10,6 @@ var idView = new Map();
 var idFile = new Map();
 var fileStartContent = new Map();
 
-(function(){
 	const tabTemplate = `
 		<div class="ucle-tab">
 			<div class="ucle-tab-background">
@@ -17,13 +17,15 @@ var fileStartContent = new Map();
 			</div>
 			<div class="ucle-tab-favicon"></div>
 			<div class="ucle-tab-title"></div>
+			<div class="ucle-tab-file-path" hidden></div>
 			<div class="ucle-tab-close"></div>
 		</div>
 	`
 
 	const defaultTapProperties = {
 		title: 'untitled',
-		favicon: ''
+		favicon: '',
+		fullPath: ''
 	}
 
 	let instanceId = 0
@@ -52,7 +54,12 @@ var fileStartContent = new Map();
 			this.setupDraggabilly()
 
 			ipcRenderer.on('close-file', (e) => {
-				this.closeTab()		
+				var changed = this.checkIfValueChanged(this.currentTab);
+				this.closeTab(this.currentTab, changed)		
+			});
+
+			ipcRenderer.on('close-all-files',  (e) => {
+				this.closeAllTabs()		
 			});
 
 			ipcRenderer.on('new-file', (e) => {
@@ -60,36 +67,45 @@ var fileStartContent = new Map();
 			})
 
 			ipcRenderer.on('open-file', (e, file) => {
-				this.addTab({title: this.getFileName(file)}, true);
+				this.addTab({title: this.getFileName(file), fullPath: file}, true);
 			})
-		}
 
-		getFileName (str) {
-			return str.split('\\').pop().split('/').pop();
 		}
 
 		emit(eventName, data) {
 			this.el.dispatchEvent(new CustomEvent(eventName, { detail: data }))
 		}
 
-		closeTab() {
-			if(this.el.querySelector('.ucle-tab-current') !== null) {
-				if(this.checkIfValueChanged(this.el.querySelector('.ucle-tab-current'))) {
+		closeTab(tabEl, changed = false) {
+			if(tabEl) {
+				if(changed) {
 					var type = "warning"
-					var buttons = ['Cancel','Close','Save']
+					var buttons = ['Cancel','Close file without saving','Save']
 					var message = 'Save changes before closing?'
 					var defaultId = 2
 					var response = remote.dialog.showMessageBox({message, type, buttons, defaultId})
 
 					if(response == 2) {
-						var tabEl = this.el.querySelector('.ucle-tab-current')
 						this.emit('tabClose', { tabEl })
 					} else if(response == 0) {
 						return;
 					}
 				}
-				this.removeTab(this.el.querySelector('.ucle-tab-current'))	
+				this.removeTab(tabEl)	
 			}
+		}
+
+		closeAllTabs() {
+			var allTabs = this.tabEls;
+			allTabs.forEach(function(tab) {
+				var changed = this.checkIfValueChanged(tab);
+				if(changed) {
+					this.setCurrentTab(tab)
+					setTimeout(() => this.closeTab(tab, changed), 50)
+				} else {
+					this.closeTab(tab, changed);
+				}
+			}, this)
 		}
 
 		setupStyleEl() {
@@ -106,11 +122,18 @@ var fileStartContent = new Map();
 				if (target.classList.contains('ucle-tab')) {
 					this.setCurrentTab(target)
 				} else if (target.classList.contains('ucle-tab-close')) {
-					this.removeTab(target.parentNode)
-				} else if (target.classList.contains('ucle-tab-title') || target.classList.contains('ucle-tab-favicon')) {
-					this.setCurrentTab(target.parentNode)
+					var changed = this.checkIfValueChanged(target.parentNode);
+					this.closeTab(target.parentNode, changed)
 				}
 			})
+		}
+
+		getFileName(str) {
+			return str.split('\\').pop().split('/').pop();
+		}
+
+		get currentTab() {
+			return this.el.querySelector('.ucle-tab-current')
 		}
 
 		get tabEls() {
@@ -184,7 +207,6 @@ var fileStartContent = new Map();
 
 		hasTitle(tabEl) {
 			if(tabEl) {
-				console.log(idFile.get(tabId.get(tabEl)))
 				return idFile.get(tabId.get(tabEl));
 			}
 			else return null
@@ -203,7 +225,6 @@ var fileStartContent = new Map();
 
 			idFile.forEach(function(value, key) {
 				if(value === tabProperties.title) {
-					console.log(tabProperties.title)
 					openedFileId = key; 
 					return;
 				}
@@ -213,7 +234,7 @@ var fileStartContent = new Map();
 				return false;
 			}
 
-			const currentTab = this.el.querySelector('.ucle-tab-current')
+			const currentTab = this.currentTab
 
 			if(tabId.get(currentTab) != openedFileId) {
 				var changeTab;
@@ -267,7 +288,7 @@ var fileStartContent = new Map();
 		}
 
 		setCurrentTab(tabEl) {
-			const currentTab = this.el.querySelector('.ucle-tab-current')
+			const currentTab = this.currentTab;
 
 			if (currentTab) {
 				idView.set(tabId.get(currentTab), this.editor.saveViewState())
@@ -276,6 +297,8 @@ var fileStartContent = new Map();
 
 			tabEl.classList.add('ucle-tab-current')
 			this.fixZIndexes()
+			this.layoutTabs()
+
 			this.emit('activeTabChange', { tabEl })
 
 			this.editor.setModel(idModels.get(tabId.get(tabEl)));
@@ -332,7 +355,7 @@ var fileStartContent = new Map();
 			fileStartContent.delete(fileStartContent.size-1)
 
 			id--;
-			
+
 			tabEl.parentNode.removeChild(tabEl)
 			this.emit('tabRemove', { tabEl })
 			this.layoutTabs()
@@ -342,7 +365,11 @@ var fileStartContent = new Map();
 
 		updateTab(tabEl, tabProperties) {
 			tabEl.querySelector('.ucle-tab-title').textContent = tabProperties.title
+			tabEl.querySelector('.ucle-tab-file-path').textContent = tabProperties.fullPath
 			idFile.set(tabId.get(tabEl), tabProperties.title)
+		}
+
+		updateTabContent(tabEl) {
 			fileStartContent.set(idFile.get(tabId.get(tabEl)),this.editor.getModel().getValue())
 		}
 
@@ -371,6 +398,7 @@ var fileStartContent = new Map();
 					tabEl.classList.add('ucle-tab-currently-dragged')
 					this.el.classList.add('ucle-tabs-sorting')
 					this.fixZIndexes()
+					this.setCurrentTab(tabEl)
 				})
 
 				draggabillyInstance.on('dragEnd', () => {
@@ -423,4 +451,3 @@ var fileStartContent = new Map();
 	}
 
 	module.exports = UCLETabs
-})()
