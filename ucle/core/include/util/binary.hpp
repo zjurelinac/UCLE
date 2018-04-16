@@ -6,7 +6,6 @@
 
 #include <util/const_bin_util.hpp>
 
-#include <iostream>
 #include <type_traits>
 
 namespace ucle::util {
@@ -93,15 +92,13 @@ namespace ucle::util {
 
         static constexpr res_t op_shl(value_type op1, value_type op2)
         {
-            op2 = cbu::shift_clipped(op2);
-            auto result = op1 << op2;
+            auto result = op2 >= cbu::bitsize() ? 0 : op1 << op2;
             return { result, { cbu::nth_bit_of(op1, cbu::bitsize() - op2), 0, cbu::high_bit_of(result), result == 0 } };
         }
 
-        static constexpr res_t op_shr(value_type op1, value_type op2)
+        static res_t op_shr(value_type op1, value_type op2)
         {
-            op2 = cbu::shift_clipped(op2);
-            auto result = op1 >> op2;
+            auto result = op2 >= cbu::bitsize() ? 0 : op1 >> op2;
             return { result, { cbu::nth_bit_of(op1, op2 - 1), 0, cbu::high_bit_of(result), result == 0 } };
         }
 
