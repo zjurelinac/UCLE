@@ -159,7 +159,7 @@ fnsim::status fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, cons
             regs_.PC = addr;
             break;
         case 0b11010: /* JR */
-            regs_.SP += addr;
+            regs_.PC += addr;
             break;
         case 0b11011: { /* RETX */
             auto rtcode = IR[{1, 0}];
