@@ -451,7 +451,7 @@ namespace ucle::fnsim {
         return status::ok;
     }
 
-    void print_reg_info(reg_info ri)
+    void print_reg_info(register_info ri)
     {
         for (const auto [name, value] : ri)
             fmt::print("{} = {} = {}\n", name, fnsim::to_xstring(value), fnsim::to_string(value));

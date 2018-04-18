@@ -70,12 +70,12 @@ namespace ucle::fnsim {
                 };
             }
 
-            bool check_register_(const check_descr& cd, reg_info& rinfo)
+            bool check_register_(const check_descr& cd, register_info& rinfo)
             {
                 auto expected = std::stoll(cd.rhs, nullptr, 0);
                 auto actual = to_int(rinfo[cd.lhs]);
 
-                if (cmps_[cd.op](actual, expected)) {
+                if (cmp_values_(cd.op, actual, expected)) {
                     if (verbosity_ == 2)
                         fmt::print_colored(fmt::GREEN, "Passed ({} {} {}) [{} = {}].\n", cd.lhs, cd.op, expected, cd.lhs, actual);
                     else if (verbosity_ == 1)
@@ -90,11 +90,17 @@ namespace ucle::fnsim {
                 }
             }
 
-            std::unordered_map<char, std::function<bool(long long, long long)>> cmps_ = {
-                { '=', [](auto x, auto y) { return x == y; } },
-                { '<', [](auto x, auto y) { return x < y; } },
-                { '>', [](auto x, auto y) { return x > y; } }
-            };
+            template <typename T, typename U>
+            bool cmp_values_(char op, T x, U y)
+            {
+                switch (op) {
+                    case '=': return x == y;
+                    case '<': return x < y;
+                    case '>': return x > y;
+                    case '/': return x != y;
+                    default:  return true;
+                }
+            }
 
             FunctionalSimulation& sim_;
             std::string filename_;

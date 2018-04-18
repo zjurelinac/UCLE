@@ -133,7 +133,7 @@ namespace ucle::fnsim {
         return std::stoll(to_xstring(rv), nullptr, 16);
     }
 
-    using reg_info = std::map<std::string, reg_val>;
+    using register_info = std::map<std::string, reg_val>;
 
     struct execution_info {
         counter_t instruction_cnt;

@@ -62,7 +62,7 @@ namespace ucle::fnsim {
             address_t get_program_counter() const override { return regs_.PC; };
             void set_program_counter(address_t location) override { regs_.PC = location; }
             status execute_single() override;
-            reg_info get_reg_info() override;
+            register_info get_reg_info() override;
 
         protected:
             void clear_internals_() override { regs_.clear(); }

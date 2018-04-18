@@ -227,7 +227,7 @@ fnsim::status fnsim::frisc_simulator::execute_single() {
     return stat;
 }
 
-fnsim::reg_info fnsim::frisc_simulator::get_reg_info()
+fnsim::register_info fnsim::frisc_simulator::get_reg_info()
 {
     return {
         {"R0", regs_.R[0]},
