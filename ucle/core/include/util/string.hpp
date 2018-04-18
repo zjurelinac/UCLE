@@ -1,6 +1,8 @@
 #ifndef _UCLE_CORE_UTIL_STRING_HPP_
 #define _UCLE_CORE_UTIL_STRING_HPP_
 
+#include <common/meta.hpp>
+
 #include <algorithm>
 #include <cctype>
 #include <sstream>
@@ -9,8 +11,34 @@
 
 namespace ucle::util {
 
+    namespace detail {
+
+        template <typename T>
+        struct parse_int {
+            static T parse(const std::string& str, std::size_t* idx = 0, int base = 10);
+        };
+
+        template <>
+        int parse_int<int>::parse(const std::string& str, std::size_t* idx, int base) { return std::stoi(str, idx, base); }
+
+        template <>
+        long parse_int<long>::parse(const std::string& str, std::size_t* idx, int base) { return std::stol(str, idx, base); }
+
+        template <>
+        long long parse_int<long long>::parse(const std::string& str, std::size_t* idx, int base) { return std::stoll(str, idx, base); }
+
+        template <>
+        unsigned parse_int<unsigned>::parse(const std::string& str, std::size_t* idx, int base) { return std::stoi(str, idx, base); }
+
+        template <>
+        unsigned long parse_int<unsigned long>::parse(const std::string& str, std::size_t* idx, int base) { return std::stoul(str, idx, base); }
+
+        template <>
+        unsigned long long parse_int<unsigned long long>::parse(const std::string& str, std::size_t* idx, int base) { return std::stoull(str, idx, base); }
+    }
+
     // trim from start (in place)
-    static inline void ltrim(std::string &s)
+    inline void ltrim(std::string &s)
     {
         s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
             return !std::isspace(ch);
@@ -18,7 +46,7 @@ namespace ucle::util {
     }
 
     // trim from end (in place)
-    static inline void rtrim(std::string &s)
+    inline void rtrim(std::string &s)
     {
         s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
             return !std::isspace(ch);
@@ -26,35 +54,35 @@ namespace ucle::util {
     }
 
     // trim from both ends (in place)
-    static inline void trim(std::string &s)
+    inline void trim(std::string &s)
     {
         ltrim(s);
         rtrim(s);
     }
 
     // trim from start (copying)
-    static inline std::string ltrim_copy(std::string s)
+    inline std::string ltrim_copy(std::string s)
     {
         ltrim(s);
         return s;
     }
 
     // trim from end (copying)
-    static inline std::string rtrim_copy(std::string s)
+    inline std::string rtrim_copy(std::string s)
     {
         rtrim(s);
         return s;
     }
 
     // trim from both ends (copying)
-    static inline std::string trim_copy(std::string s)
+    inline std::string trim_copy(std::string s)
     {
         trim(s);
         return s;
     }
 
     // split string into words
-    static inline std::vector<std::string> split(std::string s, char delim = ' ')
+    inline std::vector<std::string> split(std::string s, char delim = ' ')
     {
         std::istringstream iss {s};
         std::vector<std::string> tokens;
@@ -66,6 +94,20 @@ namespace ucle::util {
 
         return tokens;
     }
+
+    template <typename T, typename = meta::is_integer_t<T>>
+    inline auto parse_int(std::string& str, T* num_ptr, int base = 0)
+    {
+        try {
+            std::size_t pos;
+            *num_ptr = detail::parse_int<T>::parse(str, &pos, base);
+            return pos == str.size();
+        } catch (std::exception) {
+            num_ptr = nullptr;
+            return false;
+        }
+    }
+
 }
 
 #endif  /* _UCLE_CORE_UTIL_STRING_HPP_ */

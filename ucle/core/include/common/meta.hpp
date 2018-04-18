@@ -28,6 +28,14 @@ namespace ucle::meta {
                                                    std::is_same_v<T, word_t> ||
                                                    std::is_same_v<T, dword_t> >;
 
+    template <typename T>
+    using is_integer_t = typename std::enable_if_t<std::is_same_v<T, int> ||
+                                                   std::is_same_v<T, unsigned> ||
+                                                   std::is_same_v<T, long> ||
+                                                   std::is_same_v<T, unsigned long> ||
+                                                   std::is_same_v<T, long long> ||
+                                                   std::is_same_v<T, unsigned long long> >;
+
     template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
     template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
