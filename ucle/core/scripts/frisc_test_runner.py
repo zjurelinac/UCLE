@@ -18,6 +18,7 @@ TESTS = [
 
     # Memory operations
     # { "file": "fnsim/frisc/test_load.p",    "checks": [ "rs.R0=0x11111111", "rs.R1=0x22222222", "rs.R2=0x3333", "rs.R3=0x4444", "rs.R4=0x55", "rs.R5=0x66", "rs.R6=0x11" ] },
+    { "file": "fnsim/frisc/test_store.p",   "checks": [ "rs.R0=1", "rs.R1=0xABCDDCBA", "rs.R2=2", "rs.R3=0xDCBA", "rs.R4=3", "rs.R5=0xBA", "rs.R6=0xABCDDCFF" ] },
 
     # Control operations
     # { "file": "fnsim/frisc/test_jump_ucond.p",  "checks": [ "rs.R1=0", "rs.R2=1", "rs.R3=1", "rs.R4=0", "rs.R5=1", "rs.R6=1", "rs.SP=0" ] },
