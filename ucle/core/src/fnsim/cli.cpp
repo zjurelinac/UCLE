@@ -58,7 +58,9 @@ int main(int argc, char* argv[]) {
         if (cfg.print_exec_info)
             print_exec_info(sim.get_exec_info());
 
-        if (cfg.run_checker)
-            run_checks(cfg.pfile, cfg.checks, sim, cfg.verbosity);
+        if (cfg.run_checker) {
+            checker chk {sim, cfg.pfile, cfg.verbosity};
+            chk.run(cfg.checks);
+        }
     }
 }

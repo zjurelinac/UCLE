@@ -100,7 +100,6 @@ namespace ucle::fnsim {
     };
 
     using reg_val = std::variant<bool, byte_t, half_t, word_t, dword_t>;
-    using reg_info = std::map<std::string, reg_val>;
 
     inline std::string to_string(reg_val rv)
     {
@@ -133,6 +132,8 @@ namespace ucle::fnsim {
     {
         return std::stoll(to_xstring(rv), nullptr, 16);
     }
+
+    using reg_info = std::map<std::string, reg_val>;
 
     struct execution_info {
         counter_t instruction_cnt;

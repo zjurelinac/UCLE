@@ -96,7 +96,7 @@ namespace ucle::util {
     }
 
     template <typename T, typename = meta::is_integer_t<T>>
-    inline auto parse_int(std::string& str, T* num_ptr, int base = 0)
+    inline bool parse_int(std::string& str, T* num_ptr, int base = 0)
     {
         try {
             std::size_t pos;
