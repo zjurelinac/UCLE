@@ -43,7 +43,7 @@ namespace ucle::fnsim {
     }
 
     template <typename FunctionalSimulation>
-    void run_checks(std::string pfile, std::vector<std::string>& checks, FunctionalSimulation& sim, bool verbose = false)
+    void run_checks(std::string pfile, std::vector<std::string>& checks, FunctionalSimulation& sim, int verbosity = 1)
     {
         fmt::print("Running checker for [{}]\n", pfile);
         fmt::print("================================================================================\n");
@@ -71,15 +71,15 @@ namespace ucle::fnsim {
                     auto actual = to_int(regs[cd.lhs]);
 
                     if (cmps[cd.op](actual, expected)) {
-                        if (verbose)
+                        if (verbosity == 2)
                             fmt::print_colored(fmt::GREEN, "Passed ({} {} {}) [{} = {}].\n", cd.lhs, cd.op, expected, cd.lhs, actual);
-                        else
+                        else if (verbosity == 1)
                             fmt::print_colored(fmt::GREEN, "Passed.\n");
                         ++success_cnt;
                     } else {
-                        if (verbose)
+                        if (verbosity == 2)
                             fmt::print_colored(fmt::RED, "Failed ({} !{} {}) [{} = {}].\n", cd.lhs, cd.op, expected, cd.lhs, actual);
-                        else
+                        else if (verbosity == 1)
                             fmt::print_colored(fmt::RED, "Failed!\n");
                         ++fail_cnt;
                     }

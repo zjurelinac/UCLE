@@ -24,18 +24,22 @@ namespace ucle::fnsim {
     };
 
     struct cli_config {
+        // Processor options
         std::string simulator_name;
         uint32_t fnsim_mem_size = 4096;
 
+        // Source options
         std::string pfile;
 
+        // Runtime options
         bool run_interactive = false;
         bool run_checker = false;
         bool print_reg_info = false;
         bool print_exec_info = false;
 
+        // Checker options
         std::vector<std::string> checks;
-        bool verbose_output = false;
+        int verbosity;
     };
 
 }

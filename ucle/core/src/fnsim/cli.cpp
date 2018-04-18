@@ -37,7 +37,8 @@ int main(int argc, char* argv[]) {
     auto checker_cmd = app.add_subcommand("check", "Simulation results checker");
     checker_cmd->set_callback([&cfg]() { cfg.run_checker = true; });
     checker_cmd->add_option("check", cfg.checks, "A list of checks to perform once simulation finishes")->required();
-    checker_cmd->add_flag("-v,--verbose-output", cfg.verbose_output, "Controls whether checker output will be verbose or terse");
+    auto verbose_callback = [&cfg](std::size_t count) { cfg.verbosity = count; };
+    checker_cmd->add_flag("-v,--verbose-output", verbose_callback, "Controls how verbose will the checker output be");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -58,6 +59,6 @@ int main(int argc, char* argv[]) {
             print_exec_info(sim.get_exec_info());
 
         if (cfg.run_checker)
-            run_checks(cfg.pfile, cfg.checks, sim, cfg.verbose_output);
+            run_checks(cfg.pfile, cfg.checks, sim, cfg.verbosity);
     }
 }
