@@ -6,8 +6,6 @@ namespace fnsim = ucle::fnsim;
 
 fnsim::status fnsim::frisc_simulator::execute_move_(word_t, bool fn, const reg<32>& IR)
 {
-    // std::cout << "MOVE" << "\n";
-
     auto src = IR[21] ? word_t(regs_.SR) : (fn ? unop::sign_extend(IR[{19, 0}], 20) : word_t(regs_.R[IR[{19, 17}]]));
 
     if (IR[20])
@@ -21,86 +19,75 @@ fnsim::status fnsim::frisc_simulator::execute_move_(word_t, bool fn, const reg<3
 fnsim::status fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, const reg<32>& IR)
 {
     auto& dest = regs_.R[IR[{25, 23}]];
+
     auto src1 = word_t(regs_.R[IR[{22, 20}]]);
     auto src2 = fn ? unop::sign_extend(IR[{19, 0}], 20) : word_t(regs_.R[IR[{19, 17}]]);
+
     bool C = regs_.SR.C;
     frisc_arith_flags flags;
 
     switch (opcode) {
-        case 0b00001: {
-            // std::cout << "OR" << "\n";
+        case 0b00001: {  /* OR */
             auto [res, new_flags] = binop::op_or(src1, src2);
             dest = res;
             flags = new_flags;
             break;
-        } case 0b00010: {
-            // std::cout << "AND" << "\n";
+        } case 0b00010: { /* AND */
             auto [res, new_flags] = binop::op_and(src1, src2);
             dest = res;
             flags = new_flags;
             break;
-        } case 0b00011: {
-            // std::cout << "XOR" << "\n";
+        } case 0b00011: { /* XOR */
             auto [res, new_flags] = binop::op_xor(src1, src2);
             dest = res;
             flags = new_flags;
             break;
-        } case 0b00100: {
-            // std::cout << "ADD" << "\n";
+        } case 0b00100: { /* AND */
             auto [res, new_flags] = binop::op_add(src1, src2);
             dest = res;
             flags = new_flags;
             break;
-        } case 0b00101: {
-            // std::cout << "ADC" << "\n";
+        } case 0b00101: { /* ADC */
             auto [res, new_flags] = binop::op_adc(src1, src2, C);
             dest = res;
             flags = new_flags;
             break;
-        } case 0b00110: {
-            // std::cout << "SUB" << "\n";
+        } case 0b00110: { /* SUB */
             auto [res, new_flags] = binop::op_sub(src1, src2);
             dest = res;
             flags = new_flags;
             break;
-        } case 0b00111: {
-            // std::cout << "SBC" << "\n";
+        } case 0b00111: { /* SBC */
             auto [res, new_flags] = binop::op_sbc(src1, src2, C);
             dest = res;
             flags = new_flags;
             break;
-        } case 0b01000: {
-            // std::cout << "ROTL" << "\n";
+        } case 0b01000: { /* ROTL */
             auto [res, new_flags] = binop::op_rtl(src1, src2);
             dest = res;
             flags = new_flags;
             break;
-        } case 0b01001: {
-            // std::cout << "ROTR" << "\n";
+        } case 0b01001: { /* ROTR */
             auto [res, new_flags] = binop::op_rtr(src1, src2);
             dest = res;
             flags = new_flags;
             break;
-        } case 0b01010: {
-            // std::cout << "SHL" << "\n";
+        } case 0b01010: { /* SHL */
             auto [res, new_flags] = binop::op_shl(src1, src2);
             dest = res;
             flags = new_flags;
             break;
-        } case 0b01011: {
-            // std::cout << "SHR" << "\n";
+        } case 0b01011: { /* SHL */
             auto [res, new_flags] = binop::op_shr(src1, src2);
             dest = res;
             flags = new_flags;
             break;
-        } case 0b01100: {
-            // std::cout << "ASHR" << "\n";
+        } case 0b01100: { /* ASHR */
             auto [res, new_flags] = binop::op_asr(src1, src2);
             dest = res;
             flags = new_flags;
             break;
-        } case 0b01101: {
-            // std::cout << "CMP" << "\n";
+        } case 0b01101: { /* CMP */
             auto res = binop::op_sub(src1, src2);
             flags = res.second;
             break;
@@ -122,38 +109,30 @@ fnsim::status fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, const
     auto addr = unop::sign_extend(IR[{19, 0}], 20) + (fn ? word_t(regs_.R[IR[{22, 20}]]) : 0);
 
     switch (opcode) {
-        case 0b10000:
-            // std::cout << "POP" << "\n";
+        case 0b10000: /* POP */
             reg = read_<word_t>(regs_.SP);
             regs_.SP += 4;
             break;
-        case 0b10001:
-            // std::cout << "PUSH" << "\n";
+        case 0b10001: /* PUSH */
             regs_.SP -= 4;
             write_<word_t>(regs_.SP, reg);
             break;
-        case 0b10010:
-            // std::cout << "LOADB" << "\n";
+        case 0b10010: /* LOADB */
             reg = read_<byte_t>(addr);
             break;
-        case 0b10011:
-            // std::cout << "STOREB" << "\n";
+        case 0b10011: /* STOREB */
             write_<byte_t>(addr, static_cast<byte_t>(reg));
             break;
-        case 0b10100:
-            // std::cout << "LOADH" << "\n";
+        case 0b10100: /* LOADH */
             reg = read_<half_t>(addr);
             break;
-        case 0b10101:
-            // std::cout << "STOREH" << "\n";
+        case 0b10101: /* STOREH */
             write_<half_t>(addr, static_cast<half_t>(reg));
             break;
-        case 0b10110:
-            // std::cout << "LOAD" << "\n";
+        case 0b10110: /* LOAD */
             reg = read_<word_t>(addr);
             break;
-        case 0b10111:
-            // std::cout << "STORE" << "\n";
+        case 0b10111: /* STORE */
             write_<word_t>(addr, reg);
             break;
         default:
@@ -171,22 +150,18 @@ fnsim::status fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, cons
     auto addr = fn ? unop::sign_extend(IR[{19, 0}], 20) : word_t(regs_.R[IR[{19, 17}]]);
 
     switch (opcode) {
-        case 0b11000:
-            // std::cout << "JP" << "\n";
+        case 0b11000: /* JP */
             regs_.PC = addr;
             break;
-        case 0b11001:
-            // std::cout << "CALL" << "\n";
+        case 0b11001: /* CALL */
             regs_.SP -= 4;
             write_<word_t>(regs_.SP, regs_.PC);
             regs_.PC = addr;
             break;
-        case 0b11010:
-            // std::cout << "JR" << "\n";
+        case 0b11010: /* JR */
             regs_.SP += addr;
             break;
-        case 0b11011: {
-            // std::cout << "RETX" << "\n";
+        case 0b11011: { /* RETX */
             auto rtcode = IR[{1, 0}];
             regs_.PC = read_<word_t>(regs_.SP);
             regs_.SP += 4;
@@ -196,8 +171,7 @@ fnsim::status fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, cons
                 regs_.IIF = 1;
             break;
         }
-        case 0b11111:
-            // std::cout << "HALT" << "\n";
+        case 0b11111: /* HALT */
             terminate_();
             break;
         default:
@@ -231,8 +205,6 @@ constexpr bool fnsim::frisc_simulator::eval_cond_(word_t cond) const
 }
 
 fnsim::status fnsim::frisc_simulator::execute_single() {
-    // std::cout << word_t(regs_.PC) << "\n";
-
     reg<32> IR = read_<word_t>(address_t(regs_.PC));
     regs_.PC += 4;
 
@@ -249,7 +221,6 @@ fnsim::status fnsim::frisc_simulator::execute_single() {
     } else if (opcode >= 0b11000 && opcode <= 0b11111) {
         stat = execute_ctrl_(opcode, fn, IR);
     } else {
-        // std::cout << "Unknown!" << "\n";
         stat = status::invalid_instruction;
     }
 
@@ -266,7 +237,9 @@ fnsim::reg_info fnsim::frisc_simulator::get_reg_info()
         {"R4", regs_.R[4]},
         {"R5", regs_.R[5]},
         {"R6", regs_.R[6]},
-        {"SP", regs_.SP},
+        {"R7", regs_.R[7]},
+
+        {"SP", regs_.SP},   // Alias of R7
 
         {"PC", regs_.PC},
         {"SR", regs_.SR},
