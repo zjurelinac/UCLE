@@ -78,6 +78,8 @@ namespace ucle {
         private:
             std::string desc_;
     };
+
+    class fatal_error : public base_exception { using base_exception::base_exception; }
 }
 
 
