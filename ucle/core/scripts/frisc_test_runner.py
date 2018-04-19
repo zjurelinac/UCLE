@@ -9,12 +9,12 @@ TESTS = [
     { "file": "fnsim/frisc/test_mov.p", "checks": [ "r.R0=1", "r.R1=1", "r.R2=1", "r.R3=0", "r.R4=0", "r.R5=0", "r.R6=1" ] },
 
     # ALU operations
-    { "file": "fnsim/frisc/test_add.p", "checks": [ "r.R0=1", "r.R1=2", "r.R2=4", "r.R3=2", "r.R4=0", "r.R5=0xFFFFFFFF", "r.R6=12" ] },
-    { "file": "fnsim/frisc/test_sub.p", "checks": [ "r.R0=0", "r.R1=0", "r.R2=1", "r.R3=2", "r.R4=10", "r.R5=0xFFFFFFFE", "r.R6=0xFFFFFFFC" ] },
+    { "file": "fnsim/frisc/test_add.p", "checks": [ "r.R0=1", "r.R1=2", "r.R2=4", "r.R3=2", "r.R4=0", "r.R5=-1", "r.R6=12" ] },
+    { "file": "fnsim/frisc/test_sub.p", "checks": [ "r.R0=0", "r.R1=0", "r.R2=1", "r.R3=2", "r.R4=10", "r.R5=-2", "r.R6=-4" ] },
     { "file": "fnsim/frisc/test_aox.p", "checks": [ "r.R0=4", "r.R1=0xA0C0", "r.R2=0xE", "r.R3=0xABCD", "r.R4=3", "r.R5=0x5555", "r.R6=1" ] },
-    { "file": "fnsim/frisc/test_asc.p", "checks": [ "r.R0=1", "r.R1=3", "r.R2=0", "r.R3=11", "r.R4=3", "r.R5=3", "r.R6=0xFFFFFFFF" ] },
+    { "file": "fnsim/frisc/test_asc.p", "checks": [ "r.R0=1", "r.R1=3", "r.R2=0", "r.R3=11", "r.R4=3", "r.R5=3", "r.R6=-1" ] },
 
-    { "file": "fnsim/frisc/test_slr.p", "checks": [ "r.R0=4", "r.R1=0x40000000", "r.R2=25", "r.R3=0xFFF", "r.R4=0xFFFFFFFE", "r.R5=0xFFFFFFFF", "r.R6=0" ] },
+    { "file": "fnsim/frisc/test_slr.p", "checks": [ "r.R0=4", "r.R1=0x40000000", "r.R2=25", "r.R3=0xFFF", "r.R4=-2", "r.R5=-1", "r.R6=0" ] },
     { "file": "fnsim/frisc/test_rot.p", "checks": [ "r.R0=1024", "r.R1=0x0C", "r.R2=0xBCDCDABA", "r.R3=1024", "r.R4=3", "r.R5=0xDCDABABC", "r.R6=1" ] },
 
     # Memory operations

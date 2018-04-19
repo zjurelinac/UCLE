@@ -108,7 +108,7 @@ namespace ucle::fnsim {
             [](byte_t val) { return fmt::format("{}", val); },
             [](half_t val) { return fmt::format("{}", val); },
             [](word_t val) { return fmt::format("{}", val); },
-            [](dword_t val) { return fmt::format("{}", val); },
+            [](dword_t val) { return fmt::format("{}", val); }
         }, rv);
     }
 
@@ -119,7 +119,7 @@ namespace ucle::fnsim {
             [](byte_t val) { return fmt::format("0x{:02X}", val); },
             [](half_t val) { return fmt::format("0x{:04X}", val); },
             [](word_t val) { return fmt::format("0x{:08X}", val); },
-            [](dword_t val) { return fmt::format("0x{:016X}", val); },
+            [](dword_t val) { return fmt::format("0x{:016X}", val); }
         }, rv);
     }
 
@@ -131,6 +131,17 @@ namespace ucle::fnsim {
     inline uint64_t to_uint(reg_val rv)
     {
         return std::stoll(to_xstring(rv), nullptr, 16);
+    }
+
+    inline size_t size(reg_val rv)
+    {
+        return std::visit(meta::overloaded {
+            [](bool) { return 1; },
+            [](byte_t) { return 8; },
+            [](half_t) { return 16; },
+            [](word_t) { return 32; },
+            [](dword_t) { return 64; }
+        }, rv);
     }
 
     using register_info = std::map<std::string, reg_val>;

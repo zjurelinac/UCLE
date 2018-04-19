@@ -72,22 +72,45 @@ namespace ucle::fnsim {
 
             bool check_register_(const check_descr& cd, register_info& rinfo)
             {
-                auto expected = std::stoll(cd.rhs, nullptr, 0);
-                auto actual = to_int(rinfo[cd.lhs]);
+                auto rv = rinfo[cd.lhs];
 
-                if (cmp_values_(cd.op, actual, expected)) {
+                dword_t expected;
+                if (!util::parse_int<dword_t>(cd.rhs, &expected))
+                    throw malformed_check(fmt::format("Cannot parse check rhs: {} not a valid number!\n", cd.rhs));
+
+                bool is_correct = [this, &expected, &cd, &rv]{
+                    return std::visit(meta::overloaded {
+                        [this, &expected, &cd, &rv](bool val) {
+                            return cmp_values_(cd.op, val, static_cast<bool>(expected));
+                        },
+                        [this, &expected, &cd, &rv](byte_t val) {
+                            return cmp_values_(cd.op, val, static_cast<byte_t>(expected));
+                        },
+                        [this, &expected, &cd, &rv](half_t val) {
+                            return cmp_values_(cd.op, val, static_cast<half_t>(expected));
+                        },
+                        [this, &expected, &cd, &rv](word_t val) {
+                            return cmp_values_(cd.op, val, static_cast<word_t>(expected));
+                        },
+                        [this, &expected, &cd, &rv](dword_t val) {
+                            return cmp_values_(cd.op, val, static_cast<dword_t>(expected));
+                        }
+                    }, rv);
+                }();
+
+                /*if (is_correct) {
                     if (verbosity_ == 2)
                         fmt::print_colored(fmt::GREEN, "Passed ({} {} {}) [{} = {}].\n", cd.lhs, cd.op, expected, cd.lhs, actual);
                     else if (verbosity_ == 1)
                         fmt::print_colored(fmt::GREEN, "Passed.\n");
-                    return true;
                 } else {
                     if (verbosity_ == 2)
                         fmt::print_colored(fmt::RED, "Failed ({} !{} {}) [{} = {}].\n", cd.lhs, cd.op, expected, cd.lhs, actual);
                     else if (verbosity_ == 1)
                         fmt::print_colored(fmt::RED, "Failed!\n");
-                    return false;
-                }
+                }*/
+
+                return is_correct;
             }
 
             template <typename T, typename U>
@@ -98,7 +121,7 @@ namespace ucle::fnsim {
                     case '<': return x < y;
                     case '>': return x > y;
                     case '/': return x != y;
-                    default:  return true;
+                    default:  throw malformed_check(fmt::format("Unsupported comparison operand: {}!\n", op));
                 }
             }
 
@@ -114,21 +137,18 @@ namespace ucle::fnsim {
             output_header_();
 
             auto rinfo = sim_.get_reg_info();
-
             int succeeded = 0, failed = 0;
 
             for (const auto& check : checks) {
                 auto cd = parse_check_(check);
 
-                if (cd.op != '=' && cd.op != '<' && cd.op != '>')
-                    throw malformed_check(fmt::format("Unknown comparison operand: {}!\n", cd.op));
+                bool result = [this, &cd, &rinfo]{
+                    if (cd.cls == "r") return check_register_(cd, rinfo);
+                    else               throw malformed_check(fmt::format("Unknown check class: {}!\n", cd.cls));
+                }();
 
-                if (cd.cls == "r") {  // registers
-                    if (check_register_(cd, rinfo))
-                        ++succeeded;
-                    else
-                        ++failed;
-                }
+                succeeded += result;
+                failed += !result;
             }
 
             output_footer_(succeeded, failed);

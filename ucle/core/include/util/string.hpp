@@ -82,7 +82,7 @@ namespace ucle::util {
     }
 
     // split string into words
-    inline std::vector<std::string> split(std::string s, char delim = ' ')
+    inline std::vector<std::string> split(const std::string& s, char delim = ' ')
     {
         std::istringstream iss {s};
         std::vector<std::string> tokens;
@@ -96,7 +96,7 @@ namespace ucle::util {
     }
 
     template <typename T, typename = meta::is_integer_t<T>>
-    inline bool parse_int(std::string& str, T* num_ptr, int base = 0)
+    inline bool parse_int(const std::string& str, T* num_ptr, int base = 0)
     {
         try {
             std::size_t pos;
