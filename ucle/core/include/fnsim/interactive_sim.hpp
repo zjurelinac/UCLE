@@ -105,26 +105,20 @@ namespace ucle::fnsim {
         address_t start_location = 0;
 
         if (args.size() > 0) {
-            start_location = std::strtol(args[0].c_str(), nullptr, 0);
-            if (start_location == 0) {
-                fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be an oct/dec/hex integer larger than 0)\n", args[0]);
-                return;
-            }
+            if (!util::parse_int<address_t>(args[0], &start_location))
+                throw malformed_argument(fmt::format("Cannot parse {} as an address (must be an integer >= 0)", args[0]));
         }
 
         fmt::print("* Starting program @ 0x{:08X}\n", start_location);
-        if (auto stat = sim_.start(start_location); is_error(stat)) {
-            fmt::print_colored(fmt::RED, "! Error occurred: {}\n", to_string(stat));
-            return;
-        }
+        if (auto stat = sim_.start(start_location); is_error(stat))
+            throw runtime_error(to_string(stat));
 
         fmt::print_colored(fmt::GREEN, "* Program started.\n");
 
-        if (auto stat = sim_.cont(); is_error(stat)) {
-            fmt::print_colored(fmt::RED, "! Error occurred: {}\n", to_string(stat));
-        } else {
+        if (auto stat = sim_.cont(); is_error(stat))
+            throw runtime_error(to_string(stat));
+        else
             show_simulation_state_();
-        }
     }
 
     template <typename FunctionalSimulation>
@@ -133,18 +127,13 @@ namespace ucle::fnsim {
         address_t start_location = 0;
 
         if (args.size() > 0) {
-            start_location = std::strtol(args[0].c_str(), nullptr, 0);
-            if (start_location == 0) {
-                fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be an oct/dec/hex integer larger than 0)\n", args[0]);
-                return;
-            }
+            if (!util::parse_int<address_t>(args[0], &start_location))
+                throw malformed_argument(fmt::format("Cannot parse {} as an address (must be an integer >= 0)", args[0]));
         }
 
         fmt::print("* Starting program @ 0x{:08X}\n", start_location);
-        if (auto stat = sim_.start(start_location); is_error(stat)) {
-            fmt::print_colored(fmt::RED, "! Error occurred: {}\n", to_string(stat));
-            return;
-        }
+        if (auto stat = sim_.start(start_location); is_error(stat))
+            throw runtime_error(to_string(stat));
 
         fmt::print_colored(fmt::GREEN, "* Program started.\n");
     }
@@ -154,67 +143,55 @@ namespace ucle::fnsim {
     {
         fmt::print("* Continuing program...\n");
 
-        if (auto stat = sim_.cont(); is_error(stat)) {
-            fmt::print_colored(fmt::RED, "! Error occurred: {}\n", to_string(stat));
-        } else {
+        if (auto stat = sim_.cont(); is_error(stat))
+            throw runtime_error(to_string(stat));
+        else
             show_simulation_state_();
-        }
     }
 
     template <typename FunctionalSimulation>
     inline void interactive_simulation<FunctionalSimulation>::cmd_step(args_list)
     {
-        if (auto stat = sim_.step(); is_error(stat)) {
-            fmt::print_colored(fmt::RED, "! Error occurred: {}\n", to_string(stat));
-        } else {
+        if (auto stat = sim_.step(); is_error(stat))
+            throw runtime_error(to_string(stat));
+        else
             show_simulation_state_();
-        }
     }
 
     template <typename FunctionalSimulation>
     inline void interactive_simulation<FunctionalSimulation>::cmd_step_n(args_list args)
     {
-        if (args.size() == 0) {
-            warn_incorrect_use_("break");
-            return;
-        }
+        if (args.size() == 0)
+            throw wrong_call("step_n");
 
-        auto num_steps = std::strtol(args[0].c_str(), nullptr, 10);
-        if (num_steps == 0) {
-            fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as a number (must be a decimal integer larger than 0)\n", args[0]);
-            return;
-        }
+        int num_steps;
+        if (!util::parse_int<int>(args[0], &num_steps) || num_steps <= 0)
+            throw malformed_argument(fmt::format("Cannot parse {} as number of steps (must be an integer > 0)", args[0]));
 
         fmt::print("* Executing {} steps of the simulation...\n", num_steps);
 
-        if (auto stat = sim_.step_n(num_steps); is_error(stat)) {
-            fmt::print_colored(fmt::RED, "! Error occurred: {}\n", to_string(stat));
-        } else {
+        if (auto stat = sim_.step_n(num_steps); is_error(stat))
+            throw runtime_error(to_string(stat));
+        else
             show_simulation_state_();
-        }
     }
 
     template <typename FunctionalSimulation>
     inline void interactive_simulation<FunctionalSimulation>::cmd_until(args_list args)
     {
-        if (args.size() == 0) {
-            warn_incorrect_use_("break");
-            return;
-        }
+        if (args.size() == 0)
+            throw wrong_call("until");
 
-        auto location = std::strtol(args[0].c_str(), nullptr, 0);
-        if (location == 0) {
-            fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be an oct/dec/hex integer larger than 0)\n", args[0]);
-            return;
-        }
+        address_t end_location;
+        if (!util::parse_int<address_t>(args[0], &end_location))
+            throw malformed_argument(fmt::format("Cannot parse {} as an address (must be an integer >= 0)", args[0]));
 
-        fmt::print("* Executing simulation until @ 0x{:08X}\n", location);
+        fmt::print("* Executing simulation until @ 0x{:08X}\n", end_location);
 
-        if (auto stat = sim_.until(location); is_error(stat)) {
-            fmt::print_colored(fmt::RED, "! Error occurred: {}\n", to_string(stat));
-        } else {
+        if (auto stat = sim_.until(end_location); is_error(stat))
+            throw runtime_error(to_string(stat));
+        else
             show_simulation_state_();
-        }
     }
 
     template <typename FunctionalSimulation>
@@ -223,10 +200,8 @@ namespace ucle::fnsim {
         sim_.reset();
         fmt::print("* Reset devices, processor memory and registers\n");
 
-        if (auto stat = sim_.load_pfile(pfile_); is_error(stat)) {
-            fmt::print_colored(fmt::RED, "! Error reloading program from {}", pfile_);
-            std::exit(1);
-        }
+        if (auto stat = sim_.load_pfile(pfile_); is_error(stat))
+            throw fatal_error(fmt::format("Cannot reload program from {}", pfile_));
 
         fmt::print_colored(fmt::GREEN, "* Reloaded program from {}\n", pfile_);
     }
@@ -242,10 +217,8 @@ namespace ucle::fnsim {
     template <typename FunctionalSimulation>
     inline void interactive_simulation<FunctionalSimulation>::cmd_break(args_list args)
     {
-        if (args.size() == 0) {
-            warn_incorrect_use_("break");
-            return;
-        }
+        if (args.size() == 0)
+            throw wrong_call("break");
 
         if (args[0] == "list") {
             auto breakpoints = sim_.get_breakpoints();
@@ -256,31 +229,24 @@ namespace ucle::fnsim {
                 fmt::print("Breakpoint {} @ 0x{:08X}\n", ++i, bp);
 
         } else if (args[0] == "add") {
-            if (args.size() < 2) {
-                warn_incorrect_use_("break");
-                return;
-            }
+            if (args.size() < 2)
+                throw wrong_call("break");
 
-            auto location = std::strtol(args[1].c_str(), nullptr, 0);
-            if (location == 0) {
-                fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be an oct/dec/hex integer larger than 0)\n", args[1]);
-                return;
-            }
+            address_t location;
+            if (!util::parse_int<address_t>(args[0], &location))
+                throw malformed_argument(fmt::format("Cannot parse {} as an address (must be an integer >= 0)", args[0]));
 
             sim_.add_breakpoint(location);
             fmt::print_colored(fmt::GREEN, "* Added a breakpoint @ 0x{:08X}\n", location);
 
         } else if (args[0] == "del") {
-            if (args.size() < 2) {
-                warn_incorrect_use_("break");
-                return;
-            }
+            if (args.size() < 2)
+                throw wrong_call("break");
 
-            auto location = std::strtol(args[1].c_str(), nullptr, 0);
-            if (location == 0) {
-                fmt::print_colored(fmt::RED, "! Error: Cannot parse {} as an address (must be an oct/dec/hex integer larger than 0)\n", args[1]);
-                return;
-            }
+            address_t location;
+            if (!util::parse_int<address_t>(args[0], &location))
+                throw malformed_argument(fmt::format("Cannot parse {} as an address (must be an integer >= 0)", args[0]));
+
             sim_.remove_breakpoint(location);
             fmt::print_colored(fmt::GREEN, "* Removed a breakpoint @ 0x{:08X}\n", location);
 
@@ -393,17 +359,26 @@ namespace ucle::fnsim {
             if (cmd_tokens.size() > 1)
                 std::copy(cmd_tokens.begin() + 1, cmd_tokens.end(), args.begin());
 
-            bool found_cmd = false;
-            for (const auto& icmd : icmds_)
-                if ((cmd_name.size() == 1 && icmd.shortcut == cmd_name[0]) ||
-                    (cmd_name.size() > 1 && icmd.name == cmd_name)) {
-                        icmd.cmd(*this, args);
-                        found_cmd = true;
-                        break;
-                    }
+            try {
+                bool found_cmd = false;
+                for (const auto& icmd : icmds_)
+                    if ((cmd_name.size() == 1 && icmd.shortcut == cmd_name[0]) ||
+                        (cmd_name.size() > 1 && icmd.name == cmd_name)) {
+                            icmd.cmd(*this, args);
+                            found_cmd = true;
+                            break;
+                        }
 
-            if (!found_cmd)
-                warn_unknown_cmd_(cmd_name);
+                if (!found_cmd)
+                    warn_unknown_cmd_(cmd_name);
+            } catch (wrong_call& e) {
+                warn_incorrect_use_(e.what());
+            } catch (fatal_error& e) {
+                fmt::print_colored(fmt::RED, "! Fatal error: {}.\n", e.what());
+                std::exit(1);
+            } catch (base_exception& e) {
+                fmt::print_colored(fmt::RED, "! Error: {}.\n", e.what());
+            }
         }
     }
 
