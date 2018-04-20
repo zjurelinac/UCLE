@@ -15,6 +15,7 @@
     "draggabilly": "^2.2.0",
     "electron-context-menu": "^0.9.1",
     "jquery": "^3.3.1",
+    "mime": "^2.3.1",
     "monaco-editor": "^0.10.1",
     "monaco-loader": "^0.8.2"
   },
