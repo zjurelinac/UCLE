@@ -4,11 +4,20 @@
 		<meta charset="UTF-8">
 		<title>UCLE</title>
 		<link rel="stylesheet" href="./style/ucle-tabs.css">
+		<link rel="stylesheet" href="./style/file-manage.css">
+		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.9/css/all.css" integrity="sha384-5SOiIsAziJl6AWe0HWRKTXlfcSHKmYV4RBF18PPJ173Kzn7jzMyFuTtk8JA7QQG1" crossorigin="anonymous">
 	</head>
 	<body>
-
-		<div style="float:left; display: inline-block; width:20%; height:500px; overflow-y: auto;" id="listed-files"></div>
+		<div id="quick-tools">
+			<p id="tools-header">Quick tools</p>
+			<ul id="tools">
+				<li id="search"></li>
+				<li id="explorer"></li>
+				<li id="refresh"></li>
+			</ul>
+			<div id="listed-files"></div>
+		</div>
 
 		<div style="display: inline-block; width: 78%"">
 			<div class="ucle-tabs">
@@ -20,8 +29,9 @@
 		</div>
 
 		<script>
-			require('./renderer')
-			require('./scripts/tabs')
+			require('./renderer');
+			require('./scripts/tabs');
+			require('./scripts/file_manage');
 		</script>
 	</body>
 </html>

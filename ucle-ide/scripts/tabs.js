@@ -1,7 +1,6 @@
 const Draggabilly = require('draggabilly');
 const ipcRenderer = require('electron').ipcRenderer;
 const { remote } = require('electron');
-const dialog = require('electron').dialog
 
 var newTab;
 var tabId = new Map();

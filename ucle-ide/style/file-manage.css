@@ -1,0 +1,90 @@
+#tools {
+	padding: 0px;
+	list-style-type: none;
+}
+
+#display-files {
+	list-style-type: none;
+	padding-left: 0;
+	padding-top: 5px;
+	padding-right: 20px;
+}
+
+li {
+	display: inline-block;
+}
+
+#quick-tools  {
+	padding: 0;
+	top:0;
+	bottom:0;
+	right:0;
+	left:0;	
+	float:left;
+	display: inline-block;
+	width:20%;
+	height:500px;
+	overflow-y: auto;
+}
+
+#listed-files {
+	border-top: solid 2px rgba(0, 0, 0, .5);
+}
+
+#tools-header {
+	border-bottom: solid 2px rgba(0, 0, 0, .5);
+    font-family: 'Roboto', sans-serif;
+}
+
+#search {
+	display: inline-block;
+	background:url(../icons/search-black.png);
+	background-repeat:no-repeat;
+	border-right: solid 2px rgba(0, 0, 0, .5);
+	background-size: 100% 100%;
+	width:32px;
+	height:32px;
+	top:0;
+	bottom:0;
+	right:0;
+	left:0;
+}
+
+#explorer {
+	display: inline-block;
+	background:url(../icons/file-explorer-black.png);
+	background-repeat:no-repeat;
+	border-right: solid 2px rgba(0, 0, 0, .5);
+	background-size: 100% 100%;
+	width:32px;
+	height:32px;
+	padding-right: 5px;
+	margin-right: 5px;
+	top:0;
+	bottom:0;
+	right:0;
+	left:0;	
+}
+
+#refresh {
+	display: inline-block;
+	background:url(../icons/refresh.png);	
+	background-repeat:no-repeat;
+	background-size: 100% 100%;
+	width:32px;
+	height:32px;
+	padding:0;
+	top:0;
+	bottom:0;
+	right:0;
+	left:0;	
+}
+
+#search:hover, #explorer:hover, #refresh:hover {
+    cursor: pointer;
+}
+
+#search:active, #explorer:active, #refresh:active {
+    width: 28px;
+    height: 28px;
+}
