@@ -5,26 +5,28 @@
 		<title>UCLE</title>
 		<link rel="stylesheet" href="./style/ucle-tabs.css">
 		<link rel="stylesheet" href="./style/file-manage.css">
-		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
-		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.9/css/all.css" integrity="sha384-5SOiIsAziJl6AWe0HWRKTXlfcSHKmYV4RBF18PPJ173Kzn7jzMyFuTtk8JA7QQG1" crossorigin="anonymous">
+		<link rel="stylesheet" href="./style/editor.css">
 	</head>
 	<body>
-		<div id="quick-tools">
+		<div id="tools-wrapper" style="display: inline-block; width: 100%; height: 100px;">
 			<p id="tools-header">Quick tools</p>
 			<ul id="tools">
-				<li id="search"></li>
-				<li id="explorer"></li>
-				<li id="refresh"></li>
+				<li id="search" class="tools"></li>
+				<li id="explorer" class="tools"></li>
+				<li id="refresh" class="tools"></li>
 			</ul>
-			<div id="listed-files"></div>
 		</div>
 
-		<div style="display: inline-block; width: 78%"">
+		<div id="quick-tools">
+			<div id="listed-files"><button id="openbtn" type="button">Open folder</button></div>
+		</div>
+
+		<div id="container">
 			<div class="ucle-tabs">
 				<div class="ucle-tabs-content"></div>
 				<div class="ucle-tabs-bottom-bar"></div>
 			</div>
-			<div id="container" style="width: 100%;height:500px;border:1px solid #ccc; border-top: none; display: inline-block; vertical-align:top;"></div>
+			<div id="editor"></div>
 			<div id="line-tab"></div>
 		</div>
 
