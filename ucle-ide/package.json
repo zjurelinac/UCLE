@@ -12,6 +12,7 @@
   "dependencies": {
     "browserify": "^16.1.1",
     "chrome-tabs": "^1.0.0",
+    "directory-tree": "^2.1.0",
     "draggabilly": "^2.2.0",
     "electron-context-menu": "^0.9.1",
     "jquery": "^3.3.1",

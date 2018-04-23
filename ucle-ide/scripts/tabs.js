@@ -1,6 +1,7 @@
 const Draggabilly = require('draggabilly');
 const ipcRenderer = require('electron').ipcRenderer;
 const { remote } = require('electron');
+const mime = require('mime');
 
 var newTab;
 var tabId = new Map();
@@ -19,15 +20,15 @@ var fileStartContent = new Map();
 			<div class="ucle-tab-file-path" hidden></div>
 			<div class="ucle-tab-close"></div>
 		</div>
-	`
+	`;
 
 	const defaultTapProperties = {
 		title: 'untitled',
 		favicon: '',
 		fullPath: ''
-	}
+	};
 
-	let instanceId = 0
+	let instanceId = 0;
 	let id = 0;
 
 	class UCLETabs {
@@ -39,22 +40,22 @@ var fileStartContent = new Map();
 		}
 
 		init(el, options) {
-			this.el = el
-			this.options = options
+			this.el = el;
+			this.options = options;
 
-			this.instanceId = instanceId
-			this.el.setAttribute('data-ucle-tabs-instance-id', this.instanceId)
-			instanceId += 1
+			this.instanceId = instanceId;
+			this.el.setAttribute('data-ucle-tabs-instance-id', this.instanceId);
+			instanceId += 1;
 
-			this.setupStyleEl()
-			this.setupEvents()
-			this.layoutTabs()
-			this.fixZIndexes()
-			this.setupDraggabilly()
+			this.setupStyleEl();
+			this.setupEvents();
+			this.layoutTabs();
+			this.fixZIndexes();
+			this.setupDraggabilly();
 
 			ipcRenderer.on('close-file', (e) => {
 				var changed = this.checkIfValueChanged(this.currentTab);
-				this.closeTab(this.currentTab, changed)		
+				this.closeTab(this.currentTab, changed);
 			});
 
 			ipcRenderer.on('close-all-files',  (e) => {

@@ -29,6 +29,12 @@ module.exports = (mainWindow) => {
 				}
 			},
 			{
+				label: 'Open folder',
+				click () {
+					webContents.send('open-dir');
+				}
+			},
+			{
 				label: 'Save',
 				accelerator: 'CmdOrCtrl+S',
 				click () {
