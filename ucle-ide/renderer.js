@@ -92,8 +92,7 @@ loader().then((monaco) => {
 	});
 
 	document.getElementById("listed-files").addEventListener("click", function(e) {
-		if (e.target && e.target.matches("li.dir")) {
-			console.log(e.target.id);
+		if (e.target && (e.target.matches("li.dir") || e.target.matches("span"))) {
 			fileManager.readFolder(e.target.id, false);
 		}
 	});
@@ -107,7 +106,7 @@ loader().then((monaco) => {
 
 	document.getElementById("listed-files").addEventListener("mouseover", function(e) {
 		e.preventDefault();
-		if(e.target && (e.target.matches("li.dir") || e.target.matches("li.file"))) {
+		if(e.target && (e.target.matches("li.dir") || e.target.matches("li.file") || e.target.matches("span"))) {
 			document.getElementById(e.target.id).style.cursor = "pointer";
 			document.getElementById(e.target.id).style.background = "#e9e9e9"
 		}
@@ -115,7 +114,7 @@ loader().then((monaco) => {
 
 	document.getElementById("listed-files").addEventListener("mouseout", function(e) {
 		e.preventDefault();
-		if(e.target && (e.target.matches("li.dir") || e.target.matches("li.file"))) {
+		if(e.target && (e.target.matches("li.dir") || e.target.matches("li.file") || e.target.matches("span"))) {
 			document.getElementById(e.target.id).style.background = "white";
 		}
 	});
@@ -164,7 +163,6 @@ loader().then((monaco) => {
 
 	ipcRenderer.on('open-dir', (e) => {
 		fileManager.openDirectory();
-		ucleTabs.closeAllTabs();
 	});
 
 	editor.focus();

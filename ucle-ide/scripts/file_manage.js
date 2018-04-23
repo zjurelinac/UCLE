@@ -66,8 +66,7 @@ class FileManager {
 			var child = children[i];
 			if(child.type == 'directory') {
 				let childListID = child.path + '-' + child.name;
-				list.innerHTML += '<li id="' + child.path + '" class="dir">' + child.name + '</li><ul id="' + childListID + '"></ul><br/>';
-				list.style.display = 'inherit';
+				list.innerHTML += '<li id="' + child.path + '" class="dir">' + child.name + '</li><ul id="' + childListID + '"' + 'style="display: '+  'inherit;"></ul><br/>';
 			} else {
 				list.innerHTML += '<li id="' + child.path + '" class="file">'+ child.name + '</li> <br/>';
 			}
@@ -79,13 +78,12 @@ class FileManager {
 			filePath = './'
 		}
 
-		this.startPath = filePath;
-
 		var dirName = this.getDirName(filePath);
 
 		let listID = filePath + '-' + dirName;
 
 		if(document.getElementById(listID) != null && document.getElementById(listID).innerHTML != '') {
+			console.log(document.getElementById(listID).style.display);
 			if(document.getElementById(listID).style.display == 'none') {
 				document.getElementById(listID).style.display = 'inherit';
 			} else {
@@ -99,21 +97,7 @@ class FileManager {
 
 		if(init) {
 			document.getElementById('openbtn').style.display = "none";
-
-			document.getElementById('listed-files').innerHTML += '<span id="' + filePath + '">' + dirName + '</span><ul id="' + listID + '"></ul>';
-
-			document.getElementById(filePath).addEventListener('click', function(e) {
-					if(document.getElementById(listID).style.display == "none") {
-						document.getElementById(listID).style.display = "inherit";
-					} else {
-						document.getElementById(listID).style.display = "none";
-					}
-			});
-
-			document.getElementById(filePath).addEventListener('mouseover', function(e) {
-					document.getElementById(filePath).style.cursor = "pointer";
-			});
-
+			document.getElementById('listed-files').innerHTML += '<span id="' + filePath + '">' + dirName + '</span><ul id="' + listID + '"' + 'style="display: ' + 'none;"></ul><br/>';
 		}
 
 		this.walkThroughFiles(tree.children, listID);
