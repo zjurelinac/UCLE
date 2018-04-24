@@ -44,7 +44,7 @@ namespace ucle::fnsim {
             using config_type = Config;
 
             functional_processor_simulator_impl(config_type cfg)
-                : cfg_(cfg), mem_asp_(cfg.mem_addr_range), dev_asp_(cfg.dev_addr_range)
+                : cfg_{cfg}, mem_asp_{cfg.mem_addr_range}, dev_asp_{cfg.dev_addr_range}
             {
                 device_config mem_cfg { device_class::memory, {0, cfg.mem_size}, false, 0 };
                 mem_id_ = add_device(std::make_unique<memory_type>(cfg.mem_size), mem_cfg);

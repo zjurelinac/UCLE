@@ -21,13 +21,13 @@ namespace ucle::fnsim {
             using mapped_device_info = std::pair<address_range, mapped_device_ptr>;
 
             address_space() = delete;
-            address_space(address_range total_range) : total_range_(total_range) {}
+            address_space(address_range total_range) : total_range_{total_range} {}
 
-            address_space(const address_space<MappedDeviceType>&) = delete;
-            address_space& operator=(const address_space<MappedDeviceType>&) = delete;
+            address_space(const address_space<MappedDeviceType>&)               = delete;
+            address_space& operator=(const address_space<MappedDeviceType>&)    = delete;
 
-            address_space(address_space<MappedDeviceType>&&) = default;
-            address_space& operator=(address_space<MappedDeviceType>&&) = default;
+            address_space(address_space<MappedDeviceType>&&)                    = default;
+            address_space& operator=(address_space<MappedDeviceType>&&)         = default;
 
             ~address_space() = default;
 
@@ -69,7 +69,7 @@ namespace ucle::fnsim {
                 for (const auto& dev : devices_)
                     if (dev.first.contains(location))
                         return dev;
-                
+
                 throw invalid_memory_access("No memory/device mapped to this address!");
             }
 

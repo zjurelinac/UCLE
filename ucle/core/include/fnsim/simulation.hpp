@@ -176,7 +176,7 @@ namespace ucle::fnsim {
 
             functional_simulation() = delete;
             functional_simulation(functional_processor_simulator_ptr fnsim_ptr)
-                : exec_(fnsim_ptr.get()), fnsim_(std::move(fnsim_ptr)) {}
+                : fnsim_{std::move(fnsim_ptr)}, exec_{fnsim_.get()} {}
 
             // Basic simulation functionality
 
@@ -315,8 +315,9 @@ namespace ucle::fnsim {
             }
 
         private:
-            execution_policy exec_;
             functional_processor_simulator_ptr fnsim_;
+
+            execution_policy exec_;
     };
 
 

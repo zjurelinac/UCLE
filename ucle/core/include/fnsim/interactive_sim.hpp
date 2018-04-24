@@ -53,7 +53,7 @@ namespace ucle::fnsim {
         public:
             interactive_simulation() = delete;
             interactive_simulation(FunctionalSimulation& sim, std::string pfile)
-                : sim_(sim), pfile_(pfile) { init_cmd_descrs_(); }
+                : sim_{sim}, pfile_{pfile} { init_cmd_descrs_(); }
 
             void run();
 

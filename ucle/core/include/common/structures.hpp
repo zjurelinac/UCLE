@@ -19,9 +19,9 @@ namespace ucle {
             class reference {
                 public:
                     reference() = delete;
-                    constexpr reference(value_type& val, index_t idx) noexcept : val_(val), idx_(idx) {}
-                    constexpr reference(const reference& other) noexcept : val_(other.val_), idx_(other.idx_) {}
-                    constexpr reference(reference&& other) noexcept : val_(other.val_), idx_(other.idx_) {}
+                    constexpr reference(value_type& val, index_t idx) noexcept : val_{val}, idx_{idx} {}
+                    constexpr reference(const reference& other) noexcept : val_{other.val_}, idx_{other.idx_} {}
+                    constexpr reference(reference&& other) noexcept : val_{other.val_}, idx_{other.idx_} {}
 
                     constexpr reference& operator=(bool val) noexcept
                         { set_(val); return *this; }
@@ -53,9 +53,9 @@ namespace ucle {
             };
 
             constexpr bitfield() noexcept {}
-            constexpr bitfield(value_type value) noexcept : value_(value) {}
-            constexpr bitfield(const bitfield<N>& other) noexcept : value_(other.value_) {}
-            constexpr bitfield(bitfield<N>&& other) noexcept : value_(other.value_) {}
+            constexpr bitfield(value_type value) noexcept : value_{value} {}
+            constexpr bitfield(const bitfield<N>& other) noexcept : value_{other.value_} {}
+            constexpr bitfield(bitfield<N>&& other) noexcept : value_{other.value_} {}
 
             constexpr bitfield<N>& operator=(value_type value) noexcept
                 { value_ = value; return *this; }
@@ -66,10 +66,8 @@ namespace ucle {
 
             constexpr explicit operator value_type() const { return value_; }
 
-            constexpr bool operator[](index_t idx) const
-                { return cbu::nth_bit_of(value_, idx); }
-            constexpr reference operator[](index_t idx)
-                { return reference(value_, idx); }
+            constexpr bool operator[](index_t idx) const { return cbu::nth_bit_of(value_, idx); }
+            constexpr reference operator[](index_t idx) { return reference(value_, idx); }
 
             constexpr bitfield<N>& operator&=(const bitfield<N>& other) noexcept
                 { value_ &= other.value_; return *this; }
@@ -77,13 +75,11 @@ namespace ucle {
                 { value_ |= other.value_; return *this; }
             constexpr bitfield<N>& operator^=(const bitfield<N>& other) noexcept
                 { value_ ^= other.value_; return *this; }
-            constexpr bitfield<N> operator~() const
-                { return { ~value_ }; }
 
-            constexpr bitfield<N> operator<<(size_t shift) const noexcept
-                { return { value_ << shift }; }
-            constexpr bitfield<N> operator>>(size_t shift) const noexcept
-                { return { value_ >> shift }; }
+            constexpr bitfield<N> operator~() const noexcept { return { ~value_ }; }
+
+            constexpr bitfield<N> operator<<(size_t shift) const noexcept { return { value_ << shift }; }
+            constexpr bitfield<N> operator>>(size_t shift) const noexcept { return { value_ >> shift }; }
             constexpr bitfield<N>& operator<<=(size_t shift) noexcept
                 { value_ <<= shift; return *this; }
             constexpr bitfield<N>& operator>>=(size_t shift) noexcept
@@ -137,11 +133,11 @@ namespace ucle {
             using const_reference = const value_type&;
 
             constexpr small_vector() noexcept {}
-            constexpr small_vector(size_t size) noexcept : tsize_(size) {}
+            constexpr small_vector(size_t size) noexcept : tsize_{size} {}
             constexpr small_vector(const small_vector<T, N>& other) noexcept
-                : tsize_(other.tsize_), data_(other.data_) {}
+                : tsize_{other.tsize_}, data_{other.data_} {}
             constexpr small_vector(small_vector<T, N>&& other) noexcept
-                : tsize_(other.tsize_), data_(std::move(other.data_)) {}
+                : tsize_{other.tsize_}, data_{std::move(other.data_)} {}
 
             constexpr small_vector<T, N>& operator=(const small_vector<T, N>& other) noexcept
                 { if (*this != other) { tsize_ = other.tsize_; data_ = other.data_; } return *this; }
