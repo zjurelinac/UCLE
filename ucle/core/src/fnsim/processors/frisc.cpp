@@ -214,11 +214,11 @@ fnsim::status fnsim::frisc_simulator::execute_single() {
     status stat;
     if (opcode == 0b00000) {
         stat = execute_move_(opcode, fn, IR);
-    } else if (opcode >= 0b00001 && opcode <= 0b01101) {
+    } else if (opcode >> 4 == 0b0) {   // opcode = 0xxxx
         stat = execute_alu_(opcode, fn, IR);
-    } else if (opcode >= 0b10000 && opcode <= 0b10111) {
+    } else if (opcode >> 3 == 0b10) {  // opcode = 10xxx
         stat = execute_mem_(opcode, fn, IR);
-    } else if (opcode >= 0b11000 && opcode <= 0b11111) {
+    } else if (opcode >> 3 == 0b11) {  // opcode = 11xxx
         stat = execute_ctrl_(opcode, fn, IR);
     } else {
         stat = status::invalid_instruction;
