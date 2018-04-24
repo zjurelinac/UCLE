@@ -31,8 +31,28 @@ TESTS = [
 
 
 def main():
-    for test in TESTS:
-        subprocess.run(["../build/core/debug/fnsim-cli", "frisc", os.path.join("tests", test["file"]), "check"] + test["checks"])
+    passed, failed = 0, 0
+    failed_outs = []
+
+    for i, test in enumerate(TESTS):
+        proc = subprocess.run(["../build/core/debug/fnsim-cli", "frisc", os.path.join("tests", test["file"]), "check"] + test["checks"],
+                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        if proc.returncode == 0:
+            passed += 1
+        else:
+            failed += 1
+            failed_outs.append((i, proc.stdout))
+
+    total = passed + failed
+
+    if failed == 0:
+        print('All %d tests passed.' % passed)
+    else:
+        print('%d tests out of %d failed (%.2f%% success rate):' % (failed, total, (100 * passed / total)))
+        for i, output in failed_outs:
+            print('(T%d): %s' % (i, output.decode()))
+
 
 
 if __name__ == '__main__':
