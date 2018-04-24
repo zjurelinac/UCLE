@@ -9,8 +9,8 @@
 
 #include <cstdlib>
 #include <functional>
+#include <map>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace ucle::fnsim {
@@ -35,10 +35,19 @@ namespace ucle::fnsim {
         private:
             void output_header_()
             {
-                if (verbosity_ == 0) return;
+                switch (verbosity_) {
+                    case 2:
+                        fmt::print_colored(fmt::CYAN, "Checking [{}]\n", filename_);
+                        fmt::print("========================================\n");
+                        return;
+                    case 1:
+                        fmt::print_colored(fmt::CYAN, "Checking [{}]: ", filename_);
+                        return;
+                    case 0:
+                    default:
+                        return;
+                }
 
-                fmt::print("Running checker for [{}]\n", filename_);
-                fmt::print("================================================================================\n");
             }
 
             void output_footer_(int succeeded, int failed)
@@ -46,12 +55,28 @@ namespace ucle::fnsim {
                 auto total = succeeded + failed;
                 auto percent = 100.0 * succeeded / total;
 
+                switch (verbosity_) {
+                    case 2:
+                        fmt::print("--------------------------------------------------------------------------------\n");
+                        fmt::print_colored(fmt::MAGENTA, "{} tests passed, {} failed. Success rate: {:.2f}%\n", succeeded, failed, percent);
+                        return;
+                    case 1:
+                        fmt::print_colored(fmt::MAGENTA, "\nResults: {}/{} passed, {:.2f}%\n", succeeded, total, percent);
+                        return;
+                    case 0:
+                        fmt::print_colored(status_colors_[!failed], "[{}] :: {}/{} passed, {:.2f}%\n", filename_, succeeded, total, percent);
+                        return;
+                    default:
+                        return;
+                }
+                /*
                 if (verbosity_ == 0) {
                     fmt::print_colored(failed > 0 ? fmt::RED : fmt::GREEN, "[{}] :: {}/{} passed, {:.2f}%\n", filename_, succeeded, total, percent);
                 } else {
                     fmt::print("--------------------------------------------------------------------------------\n");
                     fmt::print_colored(fmt::MAGENTA, "{} tests passed, {} failed. Success rate: {:.2f}%\n", succeeded, failed, percent);
                 }
+                */
             }
 
             check_descr parse_check_(const std::string& check)
@@ -98,17 +123,22 @@ namespace ucle::fnsim {
                     }, rv);
                 }();
 
-                /*if (is_correct) {
-                    if (verbosity_ == 2)
-                        fmt::print_colored(fmt::GREEN, "Passed ({} {} {}) [{} = {}].\n", cd.lhs, cd.op, expected, cd.lhs, actual);
-                    else if (verbosity_ == 1)
-                        fmt::print_colored(fmt::GREEN, "Passed.\n");
-                } else {
-                    if (verbosity_ == 2)
-                        fmt::print_colored(fmt::RED, "Failed ({} !{} {}) [{} = {}].\n", cd.lhs, cd.op, expected, cd.lhs, actual);
-                    else if (verbosity_ == 1)
-                        fmt::print_colored(fmt::RED, "Failed!\n");
-                }*/
+                switch (verbosity_) {
+                    case 2:
+                        fmt::print_colored(status_colors_[is_correct], "[{}] ", (is_correct ? "Passed" : "Failed"));
+                        fmt::print("{} {}{} {}", cd.lhs, (is_correct ? "" : "!"), cd.op, cd.rhs);
+
+                        if (!is_correct)
+                            fmt::print(" ({} = {})\n", cd.lhs, to_string(rv));
+
+                        fmt::print("\n");
+                        break;
+                    case 1:
+                        fmt::print_colored(status_colors_[is_correct], is_correct ? "." : "!");
+                        break;
+                    default:
+                        break;
+                }
 
                 return is_correct;
             }
@@ -128,6 +158,8 @@ namespace ucle::fnsim {
             FunctionalSimulation& sim_;
             std::string filename_;
             int verbosity_ = 1;
+
+            fmt::Color status_colors_[2] = {fmt::RED, fmt::GREEN};
     };
 
     template <typename FS>
