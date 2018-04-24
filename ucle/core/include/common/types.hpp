@@ -38,24 +38,38 @@ namespace ucle {
         constexpr frequency_t operator "" _GHz(unsigned long long f) { return 1000000000*f; }
     }
 
+    template <typename AddressType = address_t>
     struct address_range {
-        address_t low_addr, high_addr;
+        using address_type = AddressType;
 
-        constexpr bool contains(address_t location) const { return low_addr <= location && location <= high_addr; }
-        constexpr bool contains(const address_range& rhs) const { return low_addr <= rhs.low_addr && rhs.high_addr <= high_addr; }
+        address_type low_addr, high_addr;
+
+        constexpr bool contains(address_type location) const { return low_addr <= location && location <= high_addr; }
+        constexpr bool contains(const address_range<AddressType>& rhs) const { return low_addr <= rhs.low_addr && rhs.high_addr <= high_addr; }
     };
 
-    constexpr bool operator==(const address_range& lhs, const address_range& rhs)
+    template <typename AT>
+    constexpr bool operator==(const address_range<AT>& lhs, const address_range<AT>& rhs)
         { return lhs.low_addr == rhs.low_addr && lhs.high_addr == rhs.high_addr; }
-    constexpr bool operator!=(const address_range& lhs, const address_range& rhs)
+
+    template <typename AT>
+    constexpr bool operator!=(const address_range<AT>& lhs, const address_range<AT>& rhs)
         { return lhs.low_addr != rhs.low_addr || lhs.high_addr != rhs.high_addr; }
-    constexpr bool operator<(const address_range& lhs, const address_range& rhs)
+
+    template <typename AT>
+    constexpr bool operator<(const address_range<AT>& lhs, const address_range<AT>& rhs)
         { return (lhs.low_addr == rhs.low_addr) ? (lhs.high_addr < rhs.high_addr) : (lhs.low_addr < rhs.low_addr); }
-    constexpr bool operator>(const address_range& lhs, const address_range& rhs)
+
+    template <typename AT>
+    constexpr bool operator>(const address_range<AT>& lhs, const address_range<AT>& rhs)
         { return (lhs.low_addr == rhs.low_addr) ? (lhs.high_addr > rhs.high_addr) : (lhs.low_addr > rhs.low_addr); }
-    constexpr bool operator<=(const address_range& lhs, const address_range& rhs)
+
+    template <typename AT>
+    constexpr bool operator<=(const address_range<AT>& lhs, const address_range<AT>& rhs)
         { return lhs < rhs || lhs == rhs; }
-    constexpr bool operator>=(const address_range& lhs, const address_range& rhs)
+
+    template <typename AT>
+    constexpr bool operator>=(const address_range<AT>& lhs, const address_range<AT>& rhs)
         { return lhs > rhs || lhs == rhs; }
 
     struct bitrange {

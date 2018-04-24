@@ -47,6 +47,7 @@ namespace ucle::fnsim {
         invalid_identifier,
         invalid_instruction,
         invalid_program,
+        invalid_argument,
         runtime_exception,
         filesystem_error
     };
@@ -60,6 +61,7 @@ namespace ucle::fnsim {
             case status::invalid_identifier:    return "invalid identifier";
             case status::invalid_instruction:   return "invalid instruction";
             case status::invalid_program:       return "invalid program";
+            case status::invalid_argument:      return "invalid argument";
             case status::runtime_exception:     return "runtime exception";
             case status::filesystem_error:      return "filesystem error";
             default:                            return "unknown";
@@ -72,17 +74,17 @@ namespace ucle::fnsim {
     // Config structures
 
     struct device_config {
-        device_class    dev_class           = device_class::addressable_device;
-        address_range   addr_range          = {0, 0};
-        bool            uses_interrupts     = false;
-        priority_t      interrupt_priority  = 0;
+        device_class        dev_class           = device_class::addressable_device;
+        address_range<>     addr_range          = {0, 0};
+        bool                uses_interrupts     = false;
+        priority_t          interrupt_priority  = 0;
     };
 
     struct processor_config {
-        size_t          mem_size;
-        address_range   mem_addr_range      = {0, 0xFFFFFFFF};
-        device_mapping  default_mapping     = device_mapping::memory;
-        address_range   dev_addr_range      = {0, 0};
+        size_t              mem_size;
+        address_range<>     mem_addr_range      = {0, 0xFFFFFFFF};
+        device_mapping      default_mapping     = device_mapping::memory;
+        address_range<>     dev_addr_range      = {0, 0};
     };
 
     struct simulation_config {

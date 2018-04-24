@@ -36,11 +36,14 @@ namespace ucle::fnsim {
 
         public:
             using address_type = AddressType;
+
             using mapped_device_type = MappedDeviceType<endianness, address_type>;
             using address_space_type = AddressSpace<mapped_device_type>;
             using mapped_device_ptr = typename address_space_type::mapped_device_ptr;
+
             using memory_type = Memory<endianness, address_type>;
             using memory_ptr = std::unique_ptr<memory_type>;
+
             using config_type = Config;
 
             functional_processor_simulator_impl(config_type cfg)
