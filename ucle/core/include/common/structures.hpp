@@ -13,7 +13,7 @@ namespace ucle {
     template <unsigned N>
     class bitfield {
         public:
-            using value_type = meta::sized_uint<N>;
+            using value_type = meta::sized_uint_t<N>;
             using cbu = util::const_bin_util<value_type>;
 
             class reference {

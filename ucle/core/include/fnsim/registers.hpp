@@ -7,7 +7,7 @@
 
 namespace ucle::fnsim {
 
-    template<unsigned N, typename T = meta::sized_uint<N>>
+    template<unsigned N, typename T = meta::sized_uint_t<N>>
     class reg {
         public:
             using value_type = T;
@@ -55,7 +55,7 @@ namespace ucle::fnsim {
             value_type value_ = 0;
     };
 
-    template<unsigned N, typename T = meta::sized_uint<N>>
+    template<unsigned N, typename T = meta::sized_uint_t<N>>
     class flags_reg {
         public:
             using value_type = T;
