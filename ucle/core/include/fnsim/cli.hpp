@@ -4,7 +4,6 @@
 #include <fnsim/base.hpp>
 
 #include <fnsim/checker.hpp>
-#include <fnsim/interactive_sim.hpp>
 #include <fnsim/simulation.hpp>
 
 #include <fnsim/processors/frisc.hpp>

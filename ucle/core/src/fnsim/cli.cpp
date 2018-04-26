@@ -1,7 +1,10 @@
 #include <fnsim/cli.hpp>
 
+#include <fnsim/simulations/interactive_text.hpp>
+
 #include <libs/cli/cli11.hpp>
 #include <libs/fmt/format.h>
+#include <libs/nlohmann/json.hpp>
 
 #include <cstdlib>
 #include <memory>
@@ -30,6 +33,7 @@ int main(int argc, char* argv[]) {
 
     app.add_option("-m,--memory_size", cfg.fnsim_mem_size, "Internal memory size for the processor in the simulation", true);
 
+    app.add_flag("-j,--run-json", cfg.run_json, "Run a JSON-controlled simulation");
     app.add_flag("-i,--run-interactive", cfg.run_interactive, "Run the simulation interactively");
     app.add_flag("-r,--print-reg-info", cfg.print_reg_info, "Print register info after simulation run");
     app.add_flag("-x,--print-exec-info", cfg.print_exec_info, "Print execution info after simulation run");
@@ -46,7 +50,10 @@ int main(int argc, char* argv[]) {
 
     if (cfg.run_interactive) {
         functional_simulation<> sim(factory[cfg.simulator_name](sim_cfg));
-        run_interactive_simulation(sim, cfg.pfile);
+        run_interactive_text_simulation(sim, cfg.pfile);
+    } else if (cfg.run_json) {
+        functional_simulation<> sim(factory[cfg.simulator_name](sim_cfg));
+        // run_json_simulation(sim, cfg.pfile);
     } else {
         functional_simulation<false, false, false, true> sim(factory[cfg.simulator_name](sim_cfg));
         sim.load_pfile(cfg.pfile);
