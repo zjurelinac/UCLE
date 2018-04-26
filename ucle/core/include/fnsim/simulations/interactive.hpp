@@ -5,6 +5,11 @@
 
 #include <util/string.hpp>
 
+#include <cstdlib>
+#include <functional>
+#include <string>
+#include <vector>
+
 namespace ucle::fnsim {
 
     template <typename FunctionalSimulation>
@@ -44,18 +49,18 @@ namespace ucle::fnsim {
         protected:
             virtual interactive_cmd_info get_cmd_()  = 0;
 
-            virtual void do_help_(argument_list)   {};
-            virtual void do_run_(argument_list)    {};
-            virtual void do_start_(argument_list)  {};
-            virtual void do_cont_(argument_list)   {};
-            virtual void do_step_(argument_list)   {};
-            virtual void do_step_n_(argument_list) {};
-            virtual void do_until_(argument_list)  {};
-            virtual void do_reset_(argument_list)  {};
-            virtual void do_quit_(argument_list)   {};
-            virtual void do_break_(argument_list)  {};
-            virtual void do_watch_(argument_list)  {};
-            virtual void do_info_(argument_list)   {};
+            virtual void do_help_(argument_list)   = 0;
+            virtual void do_run_(argument_list)    = 0;
+            virtual void do_start_(argument_list)  = 0;
+            virtual void do_cont_(argument_list)   = 0;
+            virtual void do_step_(argument_list)   = 0;
+            virtual void do_step_n_(argument_list) = 0;
+            virtual void do_until_(argument_list)  = 0;
+            virtual void do_reset_(argument_list)  = 0;
+            virtual void do_quit_(argument_list)   = 0;
+            virtual void do_break_(argument_list)  = 0;
+            virtual void do_watch_(argument_list)  = 0;
+            virtual void do_info_(argument_list)   = 0;
 
             virtual void info_(std::string) {}
             virtual void warn_(std::string) {}

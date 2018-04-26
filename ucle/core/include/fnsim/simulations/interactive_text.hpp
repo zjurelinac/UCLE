@@ -8,11 +8,7 @@
 #include <libs/fmt/format.h>
 
 #include <algorithm>
-#include <cstdlib>
-#include <functional>
 #include <iostream>
-#include <string>
-#include <vector>
 
 namespace ucle::fnsim {
 
@@ -81,7 +77,7 @@ namespace ucle::fnsim {
             void show_cmd_info_(cmd_help help)
             {
                 if (help.use.size() > 16) {
-                    emph_(help.use);
+                    emph_("  " + help.use);
                     fmt::print("\n  {:<16}{}\n", "", help.description);
                 } else {
                     emph_(fmt::format("  {:<16}", help.use));

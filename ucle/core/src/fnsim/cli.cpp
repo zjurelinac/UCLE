@@ -1,6 +1,7 @@
 #include <fnsim/cli.hpp>
 
 #include <fnsim/simulations/interactive_text.hpp>
+#include <fnsim/simulations/interactive_json.hpp>
 
 #include <libs/cli/cli11.hpp>
 #include <libs/fmt/format.h>
@@ -53,7 +54,7 @@ int main(int argc, char* argv[]) {
         run_interactive_text_simulation(sim, cfg.pfile);
     } else if (cfg.run_json) {
         functional_simulation<> sim(factory[cfg.simulator_name](sim_cfg));
-        // run_json_simulation(sim, cfg.pfile);
+        run_interactive_json_simulation(sim, cfg.pfile);
     } else {
         functional_simulation<false, false, false, true> sim(factory[cfg.simulator_name](sim_cfg));
         sim.load_pfile(cfg.pfile);
