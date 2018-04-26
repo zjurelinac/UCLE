@@ -2,7 +2,10 @@
 #define _UCLE_CORE_FNSIM_BASE_HPP_
 
 #include <common/meta.hpp>
+#include <common/structures.hpp>
 #include <common/types.hpp>
+
+#include <fnsim/exceptions.hpp>
 
 #include <libs/fmt/format.h>
 

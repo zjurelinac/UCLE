@@ -1,9 +1,8 @@
 #ifndef _UCLE_CORE_FNSIM_PROCESSOR_HPP_
 #define _UCLE_CORE_FNSIM_PROCESSOR_HPP_
 
-#include <common/types.hpp>
-
 #include <fnsim/base.hpp>
+
 #include <fnsim/device.hpp>
 
 #include <memory>

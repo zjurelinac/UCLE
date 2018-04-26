@@ -1,10 +1,7 @@
 #ifndef _UCLE_CORE_FNSIM_ADDRESS_SPACE_HPP_
 #define _UCLE_CORE_FNSIM_ADDRESS_SPACE_HPP_
 
-#include <common/meta.hpp>
-#include <common/types.hpp>
-
-#include <fnsim/exceptions.hpp>
+#include <fnsim/base.hpp>
 
 #include <algorithm>
 #include <memory>

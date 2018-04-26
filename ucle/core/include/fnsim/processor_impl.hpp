@@ -1,12 +1,10 @@
 #ifndef _UCLE_CORE_FNSIM_PROCESSOR_IMPL_HPP_
 #define _UCLE_CORE_FNSIM_PROCESSOR_IMPL_HPP_
 
-#include <common/meta.hpp>
-#include <common/types.hpp>
+#include <fnsim/base.hpp>
 
 #include <fnsim/address_space.hpp>
 #include <fnsim/device.hpp>
-#include <fnsim/exceptions.hpp>
 #include <fnsim/processor.hpp>
 
 #include <util/const_bin_util.hpp>

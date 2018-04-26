@@ -1,10 +1,8 @@
 #ifndef _UCLE_CORE_FNSIM_PROCESSORS_FRISC_HPP_
 #define _UCLE_CORE_FNSIM_PROCESSORS_FRISC_HPP_
 
-#include <common/types.hpp>
-
-#include <fnsim/address_space.hpp>
 #include <fnsim/base.hpp>
+#include <fnsim/address_space.hpp>
 #include <fnsim/device.hpp>
 #include <fnsim/processor.hpp>
 #include <fnsim/processor_impl.hpp>

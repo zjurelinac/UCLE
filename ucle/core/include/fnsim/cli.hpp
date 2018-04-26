@@ -2,6 +2,7 @@
 #define _UCLE_CORE_FNSIM_CLI_HPP_
 
 #include <fnsim/base.hpp>
+
 #include <fnsim/checker.hpp>
 #include <fnsim/interactive_sim.hpp>
 #include <fnsim/simulation.hpp>
@@ -32,6 +33,7 @@ namespace ucle::fnsim {
         std::string pfile;
 
         // Runtime options
+        bool run_json = false;
         bool run_interactive = false;
         bool run_checker = false;
         bool print_reg_info = false;

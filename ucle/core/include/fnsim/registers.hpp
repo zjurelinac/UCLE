@@ -1,9 +1,7 @@
 #ifndef _UCLE_CORE_FNSIM_REGISTERS_HPP_
 #define _UCLE_CORE_FNSIM_REGISTERS_HPP_
 
-#include <common/meta.hpp>
-#include <common/structures.hpp>
-#include <common/types.hpp>
+#include <fnsim/base.hpp>
 
 namespace ucle::fnsim {
 
