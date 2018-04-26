@@ -76,6 +76,11 @@ var fileStartContent = new Map();
 			this.el.dispatchEvent(new CustomEvent(eventName, { detail: data }))
 		}
 
+		changeEditorLanguage(tabEl, fileName) {
+			if(!tabEl || !idModels.get(tabId.get(tabEl))) return;
+			this.monaco.editor.setModelLanguage(idModels.get(tabId.get(tabEl)),mime.getExtension(mime.getType(fileName)));
+		}
+
 		closeTab(tabEl, changed = false) {
 			if(tabEl) {
 				if(changed) {
@@ -129,6 +134,7 @@ var fileStartContent = new Map();
 		}
 
 		getFileName(str) {
+			if(!str) return;
 			return str.split('\\').pop().split('/').pop();
 		}
 
@@ -205,13 +211,6 @@ var fileStartContent = new Map();
 			return div.firstElementChild
 		}
 
-		hasTitle(tabEl) {
-			if(tabEl) {
-				return idFile.get(tabId.get(tabEl));
-			}
-			else return null
-		}
-
 		checkIfValueChanged(tabEl) {
 			return (idModels.get(tabId.get(tabEl)).getValue() != fileStartContent.get(idFile.get(tabId.get(tabEl))))
 		}
@@ -277,14 +276,16 @@ var fileStartContent = new Map();
 				fileStartContent.set(idFile.get(tabId.get(tabEl)), "")				
 			}
 
-			idView.set(id, this.editor.saveViewState())
-			id++
+			this.changeEditorLanguage(tabEl, tabProperties.title);
 
-			this.emit('tabAdd', { tabEl })
-			this.setCurrentTab(tabEl)
-			this.layoutTabs()
-			this.fixZIndexes()
-			this.setupDraggabilly()
+			idView.set(id, this.editor.saveViewState());
+			id++;
+
+			this.emit('tabAdd', { tabEl });
+			this.setCurrentTab(tabEl);
+			this.layoutTabs();
+			this.fixZIndexes();
+			this.setupDraggabilly();
 		}
 
 		setCurrentTab(tabEl) {
@@ -328,7 +329,7 @@ var fileStartContent = new Map();
 					tabId.set(key, tabId.get(key)-1)
 			});
 
-			idModels.get(removedId).dispose()
+			idModels.get(removedId).dispose();
 			idModels.forEach(function(value, key) {
 				if(key >= removedId && (key+1 < idModels.size))
 					idModels.set(key, idModels.get(key+1))
@@ -364,17 +365,17 @@ var fileStartContent = new Map();
 		}
 
 		updateTab(tabEl, tabProperties) {
-			tabEl.querySelector('.ucle-tab-title').textContent = tabProperties.title
-			tabEl.querySelector('.ucle-tab-file-path').textContent = tabProperties.fullPath
-			idFile.set(tabId.get(tabEl), tabProperties.title)
+			tabEl.querySelector('.ucle-tab-title').textContent = tabProperties.title;
+			tabEl.querySelector('.ucle-tab-file-path').textContent = tabProperties.fullPath;
+			idFile.set(tabId.get(tabEl), tabProperties.title);
 		}
 
 		updateTabContent(tabEl) {
-			fileStartContent.set(idFile.get(tabId.get(tabEl)),this.editor.getModel().getValue())
+			fileStartContent.set(idFile.get(tabId.get(tabEl)),this.editor.getModel().getValue());
 		}
 
 		cleanUpPreviouslyDraggedTabs() {
-			this.tabEls.forEach((tabEl) => tabEl.classList.remove('ucle-tab-just-dragged'))
+			this.tabEls.forEach((tabEl) => tabEl.classList.remove('ucle-tab-just-dragged'));
 		}
 
 		setupDraggabilly() {

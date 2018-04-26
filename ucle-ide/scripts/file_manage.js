@@ -66,9 +66,9 @@ class FileManager {
 			var child = children[i];
 			if(child.type == 'directory') {
 				let childListID = child.path + '-' + child.name;
-				list.innerHTML += '<li id="' + child.path + '" class="dir">' + child.name + '</li><ul id="' + childListID + '"' + 'style="display: '+  'inherit;"></ul><br/>';
+				list.innerHTML += '<li id="' + child.path + '" class="dir"><i class="dir-ico-closed"></i>' + child.name + '</li><ul id="' + childListID + '"' + 'style="display: '+  'inherit;"></ul><br/>';
 			} else {
-				list.innerHTML += '<li id="' + child.path + '" class="file">'+ child.name + '</li> <br/>';
+				list.innerHTML += '<li id="' + child.path + '" class="file"><i class="file-ico"></i>'+ child.name + '</li> <br/>';
 			}
 		}
 	}
@@ -82,12 +82,13 @@ class FileManager {
 
 		let listID = filePath + '-' + dirName;
 
-		if(document.getElementById(listID) != null && document.getElementById(listID).innerHTML != '') {
-			console.log(document.getElementById(listID).style.display);
-			if(document.getElementById(listID).style.display == 'none') {
-				document.getElementById(listID).style.display = 'inherit';
+		var list = document.getElementById(listID);
+
+		if(list != null && list.innerHTML != '') {
+			if(list.style.display == 'none') {
+				list.style.display = 'inherit';
 			} else {
-				document.getElementById(listID).style.display = 'none';
+				list.style.display = 'none';
 			}
 			return;
 		}
@@ -97,7 +98,7 @@ class FileManager {
 
 		if(init) {
 			document.getElementById('openbtn').style.display = "none";
-			document.getElementById('listed-files').innerHTML += '<span id="' + filePath + '">' + dirName + '</span><ul id="' + listID + '"' + 'style="display: ' + 'none;"></ul><br/>';
+			document.getElementById('listed-files').innerHTML += '<span id="' + filePath + '"><i class="dir-ico-closed"></i>' + dirName + '</span><ul id="' + listID + '"' + 'style="display: ' + 'none;"></ul><br/>';
 		}
 
 		this.walkThroughFiles(tree.children, listID);
