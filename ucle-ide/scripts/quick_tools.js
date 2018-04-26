@@ -16,7 +16,7 @@ module.exports = (fileManager, ucleTabs) => {
 
 	document.getElementById("listed-files").addEventListener("dblclick", function(e) {
 		if(e.target && e.target.matches("li.file")) {
-			fileManager.openFile(e.target);
+			fileManager.openFile(e.target.id);
 			ucleTabs.addTab({title: ucleTabs.getFileName(e.target.id), fullPath: e.target.id},true);
 		}
 	});
