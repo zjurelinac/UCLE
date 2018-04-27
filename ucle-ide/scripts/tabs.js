@@ -212,6 +212,7 @@ var fileStartContent = new Map();
 		}
 
 		checkIfValueChanged(tabEl) {
+			if(!tabEl) return;
 			return (idModels.get(tabId.get(tabEl)).getValue() != fileStartContent.get(idFile.get(tabId.get(tabEl))))
 		}
 
