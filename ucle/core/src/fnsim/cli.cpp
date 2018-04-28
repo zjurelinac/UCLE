@@ -34,8 +34,8 @@ int main(int argc, char* argv[]) {
 
     app.add_option("-m,--memory_size", cfg.fnsim_mem_size, "Internal memory size for the processor in the simulation", true);
 
-    app.add_flag("-j,--run-json", cfg.run_json, "Run a JSON-controlled simulation");
     app.add_flag("-i,--run-interactive", cfg.run_interactive, "Run the simulation interactively");
+    app.add_flag("-j,--run-json", cfg.run_json, "Run a JSON-controlled simulation");
     app.add_flag("-r,--print-reg-info", cfg.print_reg_info, "Print register info after simulation run");
     app.add_flag("-x,--print-exec-info", cfg.print_exec_info, "Print execution info after simulation run");
 
