@@ -70,7 +70,7 @@ namespace ucle::fnsim {
 
             void show_simulation_state_()
             {
-                auto [state, location, annotation] = this->sim_.get_state_info();
+                auto [state, location, annotation] = this->get_sim_().get_state_info();
                 info_(location_action_("Simulator " + to_string(state), location, annotation));
             }
 
@@ -141,7 +141,7 @@ namespace ucle::fnsim {
     {
         do_start_(args);
 
-        if (auto stat = this->sim_.cont(); is_error(stat))
+        if (auto stat = this->get_sim_().cont(); is_error(stat))
             throw runtime_error(to_string(stat));
 
         show_simulation_state_();
@@ -153,13 +153,13 @@ namespace ucle::fnsim {
         address_t start_location = 0;
 
         if (args.size() > 0) {
-            if (!util::parse_int<address_t>(args[0], &start_location))
-                throw malformed_argument(fmt::format("Cannot parse {} as an address (must be an integer >= 0)", args[0]));
+            if (!util::parse_int<address_t>(std::any_cast<std::string>(args[0]), &start_location))
+                throw malformed_argument(fmt::format("Cannot parse argument as an address (must be an integer >= 0)"));
         }
 
         notify_(location_action_("Starting program", start_location));
 
-        if (auto stat = this->sim_.start(start_location); is_error(stat))
+        if (auto stat = this->get_sim_().start(start_location); is_error(stat))
             throw runtime_error(to_string(stat));
 
         success_("Program started");
@@ -170,7 +170,7 @@ namespace ucle::fnsim {
     {
         notify_("Continuing program...");
 
-        if (auto stat = this->sim_.cont(); is_error(stat))
+        if (auto stat = this->get_sim_().cont(); is_error(stat))
             throw runtime_error(to_string(stat));
 
         show_simulation_state_();
@@ -179,7 +179,7 @@ namespace ucle::fnsim {
     template <typename FunctionalSimulation>
     inline void interactive_text_simulation<FunctionalSimulation>::do_step_(argument_list)
     {
-        if (auto stat = this->sim_.step(); is_error(stat))
+        if (auto stat = this->get_sim_().step(); is_error(stat))
             throw runtime_error(to_string(stat));
 
         show_simulation_state_();
@@ -192,12 +192,12 @@ namespace ucle::fnsim {
             throw incorrect_call("step_n");
 
         int num_steps;
-        if (!util::parse_int<int>(args[0], &num_steps) || num_steps <= 0)
-            throw malformed_argument(fmt::format("Cannot parse {} as number of steps (must be an integer > 0)", args[0]));
+        if (!util::parse_int<int>(std::any_cast<std::string>(args[0]), &num_steps) || num_steps <= 0)
+            throw malformed_argument(fmt::format("Cannot parse argument as number of steps (must be an integer > 0)"));
 
         notify_(fmt::format("Executing {} steps of the simulation...", num_steps));
 
-        if (auto stat = this->sim_.step_n(num_steps); is_error(stat))
+        if (auto stat = this->get_sim_().step_n(num_steps); is_error(stat))
             throw runtime_error(to_string(stat));
 
         show_simulation_state_();
@@ -210,19 +210,19 @@ namespace ucle::fnsim {
             throw incorrect_call("until");
 
         address_t end_location;
-        if (!util::parse_int<address_t>(args[0], &end_location))
-            throw malformed_argument(fmt::format("Cannot parse {} as an address (must be an integer >= 0)", args[0]));
+        if (!util::parse_int<address_t>(std::any_cast<std::string>(args[0]), &end_location))
+            throw malformed_argument(fmt::format("Cannot parse argument as an address (must be an integer >= 0)"));
 
         notify_(location_action_("Executing simulation until", end_location));
 
-        if (auto stat = this->sim_.until(end_location); is_error(stat))
+        if (auto stat = this->get_sim_().until(end_location); is_error(stat))
             throw runtime_error(to_string(stat));
 
         show_simulation_state_();
     }
 
     template <typename FunctionalSimulation>
-    inline void interactive_text_simulation<FunctionalSimulation>::do_reset_(fnsim::argument_list)
+    inline void interactive_text_simulation<FunctionalSimulation>::do_reset_(argument_list)
     {
         notify_("Reset devices, processor memory and registers");
         this->reload_();
@@ -241,38 +241,40 @@ namespace ucle::fnsim {
         if (args.size() == 0)
             throw incorrect_call("break");
 
-        if (args[0] == "list") {
-            auto breakpoints = this->sim_.get_breakpoints();
+        auto subcmd = std::any_cast<std::string>(args[0]);
+
+        if (subcmd == "list") {
+            auto breakpoints = this->get_sim_().get_breakpoints();
             info_(fmt::format("Active breakpoints ({}):", breakpoints.size()));
 
             auto i = 0u;
             for (const auto bp : breakpoints)
                 notify_(location_action_(fmt::format("Breakpoint {}", ++i), bp));
 
-        } else if (args[0] == "add") {
+        } else if (subcmd == "add") {
             if (args.size() < 2)
                 throw incorrect_call("break");
 
             address_t location;
-            if (!util::parse_int<address_t>(args[0], &location))
-                throw malformed_argument(fmt::format("Cannot parse {} as an address (must be an integer >= 0)", args[0]));
+            if (!util::parse_int<address_t>(std::any_cast<std::string>(args[1]), &location))
+                throw malformed_argument(fmt::format("Cannot parse argument as an address (must be an integer >= 0)"));
 
-            this->sim_.add_breakpoint(location);
+            this->get_sim_().add_breakpoint(location);
             success_(location_action_("Added breakpoint", location));
 
-        } else if (args[0] == "del") {
+        } else if (subcmd == "del") {
             if (args.size() < 2)
                 throw incorrect_call("break");
 
             address_t location;
-            if (!util::parse_int<address_t>(args[0], &location))
-                throw malformed_argument(fmt::format("Cannot parse {} as an address (must be an integer >= 0)", args[0]));
+            if (!util::parse_int<address_t>(std::any_cast<std::string>(args[1]), &location))
+                throw malformed_argument(fmt::format("Cannot parse argument as an address (must be an integer >= 0)"));
 
-            this->sim_.remove_breakpoint(location);
+            this->get_sim_().remove_breakpoint(location);
             success_(location_action_("Removed breakpoint", location));
 
-        } else if (args[0] == "clear") {
-            this->sim_.clear_breakpoints();
+        } else if (subcmd == "clear") {
+            this->get_sim_().clear_breakpoints();
             success_("Cleared all breakpoints");
         } else {
             this->report_incorrect_use_("break");
@@ -289,13 +291,14 @@ namespace ucle::fnsim {
     inline void interactive_text_simulation<FunctionalSimulation>::do_info_(argument_list)
     {
         info_("Processor state:");
-        print_reg_info(this->sim_.get_reg_info());
+        print_reg_info(this->get_sim_().get_reg_info());
     }
 
     template <typename FunctionalSimulation>
-    void run_interactive_text_simulation(FunctionalSimulation& sim, std::string pfile)
+    void run_interactive_text_simulation(FunctionalSimulation& sim, cli_config& cfg)
     {
-        interactive_text_simulation<FunctionalSimulation> tsim {sim, pfile};
+        cfg.verbosity = 1;
+        interactive_text_simulation<FunctionalSimulation> tsim {sim, cfg};
         tsim.run();
     }
 

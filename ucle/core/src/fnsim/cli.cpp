@@ -51,10 +51,10 @@ int main(int argc, char* argv[]) {
 
     if (cfg.run_interactive) {
         functional_simulation<> sim(factory[cfg.simulator_name](sim_cfg));
-        run_interactive_text_simulation(sim, cfg.pfile);
+        run_interactive_text_simulation(sim, cfg);
     } else if (cfg.run_json) {
         functional_simulation<> sim(factory[cfg.simulator_name](sim_cfg));
-        run_interactive_json_simulation(sim, cfg.pfile);
+        run_interactive_json_simulation(sim, cfg);
     } else {
         functional_simulation<false, false, false, true> sim(factory[cfg.simulator_name](sim_cfg));
         sim.load_pfile(cfg.pfile);

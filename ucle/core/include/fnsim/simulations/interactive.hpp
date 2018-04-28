@@ -2,9 +2,11 @@
 #define _UCLE_CORE_FNSIM_SIMULATIONS_INTERACTIVE_HPP_
 
 #include <fnsim/base.hpp>
+#include <fnsim/cli.hpp>
 
 #include <util/string.hpp>
 
+#include <any>
 #include <cstdlib>
 #include <functional>
 #include <string>
@@ -15,7 +17,7 @@ namespace ucle::fnsim {
     template <typename FunctionalSimulation>
     class interactive_simulation;
 
-    using argument_list = std::vector<std::string>;
+    using argument_list = std::vector<std::any>;
 
     struct interactive_cmd_info {
         std::string name;
@@ -41,8 +43,8 @@ namespace ucle::fnsim {
             using descr_type = interactive_cmd_descr<simulation_type>;
 
             interactive_simulation() = delete;
-            interactive_simulation(simulation_type& sim, std::string pfile)
-                : sim_{sim}, pfile_{pfile} { init_descriptors_(); }
+            interactive_simulation(simulation_type& sim, cli_config& cfg)
+                : sim_{sim}, cfg_{cfg} { init_descriptors_(); }
 
             void run();
 
@@ -77,12 +79,13 @@ namespace ucle::fnsim {
             void reload_()
             {
                 sim_.reset();
-                if (auto stat = sim_.load_pfile(pfile_); is_error(stat))
-                    throw fatal_error(fmt::format("Cannot reload program from {}", pfile_));
-                success_(fmt::format("Reloaded program from {}", pfile_));
+                if (auto stat = sim_.load_pfile(cfg_.pfile); is_error(stat))
+                    throw fatal_error(fmt::format("Cannot reload program from {}", cfg_.pfile));
+                success_(fmt::format("Reloaded program from {}", cfg_.pfile));
             }
 
-            simulation_type& sim_;
+            simulation_type& get_sim_() { return sim_; }
+            cli_config& get_cfg_() { return cfg_; }
 
         private:
             void init_descriptors_()
@@ -103,23 +106,26 @@ namespace ucle::fnsim {
                 };
             }
 
-            std::string pfile_;
-            bool running_ {true};
-
+            simulation_type& sim_;
+            cli_config& cfg_;
             std::vector<descr_type> descrs_;
+
+            bool running_ {true};
     };
 
     template <typename FunctionalSimulation>
     void interactive_simulation<FunctionalSimulation>::run()
     {
-        warn_("Starting interactive simulation...");
+        if (cfg_.verbosity > 0)
+            info_("Starting interactive simulation...");
 
-        if (auto stat = sim_.load_pfile(pfile_); is_error(stat)) {
-            error_(fmt::format("Error loading program from {}", pfile_));
+        if (auto stat = sim_.load_pfile(cfg_.pfile); is_error(stat)) {
+            error_(fmt::format("Error loading program from {}", cfg_.pfile));
             std::exit(1);
         }
 
-        success_(fmt::format("Loaded program from {}", pfile_));
+        if (cfg_.verbosity > 0)
+            success_(fmt::format("Loaded program from {}", cfg_.pfile));
 
         while (running_) {
             try {
@@ -137,7 +143,8 @@ namespace ucle::fnsim {
             }
         }
 
-        warn_("Ending interactive simulation.");
+        if (cfg_.verbosity > 0)
+            info_("Ending interactive simulation.");
     }
 
     template <typename FunctionalSimulation>
