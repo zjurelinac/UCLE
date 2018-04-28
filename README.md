@@ -9,9 +9,7 @@ Say a few things about the idea
 ## Features
 List all the features you'd like to have one day
 
-## Manual build & usage
-
-### Building the project
+## Building the project
 
 UCLE project uses [SCons](http://scons.org/) build tool for building all it's C++-based components. SCons requires a Python runtime, and can be installed via Python-pip, using the following command:
 ```
@@ -27,9 +25,11 @@ git clone https://github.com/zjurelinac/UCLE.git
 
 Once you have the repository, go to `ucle` folder and run `scons`, and wait for the project to build.
 
-### Using UCLE CLI tools
+## Using UCLE CLI tools
 
 UCLE project offers you several CLI tools for various use-cases.
+
+### FNSIM
 
 **Fnsim**, a functional processor simulator, is one of them. It can be used for debugging and/or assembly code correctness testing, for any of the supported processor architectures (so far only FRISC). It can be started with
 ```
@@ -54,6 +54,10 @@ TODO
 
 #### Generic option flags
 TODO
+
+### ASM
+
+### LNK
 
 ## Components
 Explain which components make up the UCLE
