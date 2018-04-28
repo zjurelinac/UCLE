@@ -107,22 +107,22 @@ namespace ucle::fnsim {
 
                 bool is_correct = [this, &expected, &cd, &rv]{
                     return std::visit(meta::overloaded {
-                        [this, &expected, &cd, &rv](bool val) {
+                        [this, &expected, &cd](bool val) {
                             return cmp_values_(cd.op, val, static_cast<bool>(expected));
                         },
-                        [this, &expected, &cd, &rv](byte_t val) {
+                        [this, &expected, &cd](byte_t val) {
                             return cmp_values_(cd.op, val, static_cast<byte_t>(expected));
                         },
-                        [this, &expected, &cd, &rv](half_t val) {
+                        [this, &expected, &cd](half_t val) {
                             return cmp_values_(cd.op, val, static_cast<half_t>(expected));
                         },
-                        [this, &expected, &cd, &rv](word_t val) {
+                        [this, &expected, &cd](word_t val) {
                             return cmp_values_(cd.op, val, static_cast<word_t>(expected));
                         },
-                        [this, &expected, &cd, &rv](dword_t val) {
+                        [this, &expected, &cd](dword_t val) {
                             return cmp_values_(cd.op, val, static_cast<dword_t>(expected));
                         }
-                    }, rv);
+                    }, rv.value);
                 }();
 
                 switch (verbosity_) {

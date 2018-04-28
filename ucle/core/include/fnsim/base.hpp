@@ -8,6 +8,7 @@
 #include <fnsim/exceptions.hpp>
 
 #include <libs/fmt/format.h>
+#include <libs/nlohmann/json.hpp>
 
 #include <map>
 #include <memory>
@@ -15,6 +16,7 @@
 #include <variant>
 
 namespace ucle::fnsim {
+    using json = nlohmann::json;
 
     // Enumerations
 
@@ -104,38 +106,69 @@ namespace ucle::fnsim {
         std::string     asm_annotation;
     };
 
-    using reg_val = std::variant<bool, byte_t, half_t, word_t, dword_t>;
+    struct reg_val {
+        using value_type = std::variant<bool, byte_t, half_t, word_t, dword_t>;
+
+        reg_val() noexcept {};
+        reg_val(const reg_val& other) noexcept : value(other.value) {};
+        reg_val(reg_val&& other) noexcept : value(std::move(other.value)) {};
+
+        reg_val& operator=(const reg_val&) noexcept = default;
+        reg_val& operator=(reg_val&&) noexcept      = default;
+
+        ~reg_val()                                  = default;
+
+        template <typename T, typename = meta::is_storage_equiv_t<T>>
+        reg_val(T&& t) : value(t) {}
+
+        template <class T, typename = meta::is_storage_equiv_t<T>>
+        reg_val& operator=(T&& t) noexcept { value = t; return *this; }
+
+        value_type value;
+    };
 
     inline std::string to_string(reg_val rv)
     {
         return std::visit(meta::overloaded {
-            [](bool val) { return fmt::format("{}", val); },
-            [](byte_t val) { return fmt::format("{}", val); },
-            [](half_t val) { return fmt::format("{}", val); },
-            [](word_t val) { return fmt::format("{}", val); },
+            [](bool val)    { return fmt::format("{}", val); },
+            [](byte_t val)  { return fmt::format("{}", val); },
+            [](half_t val)  { return fmt::format("{}", val); },
+            [](word_t val)  { return fmt::format("{}", val); },
             [](dword_t val) { return fmt::format("{}", val); }
-        }, rv);
+        }, rv.value);
     }
 
     inline std::string to_xstring(reg_val rv)
     {
         return std::visit(meta::overloaded {
-            [](bool val) { return fmt::format("{:d}", val); },
-            [](byte_t val) { return fmt::format("0x{:02X}", val); },
-            [](half_t val) { return fmt::format("0x{:04X}", val); },
-            [](word_t val) { return fmt::format("0x{:08X}", val); },
+            [](bool val)    { return fmt::format("{:d}", val); },
+            [](byte_t val)  { return fmt::format("0x{:02X}", val); },
+            [](half_t val)  { return fmt::format("0x{:04X}", val); },
+            [](word_t val)  { return fmt::format("0x{:08X}", val); },
             [](dword_t val) { return fmt::format("0x{:016X}", val); }
-        }, rv);
+        }, rv.value);
     }
 
     inline int64_t to_int(reg_val rv)
     {
-        return std::stoll(to_string(rv), nullptr, 10);
+        return std::visit(meta::overloaded {
+            [](bool val)    { return static_cast<int64_t>(val); },
+            [](byte_t val)  { return static_cast<int64_t>(val); },
+            [](half_t val)  { return static_cast<int64_t>(val); },
+            [](word_t val)  { return static_cast<int64_t>(val); },
+            [](dword_t val) { return static_cast<int64_t>(val); }
+        }, rv.value);
     }
 
     inline uint64_t to_uint(reg_val rv)
     {
-        return std::stoll(to_xstring(rv), nullptr, 16);
+        return std::visit(meta::overloaded {
+            [](bool val)    { return static_cast<uint64_t>(val); },
+            [](byte_t val)  { return static_cast<uint64_t>(val); },
+            [](half_t val)  { return static_cast<uint64_t>(val); },
+            [](word_t val)  { return static_cast<uint64_t>(val); },
+            [](dword_t val) { return static_cast<uint64_t>(val); }
+        }, rv.value);
     }
 
     inline size_t size(reg_val rv)
@@ -146,7 +179,18 @@ namespace ucle::fnsim {
             [](half_t) { return 16; },
             [](word_t) { return 32; },
             [](dword_t) { return 64; }
-        }, rv);
+        }, rv.value);
+    }
+
+    inline void to_json(json& j, const reg_val& rv)
+    {
+        std::visit(meta::overloaded {
+            [&j](bool val)    { j = val; },
+            [&j](byte_t val)  { j = val; },
+            [&j](half_t val)  { j = val; },
+            [&j](word_t val)  { j = val; },
+            [&j](dword_t val) { j = val; }
+        }, rv.value);
     }
 
     using register_info = std::map<std::string, reg_val>;

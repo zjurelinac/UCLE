@@ -29,6 +29,12 @@ namespace ucle::meta {
                                                    std::is_same_v<T, dword_t> >;
 
     template <typename T>
+    using is_storage_equiv_t = typename std::enable_if_t<std::is_convertible_v<T, byte_t> ||
+                                                         std::is_convertible_v<T, half_t> ||
+                                                         std::is_convertible_v<T, word_t> ||
+                                                         std::is_convertible_v<T, dword_t> >;
+
+    template <typename T>
     using is_integer_t = typename std::enable_if_t<std::is_same_v<T, int> ||
                                                    std::is_same_v<T, unsigned> ||
                                                    std::is_same_v<T, long> ||
