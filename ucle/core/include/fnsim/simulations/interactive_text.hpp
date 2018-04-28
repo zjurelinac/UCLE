@@ -99,29 +99,6 @@ namespace ucle::fnsim {
                 { "watch", "[w]atch (list | add ADDR | del ADDR | clear)", "List watches | Add/remove watch at ADDR | Clear all watches" },
                 { "info", "[i]nfo", "Display processor state (= value of it's registers) "}
             };
-
-        // template <typename FunctionalSimulation>
-        // inline void interactive_simulation<FunctionalSimulation>::warn_unknown_cmd_(std::string cmd_name)
-        // {
-        //     fmt::print_colored(fmt::RED, "! Unknown command: {}\n", cmd_name);
-        //     fmt::print("? Perhaps try one of the following:\n");
-        //     cmd_help({});
-        // }
-
-        // template <typename FunctionalSimulation>
-        // inline void interactive_simulation<FunctionalSimulation>::warn_incorrect_use_(std::string cmd_name)
-        // {
-        //     auto icmd_it = std::find_if(icmds_.begin(), icmds_.end(), [&cmd_name](auto icmd) { return icmd.name == cmd_name; });
-
-        //     if (icmd_it == icmds_.end()) {
-        //         warn_unknown_cmd_(cmd_name);
-        //         return;
-        //     }
-
-        //     fmt::print_colored(fmt::RED, "! Incorrect command call of: {}\n", cmd_name);
-        //     fmt::print("? Try matching the following format:\n");
-        //     print_icmd_descr(*icmd_it);
-        // }
     };
 
     template <typename FunctionalSimulation>
@@ -284,7 +261,7 @@ namespace ucle::fnsim {
     template <typename FunctionalSimulation>
     inline void interactive_text_simulation<FunctionalSimulation>::do_watch_(argument_list)
     {
-        // fmt::print_colored(fmt::BLUE, "* Watch!\n");
+        error_("Watch command unsupported as of yet.");
     }
 
     template <typename FunctionalSimulation>

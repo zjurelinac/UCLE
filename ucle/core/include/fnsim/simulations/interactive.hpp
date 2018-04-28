@@ -79,9 +79,12 @@ namespace ucle::fnsim {
             void reload_()
             {
                 sim_.reset();
+
                 if (auto stat = sim_.load_pfile(cfg_.pfile); is_error(stat))
                     throw fatal_error(fmt::format("Cannot reload program from {}", cfg_.pfile));
-                success_(fmt::format("Reloaded program from {}", cfg_.pfile));
+
+                if (cfg_.verbosity > 0)
+                    success_(fmt::format("Reloaded program from {}", cfg_.pfile));
             }
 
             simulation_type& get_sim_() { return sim_; }

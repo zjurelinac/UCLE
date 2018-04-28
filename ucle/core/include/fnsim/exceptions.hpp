@@ -17,6 +17,7 @@ namespace ucle::fnsim {
     class malformed_check       : public base_exception { using base_exception::base_exception; };
     class unknown_command       : public base_exception { using base_exception::base_exception; };
     class incorrect_call        : public base_exception { using base_exception::base_exception; };
+    class json_parse_error      : public base_exception { using base_exception::base_exception; };
 
     class runtime_error         : public base_exception { using base_exception::base_exception; };
 }
