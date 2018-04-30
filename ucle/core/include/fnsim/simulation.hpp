@@ -195,7 +195,7 @@ namespace ucle::fnsim {
             {
                 small_byte_vector bytes;
                 while (amount--)
-                    bytes.push_back(fnsim_->get_byte(location++));
+                    bytes.push_back(fnsim_->get_mem_byte(location++));
                 return bytes;
             }
             void set_memory_contents(address_type location, small_byte_vector& bytes)

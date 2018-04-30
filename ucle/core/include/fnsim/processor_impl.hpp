@@ -9,29 +9,64 @@
 
 #include <util/const_bin_util.hpp>
 
-#include <set>
 #include <string>
-#include <unordered_map>
+#include <vector>
 
 namespace ucle::fnsim {
 
-    template <byte_order endianness,                // Is processor little- or big-endian
-              typename AddressType,                 // Primitive type used for memory addressing (ie. uint32_t)
+    template <byte_order endianness,                    // Is processor little- or big-endian
+              typename AddressType,                     // Primitive type used for memory addressing (ie. uint32_t)
         template<byte_order, typename AddrType>
-              typename MappedDeviceType,            // Base class for all devices that could be added to the simulator
+              typename MappedDeviceType,                // Base class for all devices that could be added to the simulator
         template <typename MappedDevType>
-              typename AddressSpace,                // Processor's address space class
+              typename AddressSpace                     // Processor's address space class
+    >
+    class device_manager {
+        public:
+            using address_type = AddressType;
+            using address_range_type = address_range<address_type>;
+
+            using mapped_device_type = MappedDeviceType<endianness, address_type>;
+            using address_space_type = AddressSpace<mapped_device_type>;
+            using mapped_device_ptr = typename address_space_type::mapped_device_ptr;
+
+            device_manager(address_range_type addr_range) : asp_ (addr_range) {}
+
+            void add_device(device_ptr dev_ptr, device_config dev_cfg)
+            {
+                asp_.register_device(dynamic_cast<mapped_device_ptr>(dev_ptr.get()), dev_cfg.addr_range);
+                devices_.push_back(std::move(dev_ptr));
+            }
+
+            void reset()
+            {
+                for (auto &dev : devices_)
+                    dev->reset();
+            }
+
+            template <typename T, typename = meta::is_storage_t<T>>
+            T read(address_t location) const { return asp_.template read<T>(util::const_bin_util<T>::address_rounded(location)); }
+            template <typename T, typename = meta::is_storage_t<T>>
+            void write(address_t location, T value) { asp_.template write<T>(util::const_bin_util<T>::address_rounded(location), value); }
+
+        private:
+            address_space_type asp_;
+            std::vector<device_ptr> devices_;
+    };
+
+    template <byte_order endianness,                    // Is processor little- or big-endian
+              typename AddressType,                     // Primitive type used for memory addressing (ie. uint32_t)
+        template<byte_order, typename AddrType>
+              typename MappedDeviceType,                // Base class for all devices that could be added to the simulator
+        template <typename MappedDevType>
+              typename AddressSpace,                    // Processor's address space class
         template <byte_order, typename AddrType>
-              typename Memory,                      // Processor's internal memory device class
-              typename Config = processor_config    // Processor config parameters class
+              typename Memory,                          // Processor's internal memory device class
+              typename Config = processor_config,       // Processor config parameters class
+
+              typename DeviceManager = device_manager<endianness, AddressType, MappedDeviceType, AddressSpace>
     >
     class functional_processor_simulator_impl : public functional_processor_simulator {
-            struct device_info {
-                identifier_t    id;
-                device_ptr      ptr;
-                device_mapping  mapping;
-            };
-
         public:
             using address_type = AddressType;
 
@@ -44,32 +79,33 @@ namespace ucle::fnsim {
 
             using config_type = Config;
 
-            functional_processor_simulator_impl(config_type cfg)
-                : cfg_{cfg}, mem_asp_{cfg.mem_addr_range}, dev_asp_{cfg.dev_addr_range}
+            using device_manager_type = DeviceManager;
+            using device_manager_ptr = std::unique_ptr<device_manager_type>;
+
+            functional_processor_simulator_impl(config_type cfg) : cfg_{cfg}
             {
+                mem_manager_ = std::make_unique<device_manager_type>(cfg.mem_addr_range);
+
                 device_config mem_cfg { device_class::memory, {0, cfg.mem_size}, false, 0 };
-                mem_id_ = add_device(std::make_unique<memory_type>(cfg.mem_size), mem_cfg);
+                mem_manager_->add_device(std::make_unique<memory_type>(cfg.mem_size), mem_cfg);
+
+                if (!cfg.separate_device_mapping) return;
+
+                io_manager_ = std::make_unique<device_manager_type>(cfg.dev_addr_range);
             }
 
-            ~functional_processor_simulator_impl() override { remove_device(mem_id_); }
+            status execute_single() override { return execute_single_(); };
 
             void reset() override
             {
                 clear_internals_();
-                for (auto &dev : devs_)
-                    dev.second.ptr->reset();
+                mem_manager_.reset();
+
+                if (io_manager_ != nullptr)
+                    io_manager_.reset();
             }
 
-            byte_t get_byte(address_t location) const override
-            {
-                return read_<byte_t>(location);
-            }
-            void set_byte(address_t location, byte_t value) override
-            {
-                write_<byte_t>(location, value);
-            }
-
-            identifier_t add_device(device_ptr dev_ptr, device_config dev_cfg) override
+            void add_device(device_ptr dev_ptr, device_config dev_cfg) override
             {
                 auto mapping = [&](){
                     switch (dev_cfg.dev_class) {
@@ -80,51 +116,39 @@ namespace ucle::fnsim {
                 }();
 
                 if (mapping == device_mapping::memory)
-                    mem_asp_.register_device(dynamic_cast<mapped_device_ptr>(dev_ptr.get()), dev_cfg.addr_range);
+                    mem_manager_->add_device(std::move(dev_ptr), dev_cfg);
                 else if (mapping == device_mapping::port)
-                    dev_asp_.register_device(dynamic_cast<mapped_device_ptr>(dev_ptr.get()), dev_cfg.addr_range);
-
-                devs_[next_dev_id_] = { next_dev_id_, std::move(dev_ptr), mapping };
-
-                return next_dev_id_++;
+                    io_manager_->add_device(std::move(dev_ptr), dev_cfg);
             }
 
-            void remove_device(identifier_t dev_id) override
+            byte_t get_mem_byte(address_t location) const override
             {
-                auto dev_it = devs_.find(dev_id);
-                if (dev_it == devs_.end())
-                    throw invalid_identifier("Device with this ID wasn't registered.");
-
-                const auto &info = dev_it->second;
-
-                if (info.mapping == device_mapping::memory)
-                    mem_asp_.unregister_device(dynamic_cast<mapped_device_ptr>(info.ptr.get()));
-                else if (info.mapping == device_mapping::port)
-                    dev_asp_.unregister_device(dynamic_cast<mapped_device_ptr>(info.ptr.get()));
+                return mem_manager_->template read<byte_t>(location);
+            }
+            void set_mem_byte(address_t location, byte_t value) override
+            {
+                mem_manager_->template write<byte_t>(location, value);
             }
 
         protected:
+            virtual status execute_single_() = 0;
             virtual void clear_internals_() = 0;
 
             template <typename T, typename = meta::is_storage_t<T>>
-            T read_(address_t location) const { return mem_asp_.template read<T>(util::const_bin_util<T>::address_rounded(location)); }
+            T read_(address_t location) const { return mem_manager_->template read<T>(location); }
             template <typename T, typename = meta::is_storage_t<T>>
-            void write_(address_t location, T value) { mem_asp_.template write<T>(util::const_bin_util<T>::address_rounded(location), value); }
+            void write_(address_t location, T value) { mem_manager_->template write<T>(location, value); }
 
             template <typename T, typename = meta::is_storage_t<T>>
-            T read_dev_(address_t location) const { return dev_asp_.template read<T>(util::const_bin_util<T>::address_rounded(location)); }
+            T io_read_(address_t location) const { return io_manager_->template read<T>(location); }
             template <typename T, typename = meta::is_storage_t<T>>
-            void write_dev_(address_t location, T value) { dev_asp_.template write<T>(util::const_bin_util<T>::address_rounded(location), value); }
+            void io_write_(address_t location, T value) { io_manager_->template write<T>(location, value); }
 
         private:
-            config_type             cfg_;
-            address_space_type      mem_asp_;
-            address_space_type      dev_asp_;
-            identifier_t            mem_id_;
-            std::unordered_map<identifier_t, device_info> devs_;    /* Pointers and info about all used devices */
-            identifier_t            next_dev_id_ = 0;               /* Next unique ID to be assigned to a device upon registration */
-            // TODO: Interrupt handling
+            config_type cfg_;
 
+            device_manager_ptr mem_manager_ = nullptr;
+            device_manager_ptr io_manager_ = nullptr;
     };
 
 }
