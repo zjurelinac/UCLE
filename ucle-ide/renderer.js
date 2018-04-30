@@ -19,6 +19,8 @@ loader().then((monaco) => {
 		label: 'HELLO'
 	}));*/
 
+	friscAssembly = require("./scripts/frisc_language")(monaco);
+
 	monaco.editor.defineTheme('myTheme', {
 		base: 'vs',
 		inherit: true,
@@ -39,13 +41,14 @@ loader().then((monaco) => {
 	});
 
 	const fileManager = new FileManager({ editor, monaco });
-
 	const ucleTabs = new UCLETabs({ editor, monaco });
 	ucleTabs.init(el, { tabOverlapDistance: 14, minWidth: 45, maxWidth: 243 });
+	quickTools = require("./scripts/quick_tools")(fileManager,ucleTabs);
 
 	editor.onDidChangeModelContent(function(e) {
 		if(!initType && !ucleTabs.currentTab) {
 			ucleTabs.addTab(null, false);
+			ucleTabs.changeEditorLanguage(ucleTabs.currentTab, ".s");
 			initType = true;
 		}
 	});
@@ -84,9 +87,6 @@ loader().then((monaco) => {
 			ucleTabs.updateTabContent(currTab);
 		}
 	});
-
-	quickTools = require("./scripts/quick_tools")(fileManager,ucleTabs);
-	friscAssembly = require("./scripts/frisc_language")(monaco);
 
 	/*document.getElementById("quick-tools").addEventListener("contextmenu", function(e) {
 		ctxMenu.popup(remote.getCurrentWindow(), { x: e.x, y: e.y})
