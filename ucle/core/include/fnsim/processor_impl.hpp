@@ -49,7 +49,7 @@ namespace ucle::fnsim {
             template <typename T, typename = meta::is_storage_t<T>>
             void write(address_t location, T value) { asp_.template write<T>(util::const_bin_util<T>::address_rounded(location), value); }
 
-            bool is_address_valid(address_t location) { return asp_.is_address_valid(location); }
+            bool is_address_valid(address_t location) { return location == util::const_bin_util<word_t>::address_rounded(location) &&  asp_.is_address_valid(location); }
 
         private:
             address_space_type asp_;
