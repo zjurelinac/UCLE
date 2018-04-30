@@ -63,6 +63,15 @@ namespace ucle::fnsim {
                 return dev_ptr->template write<T>(location - dev_range.low_addr, value);
             }
 
+            bool is_address_valid(address_type location)
+            {
+                for (const auto& dev : devices_)
+                    if (dev.first.contains(location))
+                        return true;
+
+                return false;
+            }
+
         protected:
             auto find_device_(address_type location) const
             {

@@ -49,6 +49,8 @@ namespace ucle::fnsim {
             template <typename T, typename = meta::is_storage_t<T>>
             void write(address_t location, T value) { asp_.template write<T>(util::const_bin_util<T>::address_rounded(location), value); }
 
+            bool is_address_valid(address_t location) { return asp_.is_address_valid(location); }
+
         private:
             address_space_type asp_;
             std::vector<device_ptr> devices_;
@@ -129,6 +131,8 @@ namespace ucle::fnsim {
             {
                 mem_manager_->template write<byte_t>(location, value);
             }
+
+            bool is_mem_address_valid(address_t location) override { return mem_manager_->is_address_valid(location); }
 
         protected:
             virtual status execute_single_() = 0;
