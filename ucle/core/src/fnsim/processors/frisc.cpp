@@ -204,7 +204,7 @@ constexpr bool fnsim::frisc_simulator::eval_cond_(word_t cond) const
     }
 }
 
-fnsim::status fnsim::frisc_simulator::execute_single() {
+fnsim::status fnsim::frisc_simulator::execute_single_() {
     reg<32> IR = read_<word_t>(address_t(regs_.PC));
     regs_.PC += 4;
 
