@@ -53,6 +53,7 @@ namespace ucle::fnsim {
         invalid_instruction,
         invalid_program,
         invalid_argument,
+        invalid_memory_location,
         runtime_exception,
         filesystem_error,
         generic_error
@@ -61,17 +62,18 @@ namespace ucle::fnsim {
     inline std::string to_string(status stat)
     {
         switch (stat) {
-            case status::ok:                    return "ok";
-            case status::invalid_state:         return "invalid state";
-            case status::invalid_address_range: return "invalid address range";
-            case status::invalid_identifier:    return "invalid identifier";
-            case status::invalid_instruction:   return "invalid instruction";
-            case status::invalid_program:       return "invalid program";
-            case status::invalid_argument:      return "invalid argument";
-            case status::runtime_exception:     return "runtime exception";
-            case status::filesystem_error:      return "filesystem error";
-            case status::generic_error:         return "generic error";
-            default:                            return "unknown";
+            case status::ok:                        return "ok";
+            case status::invalid_state:             return "invalid state";
+            case status::invalid_address_range:     return "invalid address range";
+            case status::invalid_identifier:        return "invalid identifier";
+            case status::invalid_instruction:       return "invalid instruction";
+            case status::invalid_program:           return "invalid program";
+            case status::invalid_argument:          return "invalid argument";
+            case status::invalid_memory_location:   return "invalid memory location";
+            case status::runtime_exception:         return "runtime exception";
+            case status::filesystem_error:          return "filesystem error";
+            case status::generic_error:             return "generic error";
+            default:                                return "unknown";
         }
     }
 

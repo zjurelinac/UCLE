@@ -314,6 +314,9 @@ namespace ucle::fnsim {
         if (fnsim_->get_state() != simulator_state::loaded)
             return status::invalid_state;
 
+        if (!fnsim_->is_mem_address_valid(start_location))
+            return status::invalid_memory_location;
+
         fnsim_->set_state(simulator_state::stopped);
         fnsim_->set_program_counter(start_location);
 
@@ -324,6 +327,9 @@ namespace ucle::fnsim {
     inline status functional_simulation<has_bps, has_wts, has_ans, has_etr, AT, BP, WP, AP, EP>::run(address_type start_location) noexcept {
         if (fnsim_->get_state() != simulator_state::loaded)
             return status::invalid_state;
+
+        if (!fnsim_->is_mem_address_valid(start_location))
+            return status::invalid_memory_location;
 
         fnsim_->set_state(simulator_state::running);
         fnsim_->set_program_counter(start_location);
@@ -374,6 +380,9 @@ namespace ucle::fnsim {
     inline status functional_simulation<has_bps, has_wts, has_ans, has_etr, AT, BP, WP, AP, EP>::until(address_type location) noexcept {
         if (fnsim_->get_state() != simulator_state::stopped)
             return status::invalid_state;
+
+        if (!fnsim_->is_mem_address_valid(location))
+            return status::invalid_memory_location;
 
         fnsim_->set_state(simulator_state::running);
 
