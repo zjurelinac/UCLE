@@ -19,13 +19,12 @@ namespace ucle::fnsim {
             virtual status execute_single() = 0;
             virtual void reset() = 0;
 
-            virtual byte_t get_byte(address_t location) const = 0;
-            virtual void set_byte(address_t location, byte_t value) = 0;
+            virtual byte_t get_mem_byte(address_t location) const = 0;
+            virtual void set_mem_byte(address_t location, byte_t value) = 0;
 
             virtual register_info get_reg_info() = 0;
 
-            virtual identifier_t add_device(device_ptr dev_ptr, device_config cfg) = 0;
-            virtual void remove_device(identifier_t dev_id) = 0;
+            virtual void add_device(device_ptr dev_ptr, device_config cfg) = 0;
 
             auto get_state() { return state_; }
             void set_state(simulator_state state) { state_ = state; }
