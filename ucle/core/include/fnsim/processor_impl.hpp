@@ -101,10 +101,10 @@ namespace ucle::fnsim {
             void reset() override
             {
                 clear_internals_();
-                mem_manager_.reset();
+                mem_manager_->reset();
 
                 if (io_manager_ != nullptr)
-                    io_manager_.reset();
+                    io_manager_->reset();
             }
 
             void add_device(device_ptr dev_ptr, device_config dev_cfg) override
