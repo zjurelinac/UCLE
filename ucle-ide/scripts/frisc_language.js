@@ -1,201 +1,6 @@
 module.exports = (monaco) => {
-	monaco.languages.register({
-		id: 's',
-		extensions: [
-			'.s',
-		]
-	});
 
-	function createDependencyProposals() {
-		return [
-			{
-				label:"ADD",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src1 + src2 -> dest",
-				insertText: {
-					value: "ADD ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"ADC src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src1 + src2 + C -> dest",
-				insertText: {
-					value: "ADC ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"SUB src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src1 - src2 -> dest",
-				insertText: {
-					value: "SUB ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"SBC src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src1 - src2 + C -> dest",
-				insertText: {
-					value: "SBC ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"CMP src1, src2",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src1 - src2",
-				insertText: {
-					value: "CMP ${1:src1}, ${2:src2}"
-				}
-			},
-			{
-				label:"AND src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src1 AND src -> dest",
-				insertText: {
-					value: "AND ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"OR src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src1 OR src2 -> dest",
-				insertText: {
-					value: "OR ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"XOR src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src1 XOR src2 -> dest",
-				insertText: {
-					value: "XOR ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"SHL src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "",
-				insertText: {
-					value: "SHL ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"SHR src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "",
-				insertText: {
-					value: "SHR ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"ASHR src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "",
-				insertText: {
-					value: "ADD ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"ROTL src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "",
-				insertText: {
-					value: "ROTL ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"ROTR src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src1 + src2 + C -> dest",
-				insertText: {
-					value: "ADD ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"MOVE src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src2 -> dest",
-				insertText: {
-					value: "MOVE ${1:src2}, ${2:dest}"
-				}
-			},
-			{
-				label:"MOVE SR, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "SR -> dest",
-				insertText: {
-					value: "MOVE SR, ${1:dest}"
-				}
-			},
-			{
-				label:"MOVE src2, SR",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src2 -> SR",
-				insertText: {
-					value: "MOVE ${1:src2}, SR"
-				}
-			},
-			{
-				label:"LOAD dest, (adr20)",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "MEM(ext adr20) -> dest",
-				insertText: {
-					value: "LOAD ${1:dest}, (${2:adr20})"
-				}
-			},
-			{
-				label:"LOADB dest, (adr20)",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "MEM(ext adr20) -> dest",
-				insertText: {
-					value: "LOADB ${1:dest}, (${2:adr20})"
-				}
-			},
-			{
-				label:"LOADH dest, (adr20)",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "MEM(ext adr20) -> dest",
-				insertText: {
-					value: "LOADH ${1:dest}, (${2:adr20})"
-				}
-			},
-			{
-				label:"ADC src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src1 + src2 + C -> dest",
-				insertText: {
-					value: "ADD ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"ADC src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src1 + src2 + C -> dest",
-				insertText: {
-					value: "ADD ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-			{
-				label:"ADC src1, src2, dest",
-				kind: monaco.languages.CompletionItemKind.Function,
-				documentation: "src1 + src2 + C -> dest",
-				insertText: {
-					value: "ADD ${1:src1}, ${2:src2}, ${3:dest}"
-				}
-			},
-		];
-	}
-
-	monaco.languages.registerCompletionItemProvider('s', {
-		triggerCharacters: [' '],
-		provideCompletionItems: function(model, position, token) {
-			return createDependencyProposals();
-		}
-	});
-
-	monaco.languages.setMonarchTokensProvider('s', {
-		keywords: [
+	var keywords = [
 			'ADD', 'ADC', 'SUB', 'SBC', 'CMP', 'AND', 'OR',
 			'XOR', 'SHL', 'SHR', 'ASHR', 'ROTL', 'ROTR', 'MOVE',
 			'LOAD', 'LOADB', 'LOADH', 'STORE', 'STOREB', 'STOREH',
@@ -232,7 +37,338 @@ module.exports = (monaco) => {
 			'HALT_NZ', 'HALT_EQ', 'HALT_NE', 'HALT_ULE',
 			'HALT_UGT','HALT_ULT', 'HALT_UGE', 'HALT_SLE',
 			'HALT_SGT', 'HALT_SLT', 'HALT_SGE'
-		],
+	];
+
+	monaco.languages.register({
+		id: 's',
+		extensions: [
+			'.s',
+		]
+	});
+
+	function getFriscCompletionProvider() {
+		return {
+			
+		};
+	}
+
+	function getAreaInfo(text) {
+		var item = ';';
+		var isCompletionAvailable = true;
+
+		text = text.replace(/;.*\n/g, "");
+
+		var itemIdx = text.indexOf(item);
+		if (itemIdx > -1) {
+			text = text.substring(0, itemIdx);
+			isCompletionAvailable = false;
+		}
+		return {
+			isCompletionAvailable: isCompletionAvailable,
+			clearedText: text
+		};
+	}
+
+	function checkIfWordBasedSuggestion(textUntilPosition) {
+		return keywords.some(function(keyword) {
+			if(keyword.includes(textUntilPosition)) {
+				return true;
+			}
+		});
+	}
+
+	function checkIfCond(textUntilPosition) {
+		return (textUntilPosition.charAt(textUntilPosition.length-1) == '_');
+	}
+
+	monaco.languages.registerCompletionItemProvider('s', {
+		triggerCharacters:[' ', '_'],
+		provideCompletionItems: function (model, position) {
+				// get editor content before the pointer
+				let textUntilPosition = model.getValueInRange({startLineNumber: position.lineNumber, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
+				let info = getAreaInfo(textUntilPosition); // isCompletionAvailable, clearedText
+
+				if(!info.isCompletionAvailable || !checkIfWordBasedSuggestion(textUntilPosition)) {
+					return [];
+				} else if(checkIfCond(textUntilPosition)) {
+					console.log("usao");
+					return [{label: textUntilPosition + 'C'},{label: textUntilPosition + 'NC'},
+						{label: textUntilPosition + 'V'},{label: textUntilPosition + 'NV'},
+						{label: textUntilPosition + 'N'},{label: textUntilPosition + 'NN'},
+						{label: textUntilPosition + 'M'},{label: textUntilPosition + 'P'},
+						{label: textUntilPosition + 'Z'},{label: textUntilPosition + 'NZ'},
+						{label: textUntilPosition + 'EQ'},{label: textUntilPosition + 'NE'},
+						{label: textUntilPosition + 'ULE'},{label: textUntilPosition + 'UGT'},
+						{label: textUntilPosition + 'ULT'},{label: textUntilPosition + 'UGE'},
+						{label: textUntilPosition + 'SLE'},{label: textUntilPosition + 'SGT'},
+						{label: textUntilPosition + 'SLT'},{label: textUntilPosition + 'SGE'}];
+				}
+
+				return [
+					{
+						label:"ADD src1, src2, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "src1 + src2 -> dest",
+						insertText: {
+							value: "ADD ${1:src1}, ${2:src2}, ${3:dest}$0"
+						}
+					},
+					{
+						label:"ADC src1, src2, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "src1 + src2 + C -> dest",
+						insertText: {
+							value: "ADC ${1:src1}, ${2:src2}, ${3:dest}$0"
+						}
+					},
+					{
+						label:"SUB src1, src2, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "src1 - src2 -> dest",
+						insertText: {
+							value: "SUB ${1:src1}, ${2:src2}, ${3:dest}$0"
+						}
+					},
+					{
+						label:"SBC src1, src2, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "src1 - src2 + C -> dest",
+						insertText: {
+							value: "SBC ${1:src1}, ${2:src2}, ${3:dest}$0"
+						}
+					},
+					{
+						label:"CMP src1, src2",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "src1 - src2",
+						insertText: {
+							value: "CMP ${1:src1}, ${2:src2}$0"
+						}
+					},
+					{
+						label:"AND src1, src2, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "src1 AND src -> dest",
+						insertText: {
+							value: "AND ${1:src1}, ${2:src2}, ${3:dest}$0"
+						}
+					},
+					{
+						label:"OR src1, src2, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "src1 OR src2 -> dest",
+						insertText: {
+							value: "OR ${1:src1}, ${2:src2}, ${3:dest}$0"
+						}
+					},
+					{
+						label:"XOR src1, src2, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "src1 XOR src2 -> dest",
+						insertText: {
+							value: "XOR ${1:src1}, ${2:src2}, ${3:dest}$0"
+						}
+					},
+					{
+						label:"SHL src1, src2, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "",
+						insertText: {
+							value: "SHL ${1:src1}, ${2:src2}, ${3:dest}$0"
+						}
+					},
+					{
+						label:"SHR src1, src2, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "",
+						insertText: {
+							value: "SHR ${1:src1}, ${2:src2}, ${3:dest}$0"
+						}
+					},
+					{
+						label:"ASHR src1, src2, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "",
+						insertText: {
+							value: "ADD ${1:src1}, ${2:src2}, ${3:dest}$0"
+						}
+					},
+					{
+						label:"ROTL src1, src2, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "",
+						insertText: {
+							value: "ROTL ${1:src1}, ${2:src2}, ${3:dest}$0"
+						}
+					},
+					{
+						label:"ROTR src1, src2, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "src1 + src2 + C -> dest",
+						insertText: {
+							value: "ADD ${1:src1}, ${2:src2}, ${3:dest}$0"
+						}
+					},
+					{
+						label:"MOVE src2, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "src2 -> dest",
+						insertText: {
+							value: "MOVE ${1:src2}, ${2:dest}$0"
+						}
+					},
+					{
+						label:"MOVE SR, dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "SR -> dest",
+						insertText: {
+							value: "MOVE SR, ${1:dest}$0"
+						}
+					},
+					{
+						label:"MOVE src2, SR",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "src2 -> SR",
+						insertText: {
+							value: "MOVE ${1:src2}, SR$0"
+						}
+					},
+					{
+						label:"LOAD{B,H} dest, (adr20)",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "MEM(ext adr20) -> dest",
+						insertText: {
+							value: "LOAD${1| ,B ,H |}, (${2:adr20})$0"
+						},
+					},
+					{
+						label:"LOAD{B,H} dest, (adrreg + offset20)",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "MEM(adrreg + ext offset20) -> dest",
+						insertText: {
+							value: "LOAD${1| ,B ,H |}, (${2:adrreg} + ${3:offset20})$0"
+						}
+					},
+					{
+						label:"STORE{B,H} src1, (adr20)",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "src1 -> MEM(ext adr20)",
+						insertText: {
+							value: "STORE${1| ,B ,H |}, (${2:adr20})"
+						}
+					},
+					{
+						label:"STORE{B,H} src1, (adrreg + offset20)",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "src1 -> MEM(adrreg + ext offset20)",
+						insertText: {
+							value: "STORE${1| ,B ,H |}, (${2:adrreg} + ${3:offset20}})$0"
+						}
+					},
+					{
+						label:"PUSH src1",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "R7 – 4 -> R7; src1 -> MEM(R7)",
+						insertText: {
+							value: "PUSH ${1:src1}$0"
+						}
+					},
+					{
+						label:"POP dest",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "MEM(R7) -> dest;  R7 + 4 -> R7",
+						insertText: {
+							value: "POP ${1:dest}$0"
+						}
+					},
+					{
+						label:"JP{cond} adr20",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "ext adr20 -> PC",
+						insertText: {
+							value: "JP${1| ,_C ,_NC ,_V ,_NV ,_N ,_NN ,_M ,_P ,_Z ,_NZ ,_EQ ," + 
+									"_NE ,_ULE ,_UGT ,_ULT ,_UGE ,_SLE ,_SGT ,_SLT ,_SGE |}$0"
+						}
+					},
+					{
+						label:"JP{cond} (adrreg)",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "adrreg -> PC",
+						insertText: {
+							value: "JP${1| ,_C ,_NC ,_V ,_NV ,_N ,_NN ,_M ,_P ,_Z ,_NZ ,_EQ ," + 
+									"_NE ,_ULE ,_UGT ,_ULT ,_UGE ,_SLE ,_SGT ,_SLT ,_SGE |}(${2:adrreg})$0"
+						}
+					},
+					{
+						label:"JR{cond} adr",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "PC + ext offset20 -> PC",
+						insertText: {
+							value: "JR${1| ,_C ,_NC ,_V ,_NV ,_N ,_NN ,_M ,_P ,_Z ,_NZ ,_EQ ," + 
+									"_NE ,_ULE ,_UGT ,_ULT ,_UGE ,_SLE ,_SGT ,_SLT ,_SGE |}$0"
+						}
+					},
+					{
+						label:"CALL{cond} adr20",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "R7 – 4 -> R7; PC -> MEM(R7); ext adr20 -> PC",
+						insertText: {
+							value: "CALL${1| ,_C ,_NC ,_V ,_NV ,_N ,_NN ,_M ,_P ,_Z ,_NZ ,_EQ ," + 
+									"_NE ,_ULE ,_UGT ,_ULT ,_UGE ,_SLE ,_SGT ,_SLT ,_SGE |}$0"
+						}
+					},
+					{
+						label:"CALL{cond} (adrreg)",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "R7 – 4 -> R7; PC -> MEM(R7); adrreg -> PC",
+						insertText: {
+							value: "CALL${1| ,_C ,_NC ,_V ,_NV ,_N ,_NN ,_M ,_P ,_Z ,_NZ ,_EQ ," + 
+									"_NE ,_ULE ,_UGT ,_ULT ,_UGE ,_SLE ,_SGT ,_SLT ,_SGE |}(${2:adrreg})$0"
+						}
+					},
+					{
+						label:"RET{cond}",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "MEM(R7) -> PC; R7 + 4 -> R7",
+						insertText: {
+							value: "RET${1|_C,_NC,_V,_NV,_N,_NN,_M,_P,_Z,_NZ,_EQ," + 
+									"_NE,_ULE,_UGT,_ULT,_UGE,_SLE,_SGT,_SLT,_SGE|}$0"
+						}
+					},
+					{
+						label:"RETI{cond}",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "MEM(R7) -> PC; R7 + 4 -> R7; 1 -> GIE",
+						insertText: {
+							value: "RETI${1|_C,_NC,_V,_NV,_N,_NN,_M,_P,_Z,_NZ,_EQ," + 
+									"_NE,_ULE,_UGT,_ULT,_UGE,_SLE,_SGT,_SLT,_SGE|}$0"
+						}
+					},
+					{
+						label:"RETN{cond}",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "MEM(R7) -> PC; R7 + 4 -> R7; 1 -> IIF",
+						insertText: {
+							value: "RETN${1|_C,_NC,_V,_NV,_N,_NN,_M,_P,_Z,_NZ,_EQ," + 
+									"_NE,_ULE,_UGT,_ULT,_UGE,_SLE,_SGT,_SLT,_SGE|}$0"
+						}
+					},
+					{
+						label:"HALT{cond}",
+						kind: monaco.languages.CompletionItemKind.Function,
+						documentation: "Stop the processor",
+						insertText: {
+							value: "HALT${1|_C,_NC,_V,_NV,_N,_NN,_M,_P,_Z,_NZ,_EQ," + 
+									"_NE,_ULE,_UGT,_ULT,_UGE,_SLE,_SGT,_SLT,_SGE|}$0"
+						}
+					},
+				];
+			}
+		}
+	);
+
+	monaco.languages.setMonarchTokensProvider('s', {
+		keywords: keywords,
 
 		typeKeywords: [
 			'EQU', 'DW', 'DH', 'DB', 'DS'
