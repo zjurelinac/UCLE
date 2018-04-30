@@ -54,7 +54,8 @@ namespace ucle::fnsim {
         invalid_program,
         invalid_argument,
         runtime_exception,
-        filesystem_error
+        filesystem_error,
+        generic_error
     };
 
     inline std::string to_string(status stat)
@@ -69,6 +70,7 @@ namespace ucle::fnsim {
             case status::invalid_argument:      return "invalid argument";
             case status::runtime_exception:     return "runtime exception";
             case status::filesystem_error:      return "filesystem error";
+            case status::generic_error:         return "generic error";
             default:                            return "unknown";
         }
     }
@@ -87,9 +89,10 @@ namespace ucle::fnsim {
 
     struct processor_config {
         size_t              mem_size;
-        address_range<>     mem_addr_range      = {0, 0xFFFFFFFF};
-        device_mapping      default_mapping     = device_mapping::memory;
-        address_range<>     dev_addr_range      = {0, 0};
+        address_range<>     mem_addr_range          = {0, 0xFFFFFFFF};
+        bool                separate_device_mapping = false;
+        address_range<>     dev_addr_range          = {0, 0};
+        device_mapping      default_mapping         = device_mapping::memory;
     };
 
     struct simulation_config {

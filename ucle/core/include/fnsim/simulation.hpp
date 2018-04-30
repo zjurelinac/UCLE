@@ -201,27 +201,18 @@ namespace ucle::fnsim {
             void set_memory_contents(address_type location, small_byte_vector& bytes)
             {
                 for (auto i = 0u; i < bytes.size(); ++i)
-                    fnsim_->set_byte(location++, bytes[i]);
+                    fnsim_->set_mem_byte(location++, bytes[i]);
             }
 
             // Devices
 
-            std::optional<identifier_t> add_device(device_ptr dev_ptr, device_config cfg) noexcept
+            status add_device(device_ptr dev_ptr, device_config cfg) noexcept
             {
                 try {
-                    return fnsim_->add_device(std::move(dev_ptr), cfg);
-                } catch (std::exception &e) {
-                    return std::nullopt;
-                }
-            }
-
-            status remove_device(identifier_t dev_id) noexcept
-            {
-                try {
-                    fnsim_->remove_device(dev_id);
+                    fnsim_->add_device(std::move(dev_ptr), cfg);
                     return status::ok;
                 } catch (std::exception &e) {
-                    return status::invalid_identifier;
+                    return status::generic_error;
                 }
             }
 
