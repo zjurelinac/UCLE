@@ -30,6 +30,8 @@ namespace ucle::fnsim {
             using address_space_type = AddressSpace<mapped_device_type>;
             using mapped_device_ptr = typename address_space_type::mapped_device_ptr;
 
+            using cbu = util::const_bin_util<address_type>;
+
             device_manager(address_range_type addr_range) : asp_ (addr_range) {}
 
             void add_device(device_ptr dev_ptr, device_config dev_cfg)
@@ -45,11 +47,11 @@ namespace ucle::fnsim {
             }
 
             template <typename T, typename = meta::is_storage_t<T>>
-            T read(address_t location) const { return asp_.template read<T>(util::const_bin_util<T>::address_rounded(location)); }
+            T read(address_type location) const { return asp_.template read<T>(cbu::address_rounded(location, sizeof(T))); }
             template <typename T, typename = meta::is_storage_t<T>>
-            void write(address_t location, T value) { asp_.template write<T>(util::const_bin_util<T>::address_rounded(location), value); }
+            void write(address_type location, T value) { asp_.template write<T>(cbu::address_rounded(location, sizeof(T)), value); }
 
-            bool is_address_valid(address_t location) { return location == util::const_bin_util<word_t>::address_rounded(location) &&  asp_.is_address_valid(location); }
+            bool is_address_valid(address_type location) { return location == cbu::address_rounded(location, sizeof(address_type)) &&  asp_.is_address_valid(location); }
 
         private:
             address_space_type asp_;

@@ -21,7 +21,7 @@ namespace ucle::util {
         static constexpr auto low_n_bits(index_t n) { return (static_cast<T>(1) << n) - 1; }
 
         static constexpr auto rot_mask() { return bitsize() - 1; }
-        static constexpr auto address_round_mask() { return ~(sizeof(T) - 1); }
+        static constexpr auto address_round_mask(index_t round_bytes) { return ~(round_bytes - 1); }
 
         // Operations with an operand
 
@@ -36,10 +36,12 @@ namespace ucle::util {
         static constexpr bool all_but_high_bit_set(T x) { return x == ~high_bit(); }
 
         static constexpr auto rot_masked(T x) { return x & rot_mask(); }
-        static constexpr auto address_rounded(T x) { return x & address_round_mask(); }
+        static constexpr auto address_rounded(T x, index_t round_bytes) { return x & address_round_mask(round_bytes); }
         static constexpr auto shift_clipped(T x) { return std::min(x, static_cast<T>(bitsize()));}
 
         static constexpr auto nth_byte_of(T x, index_t n) { return (x & (static_cast<T>(0xFF) << (8 * n))) >> (8 * n); }
+        static constexpr auto nth_half_of(T x, index_t n) { return (x & (static_cast<T>(0xFFFF) << (16 * n))) >> (16 * n); }
+        static constexpr auto nth_word_of(T x, index_t n) { return (x & (static_cast<T>(0xFFFFFFFF) << (32 * n))) >> (32 * n); }
     };
 
 }
