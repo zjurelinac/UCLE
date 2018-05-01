@@ -135,7 +135,7 @@ namespace ucle::fnsim {
             auto get_info() { return exec_info_; }
 
         private:
-            counter_t instr_cnt_ = 0;
+            counter_t instr_cnt_ {0};
             time_point exec_start_ {};
             execution_info exec_info_ {};
     };

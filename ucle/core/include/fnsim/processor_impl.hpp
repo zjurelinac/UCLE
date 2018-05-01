@@ -22,6 +22,14 @@ namespace ucle::fnsim {
               typename AddressSpace                     // Processor's address space class
     >
     class device_manager {
+
+        struct worker_info {
+            device* dev;
+            size_t work_cycle_period;
+            bool does_int = false;
+            priority_t int_prio = 0;
+        };
+
         public:
             using address_type = AddressType;
             using address_range_type = address_range<address_type>;
@@ -32,15 +40,31 @@ namespace ucle::fnsim {
 
             using cbu = util::const_bin_util<address_type>;
 
+        public:
             device_manager(address_range_type addr_range) : asp_ (addr_range) {}
 
             void add_device(device_ptr dev_ptr, device_config dev_cfg)
             {
                 asp_.register_device(dynamic_cast<mapped_device_ptr>(dev_ptr.get()), { dev_cfg.start_address, dev_cfg.start_address + dev_cfg.addr_space_size - 1 });
+
+                if (dev_cfg.does_work)
+                    workers_.push_back({ dev_ptr.get(), dev_cfg.work_cycle_period, dev_cfg.uses_interrupts, dev_cfg.interrupt_priority });
+
                 devices_.push_back(std::move(dev_ptr));
             }
 
-            void reset()
+            void do_work()
+            {
+                for (const auto& worker : workers_)
+                    if (cycle_cnt_ % worker.work_cycle_period == 0) {
+                        worker.dev->work();
+                        // ...
+                    }
+
+                ++cycle_cnt_;
+            }
+
+            void do_reset()
             {
                 for (auto &dev : devices_)
                     dev->reset();
@@ -56,6 +80,9 @@ namespace ucle::fnsim {
         private:
             address_space_type asp_;
             std::vector<device_ptr> devices_;
+            std::vector<worker_info> workers_;
+
+            counter_t cycle_cnt_ {0};
     };
 
     template <byte_order endianness,                    // Is processor little- or big-endian
@@ -100,16 +127,23 @@ namespace ucle::fnsim {
 
             status execute_single() override
             {
-                return execute_single_();
+                auto stat = execute_single_();
+
+                mem_manager_->do_work();
+
+                if (io_manager_ != nullptr)
+                    io_manager_->do_work();
+
+                return stat;
             };
 
             void reset() override
             {
                 clear_internals_();
-                mem_manager_->reset();
+                mem_manager_->do_reset();
 
                 if (io_manager_ != nullptr)
-                    io_manager_->reset();
+                    io_manager_->do_reset();
             }
 
             void add_device(device_ptr dev_ptr, device_config dev_cfg) override

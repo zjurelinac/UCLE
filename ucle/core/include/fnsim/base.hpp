@@ -86,6 +86,8 @@ namespace ucle::fnsim {
         address_t           start_address       = 0;
         size_t              addr_space_size     = 0;
         device_class        dev_class           = device_class::addressable_device;
+        bool                does_work           = false;
+        size_t              work_cycle_period   = 0;
         bool                uses_interrupts     = false;
         priority_t          interrupt_priority  = 0;
     };
