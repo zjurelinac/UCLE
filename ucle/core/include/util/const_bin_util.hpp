@@ -42,6 +42,14 @@ namespace ucle::util {
         static constexpr auto nth_byte_of(T x, index_t n) { return (x & (static_cast<T>(0xFF) << (8 * n))) >> (8 * n); }
         static constexpr auto nth_half_of(T x, index_t n) { return (x & (static_cast<T>(0xFFFF) << (16 * n))) >> (16 * n); }
         static constexpr auto nth_word_of(T x, index_t n) { return (x & (static_cast<T>(0xFFFFFFFF) << (32 * n))) >> (32 * n); }
+
+        static constexpr auto clear_nth_byte_of(T x, index_t n) { return x & ~(static_cast<T>(0xFF) << (8 * n)); }
+        static constexpr auto clear_nth_half_of(T x, index_t n) { return x & ~(static_cast<T>(0xFFFF) << (16 * n)); }
+        static constexpr auto clear_nth_word_of(T x, index_t n) { return x & ~(static_cast<T>(0xFFFFFFFF) << (32 * n)); }
+
+        static constexpr auto set_nth_byte_of(T x, index_t n, byte_t value) { return clear_nth_byte_of(x, n) | (value << (8 * n)); }
+        static constexpr auto set_nth_half_of(T x, index_t n, half_t value) { return clear_nth_half_of(x, n) | (value << (16 * n)); }
+        static constexpr auto set_nth_word_of(T x, index_t n, word_t value) { return clear_nth_word_of(x, n) | (value << (32 * n)); }
     };
 
 }
