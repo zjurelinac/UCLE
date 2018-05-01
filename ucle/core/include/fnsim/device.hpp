@@ -18,9 +18,11 @@ namespace ucle::fnsim {
         public:
             virtual ~device() = default;
 
+            virtual device_status status() = 0;
             virtual void work() = 0;
-            virtual void status() = 0;
             virtual void reset() = 0;
+
+            virtual bool is_worker() = 0;
     };
 
     using device_ptr = std::unique_ptr<device>;
@@ -127,8 +129,10 @@ namespace ucle::fnsim {
             using memory_block_device<endianness>::memory_block_device;
             using memory_block_device<endianness>::operator=;
 
+            device_status status() override {  return device_status::idle; }
             void work() override {}
-            void status() override {}
+
+            bool is_worker() override { return false; }
     };
 
     template<unsigned reg_num, unsigned reg_size, byte_order endianness = byte_order::little_endian, typename AddressType = address_t>

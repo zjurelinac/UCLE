@@ -80,14 +80,24 @@ namespace ucle::fnsim {
     constexpr bool is_success(status stat) { return stat == status::ok; }
     constexpr bool is_error(status stat) { return stat != status::ok; }
 
+    enum class device_status { idle, pending, interrupt };
+
+    inline std::string to_string(device_status stat)
+    {
+        switch (stat) {
+            case device_status::idle:           return "idle";
+            case device_status::pending:        return "pending";
+            case device_status::interrupt:      return "interrupt";
+            default:                            return "unknown";
+        }
+    }
+
     // Config structures
 
     struct device_config {
         address_t           start_address       = 0;
         size_t              addr_space_size     = 0;
         device_class        dev_class           = device_class::addressable_device;
-        bool                does_work           = false;
-        size_t              work_cycle_period   = 0;
         bool                uses_interrupts     = false;
         priority_t          interrupt_priority  = 0;
     };
@@ -95,7 +105,6 @@ namespace ucle::fnsim {
     struct processor_config {
         size_t              mem_size;
         address_range<>     mem_addr_range          = {0, 0xFFFFFFFF};
-        bool                separate_device_mapping = false;
         address_range<>     dev_addr_range          = {0, 0};
         device_mapping      default_mapping         = device_mapping::memory;
     };
