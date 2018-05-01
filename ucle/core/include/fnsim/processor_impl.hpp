@@ -34,7 +34,7 @@ namespace ucle::fnsim {
 
             void add_device(device_ptr dev_ptr, device_config dev_cfg)
             {
-                asp_.register_device(dynamic_cast<mapped_device_ptr>(dev_ptr.get()), dev_cfg.addr_range);
+                asp_.register_device(dynamic_cast<mapped_device_ptr>(dev_ptr.get()), { dev_cfg.start_address, dev_cfg.start_address + dev_cfg.addr_space_size - 1 });
                 devices_.push_back(std::move(dev_ptr));
             }
 
@@ -88,7 +88,7 @@ namespace ucle::fnsim {
             {
                 mem_manager_ = std::make_unique<device_manager_type>(cfg.mem_addr_range);
 
-                device_config mem_cfg { device_class::memory, {0, cfg.mem_size}, false, 0 };
+                device_config mem_cfg { 0, cfg.mem_size, device_class::memory, false, 0 };
                 mem_manager_->add_device(std::make_unique<memory_type>(cfg.mem_size), mem_cfg);
 
                 if (!cfg.separate_device_mapping) return;

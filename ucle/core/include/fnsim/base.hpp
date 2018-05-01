@@ -83,8 +83,9 @@ namespace ucle::fnsim {
     // Config structures
 
     struct device_config {
+        address_t           start_address       = 0;
+        size_t              addr_space_size     = 0;
         device_class        dev_class           = device_class::addressable_device;
-        address_range<>     addr_range          = {0, 0};
         bool                uses_interrupts     = false;
         priority_t          interrupt_priority  = 0;
     };
