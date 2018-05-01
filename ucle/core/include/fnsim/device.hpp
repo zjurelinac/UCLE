@@ -6,6 +6,8 @@
 #include <fnsim/address_space.hpp>
 #include <fnsim/registers.hpp>
 
+#include <util/const_bin_util.hpp>
+
 #include <array>
 #include <cstring>
 #include <memory>
@@ -129,13 +131,15 @@ namespace ucle::fnsim {
             void status() override {}
     };
 
-    /*
-    template<unsigned reg_num, unsigned reg_size, byte_order endianness, typename AddressType = address_t>
+    template<unsigned reg_num, unsigned reg_size, byte_order endianness = byte_order::little_endian, typename AddressType = address_t>
     class register_set_device : public mapped_device<endianness, AddressType> {
         public:
             using address_type = AddressType;
             using register_type = reg<reg_size>;
             using value_type = typename register_type::value_type;
+            using cbu = util::const_bin_util<value_type>;
+
+            constexpr static auto register_size = sizeof(typename register_type::value_type);
 
             register_set_device() = default;
 
@@ -147,43 +151,54 @@ namespace ucle::fnsim {
 
             ~register_set_device() override = default;
 
-            void reset() override { regs_.clear(); }
+            void reset() override { regs_.fill(0); }
 
         protected:
             byte_t read_byte_(address_type location) const override
             {
-                // return data_[location];
+                return cbu::nth_byte_of(read_word_(location), location & register_size);
             }
 
             half_t read_half_(address_type location) const override
             {
-                // return *(reinterpret_cast<half_t*>(&data_[location]));
+                if constexpr (register_size < sizeof(half_t))
+                    throw invalid_memory_access("Register size too small to read a half-word");
+
+                return cbu::nth_half_of(read_word_(location), (location & register_size) >> 1);
             }
 
             word_t read_word_(address_type location) const override
             {
-                // return *(reinterpret_cast<word_t*>(&data_[location]));
+                if constexpr (register_size < sizeof(word_t))
+                    throw invalid_memory_access("Register size too small to read a word");
+
+                return regs_[location / register_size];
             }
 
             void write_byte_(address_type location, byte_t value) override
             {
-                // data_[location] = value;
+                write_word_(location, cbu::set_nth_byte_of(regs_[location / register_size], location & register_size, value));
             }
 
             void write_half_(address_type location, half_t value) override
             {
-                // *(reinterpret_cast<half_t*>(&data_[location])) = value;
+                if constexpr (register_size < sizeof(half_t))
+                    throw invalid_memory_access("Register size too small to write a half-word");
+
+                write_word_(location, cbu::set_nth_half_of(regs_[location / register_size], (location & register_size) >> 1, value));
             }
 
             void write_word_(address_type location, word_t value) override
             {
-                // *(reinterpret_cast<word_t*>(&data_[location])) = value;
+                if constexpr (register_size < sizeof(word_t))
+                    throw invalid_memory_access("Register size too small to write a word");
+
+                regs_[location / register_size] = value;
             }
 
         private:
             std::array<register_type, reg_num> regs_;
     };
-    */
 }
 
 #endif  /* _UCLE_CORE_FNSIM_DEVICE_HPP_ */
