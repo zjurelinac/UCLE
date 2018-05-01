@@ -81,12 +81,12 @@ namespace ucle::fnsim {
             using memory_type = Memory<endianness, address_type>;
             using memory_ptr = std::unique_ptr<memory_type>;
 
-            using config_type = Config;
+            using processor_config_type = Config;
 
             using device_manager_type = DeviceManager;
             using device_manager_ptr = std::unique_ptr<device_manager_type>;
 
-            functional_processor_simulator_impl(config_type cfg) : cfg_{cfg}
+            functional_processor_simulator_impl(processor_config_type cfg) : cfg_{cfg}
             {
                 mem_manager_ = std::make_unique<device_manager_type>(cfg.mem_addr_range);
 
@@ -98,7 +98,10 @@ namespace ucle::fnsim {
                 io_manager_ = std::make_unique<device_manager_type>(cfg.dev_addr_range);
             }
 
-            status execute_single() override { return execute_single_(); };
+            status execute_single() override
+            {
+                return execute_single_();
+            };
 
             void reset() override
             {
@@ -151,7 +154,7 @@ namespace ucle::fnsim {
             void io_write_(address_t location, T value) { io_manager_->template write<T>(location, value); }
 
         private:
-            config_type cfg_;
+            processor_config_type cfg_;
 
             device_manager_ptr mem_manager_ = nullptr;
             device_manager_ptr io_manager_ = nullptr;
