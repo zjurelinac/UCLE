@@ -14,7 +14,7 @@ int main(int, char* argv[])
     functional_simulation<false, false, false, true> sim { frisc::make_frisc_simulator({ 4096 }) };
 
     auto ct_dev = std::make_shared<frisc::counter_timer>();
-    sim.add_device(ct_dev, { 0x10000, 16, device_class::addressable_device, true, frisc::frisc_int });
+    sim.add_device(ct_dev, { 0x10000, 16, device_class::addressable_device });
 
     sim.load_pfile(argv[1]);
     auto stat = sim.run();

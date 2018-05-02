@@ -36,7 +36,7 @@ namespace ucle::fnsim::frisc {
 
             device_status status() override
             {
-                if (status_ && should_interrupt_())
+                if (status_ && can_interrupt())
                     return device_status::interrupt;
                 else if (running_())
                     return device_status::pending;
@@ -51,7 +51,9 @@ namespace ucle::fnsim::frisc {
                 status_ = false;
             }
 
-            bool is_worker() override { return true; }
+            bool is_worker() override       { return true; }
+            bool can_interrupt() override   { return CR_[1]; }
+            priority_t interrupt_priority() { return CR_[2] ? frisc_nmi : frisc_int; }
 
         protected:
 
@@ -90,8 +92,6 @@ namespace ucle::fnsim::frisc {
 
         private:
             bool running_()          { return CR_[0]; }
-            bool should_interrupt_() { return CR_[1]; }
-            auto interrupt_level_()  { return CR_[2] ? frisc_int : frisc_nmi; }
 
             reg<32> CR_ { 0 };
             reg<16> LR_ { 0 };
