@@ -18,7 +18,7 @@ namespace ucle::fnsim {
               unsigned N,                               // Processor architecture - 8, 16, 32 or 64 bits
         template<byte_order, typename AddrType>
               typename MappedDeviceType,                // Base class for all devices that could be added to the simulator
-        template <typename MappedDevType>
+        template <unsigned AddrSpN, typename MappedDevType>
               typename AddressSpace,                    // Processor's address space class
 
               priority_t max_int_prio = 0               // Maximum processor interrupt level (0 = no interrupts)
@@ -36,7 +36,7 @@ namespace ucle::fnsim {
             using address_range_type = address_range<address_type>;
 
             using mapped_device_type = MappedDeviceType<endianness, address_type>;
-            using address_space_type = AddressSpace<mapped_device_type>;
+            using address_space_type = AddressSpace<N, mapped_device_type>;
             using mapped_device_ptr = typename address_space_type::mapped_device_ptr;
 
             using bitfield_type = bitfield<max_int_prio>;
@@ -118,7 +118,7 @@ namespace ucle::fnsim {
               unsigned N,                               // Processor architecture - 8, 16, 32 or 64 bits
         template<byte_order, typename AddrType>
               typename MappedDeviceType,                // Base class for all devices that could be added to the simulator
-        template <typename MappedDevType>
+        template <unsigned AddrSpN, typename MappedDevType>
               typename AddressSpace,                    // Processor's address space class
         template <byte_order, typename AddrType>
               typename Memory,                          // Processor's internal memory device class
@@ -134,7 +134,7 @@ namespace ucle::fnsim {
             using address_type = meta::arch_address_t<N>;
 
             using mapped_device_type = MappedDeviceType<endianness, address_type>;
-            using address_space_type = AddressSpace<mapped_device_type>;
+            using address_space_type = AddressSpace<N, mapped_device_type>;
             using mapped_device_ptr = typename address_space_type::mapped_device_ptr;
 
             using memory_type = Memory<endianness, address_type>;
