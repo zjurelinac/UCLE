@@ -156,7 +156,11 @@ namespace ucle::fnsim {
 
             ~register_set_device() override         = default;
 
-            void reset() override { regs_.fill(0); }
+            void reset() override
+            {
+                if constexpr(reg_num > 0)
+                    regs_.fill(0);
+            }
 
         protected:
             byte_t read_byte_(address_type location) const override
