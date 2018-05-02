@@ -9,6 +9,7 @@
 
 #include <util/const_bin_util.hpp>
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -19,13 +20,14 @@ namespace ucle::fnsim {
         template<byte_order, typename AddrType>
               typename MappedDeviceType,                // Base class for all devices that could be added to the simulator
         template <typename MappedDevType>
-              typename AddressSpace                     // Processor's address space class
+              typename AddressSpace,                    // Processor's address space class
+
+              priority_t max_int_prio = 0               // Maximum processor interrupt level (0 = no interrupts)
     >
     class device_manager {
 
         struct worker_info {
             device* dev;
-            size_t work_cycle_period;
             bool does_int = false;
             priority_t int_prio = 0;
         };
@@ -38,6 +40,8 @@ namespace ucle::fnsim {
             using address_space_type = AddressSpace<mapped_device_type>;
             using mapped_device_ptr = typename address_space_type::mapped_device_ptr;
 
+            using bitfield_type = bitfield<max_int_prio>;
+
             using cbu = util::const_bin_util<address_type>;
 
         public:
@@ -47,27 +51,47 @@ namespace ucle::fnsim {
             {
                 asp_.register_device(dynamic_cast<mapped_device_ptr>(dev_ptr.get()), { dev_cfg.start_address, dev_cfg.start_address + dev_cfg.addr_space_size - 1 });
 
-                if (dev_cfg.does_work)
-                    workers_.push_back({ dev_ptr.get(), dev_cfg.work_cycle_period, dev_cfg.uses_interrupts, dev_cfg.interrupt_priority });
+                if (dev_ptr->is_worker()) {
+                    workers_.push_back({ dev_ptr.get(), dev_cfg.uses_interrupts, dev_cfg.interrupt_priority });
+                    std::sort(workers_.begin(), workers_.end(), [](auto l, auto r) { return l.int_prio > r.int_prio; });
+                }
 
                 devices_.push_back(std::move(dev_ptr));
             }
 
             void do_work()
             {
-                for (const auto& worker : workers_)
-                    if (cycle_cnt_ % worker.work_cycle_period == 0) {
-                        worker.dev->work();
-                        // ...
+                active_ints_ = 0;
+                for (const auto& worker : workers_) {
+                    switch(worker.dev->status()) {
+                        case device_status::pending:
+                            worker.dev->work();
+                            break;
+                        case device_status::interrupt:
+                            active_ints_[worker.int_prio] = true;
+                            break;
+                        case device_status::idle:
+                        default:
+                            break;
                     }
-
-                ++cycle_cnt_;
+                }
             }
 
             void do_reset()
             {
                 for (auto &dev : devices_)
                     dev->reset();
+            }
+
+            bool has_interrupt() { return (active_ints_ & enabled_ints_).any(); }
+
+            priority_t get_max_interrupt()
+            {
+                for (auto i = max_int_prio; i > 0; --i)
+                    if (active_ints_[i])
+                        return i;
+
+                return 0;
             }
 
             template <typename T, typename = meta::is_storage_t<T>>
@@ -77,10 +101,16 @@ namespace ucle::fnsim {
 
             bool is_address_valid(address_type location) { return location == cbu::address_rounded(location, sizeof(address_type)) &&  asp_.is_address_valid(location); }
 
+            void enable_interrupt(priority_t int_prio) { enabled_ints_[int_prio] = true; }
+            void disable_interrupt(priority_t int_prio) { enabled_ints_[int_prio] = false; }
+
         private:
             address_space_type asp_;
             std::vector<device_ptr> devices_;
             std::vector<worker_info> workers_;
+
+            bitfield_type enabled_ints_ {0};
+            bitfield_type active_ints_ {0};
 
             counter_t cycle_cnt_ {0};
     };
@@ -95,7 +125,10 @@ namespace ucle::fnsim {
               typename Memory,                          // Processor's internal memory device class
               typename Config = processor_config,       // Processor config parameters class
 
-              typename DeviceManager = device_manager<endianness, AddressType, MappedDeviceType, AddressSpace>
+              bool separate_device_mapping = false,     // Does processor use separate IO device address space
+              priority_t max_int_prio = 0,              // Maximum processor interrupt level (0 = no interrupts)
+
+              typename DeviceManager = device_manager<endianness, AddressType, MappedDeviceType, AddressSpace, max_int_prio>
     >
     class functional_processor_simulator_impl : public functional_processor_simulator {
         public:
@@ -120,9 +153,8 @@ namespace ucle::fnsim {
                 device_config mem_cfg { 0, cfg.mem_size, device_class::memory, false, 0 };
                 mem_manager_->add_device(std::make_unique<memory_type>(cfg.mem_size), mem_cfg);
 
-                if (!cfg.separate_device_mapping) return;
-
-                io_manager_ = std::make_unique<device_manager_type>(cfg.dev_addr_range);
+                if constexpr (separate_device_mapping)
+                    io_manager_ = std::make_unique<device_manager_type>(cfg.dev_addr_range);
             }
 
             status execute_single() override
@@ -131,8 +163,11 @@ namespace ucle::fnsim {
 
                 mem_manager_->do_work();
 
-                if (io_manager_ != nullptr)
-                    io_manager_->do_work();
+                if (mem_manager_->has_interrupt())
+                    process_interrupt_(mem_manager_->get_max_interrupt());
+
+                // if (io_manager_ != nullptr)
+                //     io_manager_->do_work();
 
                 return stat;
             };
@@ -142,8 +177,8 @@ namespace ucle::fnsim {
                 clear_internals_();
                 mem_manager_->do_reset();
 
-                if (io_manager_ != nullptr)
-                    io_manager_->do_reset();
+                // if (io_manager_ != nullptr)
+                //     io_manager_->do_reset();
             }
 
             void add_device(device_ptr dev_ptr, device_config dev_cfg) override
@@ -175,6 +210,7 @@ namespace ucle::fnsim {
 
         protected:
             virtual status execute_single_() = 0;
+            virtual void process_interrupt_(priority_t int_prio) = 0;
             virtual void clear_internals_() = 0;
 
             template <typename T, typename = meta::is_storage_t<T>>
@@ -186,6 +222,22 @@ namespace ucle::fnsim {
             T io_read_(address_t location) const { return io_manager_->template read<T>(location); }
             template <typename T, typename = meta::is_storage_t<T>>
             void io_write_(address_t location, T value) { io_manager_->template write<T>(location, value); }
+
+            void enable_interrupt_(priority_t prio)
+            {
+                mem_manager_->enable_interrupt(prio);
+
+                if constexpr (separate_device_mapping)
+                    io_manager_->enable_interrupt(prio);
+            }
+
+            void disable_interrupt_(priority_t prio)
+            {
+                mem_manager_->disable_interrupt(prio);
+
+                if constexpr (separate_device_mapping)
+                    io_manager_->disable_interrupt(prio);
+            }
 
         private:
             processor_config_type cfg_;

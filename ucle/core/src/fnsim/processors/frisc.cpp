@@ -227,6 +227,11 @@ fnsim::status fnsim::frisc_simulator::execute_single_() {
     return stat;
 }
 
+void fnsim::frisc_simulator::process_interrupt_(priority_t int_prio)
+{
+    fmt::print_colored(fmt::YELLOW, "Processing interrupt: {}\n", int_prio);
+}
+
 fnsim::register_info fnsim::frisc_simulator::get_reg_info()
 {
     return {
