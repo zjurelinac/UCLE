@@ -176,8 +176,11 @@ namespace ucle::fnsim {
 
         public:
             using address_type = AddressType;
-            using device_config_type = device_config<address_type>;
+
             using functional_processor_simulator_ptr_type = functional_processor_simulator_ptr<N>;
+
+            using device_config_type = device_config<address_type>;
+            using state_info_type = state_info<address_type>;
 
             functional_simulation() = delete;
             functional_simulation(functional_processor_simulator_ptr_type fnsim_ptr)
@@ -226,7 +229,7 @@ namespace ucle::fnsim {
 
             // Runtime info
 
-            state_info get_state_info()
+            state_info_type get_state_info()
             {
                 return {
                     fnsim_->get_state(),

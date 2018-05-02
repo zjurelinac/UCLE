@@ -120,9 +120,12 @@ namespace ucle::fnsim {
 
     // Utility structures
 
+    template <typename AddressType>
     struct state_info {
+        using address_type = AddressType;
+
         simulator_state state;
-        address32_t     program_location;
+        address_type    program_location;
         std::string     asm_annotation;
     };
 
