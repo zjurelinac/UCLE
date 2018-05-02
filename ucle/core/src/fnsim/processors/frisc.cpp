@@ -211,7 +211,7 @@ constexpr bool frisc::frisc_simulator::eval_cond_(word_t cond) const
 }
 
 fnsim::status frisc::frisc_simulator::execute_single_() {
-    reg<32> IR = read_<word_t>(regs_.PC);
+    reg<32> IR {read_<word_t>(regs_.PC)};
     regs_.PC += 4;
 
     auto opcode = IR[{31, 27}];

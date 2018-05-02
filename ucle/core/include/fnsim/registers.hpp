@@ -13,7 +13,7 @@ namespace ucle::fnsim {
             using value_type = T;
 
             constexpr reg() noexcept : value_{0} {}
-            constexpr reg(value_type value) noexcept : value_{value} {}
+            constexpr explicit reg(value_type value) noexcept : value_{value} {}
             constexpr reg(const self_type& other) noexcept : value_{other.value_} {}
             constexpr reg(self_type&& other) noexcept : value_{other.value_} {}
 
