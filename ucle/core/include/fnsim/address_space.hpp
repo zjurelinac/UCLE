@@ -12,9 +12,9 @@ namespace ucle::fnsim {
 
     template <unsigned N, typename MappedDeviceType>
     class address_space {
-        public:
-            using self_type = address_space<N, MappedDeviceType>;
+        using self_type = address_space<N, MappedDeviceType>;
 
+        public:
             using address_type = meta::arch_address_t<N>;
             using address_range_type = address_range<address_type>;
 
