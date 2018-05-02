@@ -48,16 +48,23 @@ namespace ucle::fnsim::frisc {
         }
     };
 
-    class frisc_simulator : public functional_processor_simulator_impl<32, byte_order::little_endian, mapped_device, address_space, memory, processor_config, false, 2> {
+    enum interrupt_priorities {
+        frisc_int = 1,
+        frisc_nmi = 2,
+        frisc_max_int_prio = 2
+    };
+
+    class frisc_simulator : public functional_processor_simulator_impl<32, byte_order::little_endian, mapped_device, address_space, memory, processor_config, false, frisc_max_int_prio> {
         using cbu = util::const_bin_util<word_t>;
         using unop = util::unop<word_t>;
         using binop = util::binop<word_t, arith_flags>;
-        using parent = functional_processor_simulator_impl<32, byte_order::little_endian, mapped_device, address_space, memory, processor_config, false, 2>;
+        using parent = functional_processor_simulator_impl<32, byte_order::little_endian, mapped_device, address_space, memory, processor_config, false, frisc_max_int_prio>;
 
         public:
             frisc_simulator(processor_config_type cfg) : parent::functional_processor_simulator_impl(cfg)
             {
-                enable_interrupt_(2);
+                regs_.IIF = true;
+                enable_interrupt_(frisc_nmi);
             }
 
             address_type get_program_counter() const override { return regs_.PC; };
