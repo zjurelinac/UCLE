@@ -76,6 +76,19 @@ namespace ucle::fnsim::frisc {
             void process_interrupt_(priority_t int_prio) override;
             void clear_internals_() override { regs_.clear(); }
 
+            void push_to_stack_(word_t value)
+            {
+                regs_.SP -= 4;
+                write_<word_t>(regs_.SP, value);
+            }
+
+            word_t pop_from_stack_()
+            {
+                auto value = read_<word_t>(regs_.SP);
+                regs_.SP += 4;
+                return value;
+            }
+
         private:
             status execute_move_(word_t opcode, bool fn, const reg<32>& IR);
             status execute_alu_(word_t opcode, bool fn, const reg<32>& IR);

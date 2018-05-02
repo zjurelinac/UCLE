@@ -111,12 +111,10 @@ fnsim::status frisc::frisc_simulator::execute_mem_(word_t opcode, bool fn, const
 
     switch (opcode) {
         case 0b10000: /* POP */
-            reg = read_<word_t>(regs_.SP);
-            regs_.SP += 4;
+            reg = pop_from_stack_();
             break;
         case 0b10001: /* PUSH */
-            regs_.SP -= 4;
-            write_<word_t>(regs_.SP, reg);
+            push_to_stack_(reg);
             break;
         case 0b10010: /* LOADB */
             reg = read_<byte_t>(addr);
@@ -155,8 +153,7 @@ fnsim::status frisc::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, cons
             regs_.PC = addr;
             break;
         case 0b11001: /* CALL */
-            regs_.SP -= 4;
-            write_<word_t>(regs_.SP, regs_.PC);
+            push_to_stack_(regs_.PC);
             regs_.PC = addr;
             break;
         case 0b11010: /* JR */
@@ -164,12 +161,13 @@ fnsim::status frisc::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, cons
             break;
         case 0b11011: { /* RETX */
             auto rtcode = IR[{1, 0}];
-            regs_.PC = read_<word_t>(regs_.SP);
-            regs_.SP += 4;
-            if (rtcode == 0b01)      /* RETI */
-                regs_.SR.GIE = 1;
-            else if (rtcode == 0b11) /* RETN */
-                regs_.IIF = 1;
+            regs_.PC = pop_from_stack_();
+            if (rtcode == 0b01) {   /* RETI */
+                // regs_.SR.GIE = 1;
+            } else if (rtcode == 0b11) { /* RETN */
+                regs_.IIF = true;
+                enable_interrupt_(frisc_nmi);
+            }
             break;
         }
         case 0b11111: /* HALT */
@@ -231,6 +229,23 @@ fnsim::status frisc::frisc_simulator::execute_single_() {
 void frisc::frisc_simulator::process_interrupt_(priority_t int_prio)
 {
     fmt::print_colored(fmt::YELLOW, "Processing interrupt: {}\n", int_prio);
+
+    if (int_prio == frisc_nmi) {
+        if (!regs_.IIF) return;
+
+        regs_.IIF = false;
+        disable_interrupt_(frisc_nmi);
+
+
+    } else {  // == frisc_int
+        if (!regs_.SR.GIE) return;
+
+        regs_.SR.GIE = false;
+        disable_interrupt_(frisc_int);
+
+        auto int_proc_addr = read_<word_t>(0x08);
+
+    }
 }
 
 fnsim::register_info frisc::frisc_simulator::get_reg_info()
