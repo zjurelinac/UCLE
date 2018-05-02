@@ -176,6 +176,7 @@ namespace ucle::fnsim {
 
         public:
             using address_type = AddressType;
+            using device_config_type = device_config<address_type>;
             using functional_processor_simulator_ptr_type = functional_processor_simulator_ptr<N>;
 
             functional_simulation() = delete;
@@ -213,7 +214,7 @@ namespace ucle::fnsim {
 
             // Devices
 
-            status add_device(device_ptr dev_ptr, device_config cfg) noexcept
+            status add_device(device_ptr dev_ptr, device_config_type cfg) noexcept
             {
                 try {
                     fnsim_->add_device(std::move(dev_ptr), cfg);

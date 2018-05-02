@@ -94,8 +94,11 @@ namespace ucle::fnsim {
 
     // Config structures
 
+    template <typename AddressType>
     struct device_config {
-        address32_t           start_address       = 0;
+        using address_type = AddressType;
+
+        address_type        start_address       = 0;
         size_t              addr_space_size     = 0;
         device_class        dev_class           = device_class::addressable_device;
         bool                uses_interrupts     = false;

@@ -39,6 +39,8 @@ namespace ucle::fnsim {
             using address_space_type = AddressSpace<N, mapped_device_type>;
             using mapped_device_ptr = typename address_space_type::mapped_device_ptr;
 
+            using device_config_type = device_config<address_type>;
+
             using bitfield_type = bitfield<max_int_prio>;
 
             using cbu = util::const_bin_util<address_type>;
@@ -46,7 +48,7 @@ namespace ucle::fnsim {
         public:
             device_manager(address_range_type addr_range) : asp_ (addr_range) {}
 
-            void add_device(device_ptr dev_ptr, device_config dev_cfg)
+            void add_device(device_ptr dev_ptr, device_config_type dev_cfg)
             {
                 asp_.register_device(dynamic_cast<mapped_device_ptr>(dev_ptr.get()), { dev_cfg.start_address, dev_cfg.start_address + dev_cfg.addr_space_size - 1 });
 
@@ -141,6 +143,7 @@ namespace ucle::fnsim {
             using memory_ptr = std::unique_ptr<memory_type>;
 
             using processor_config_type = Config;
+            using device_config_type = device_config<address_type>;
 
             using device_manager_type = DeviceManager;
             using device_manager_ptr = std::unique_ptr<device_manager_type>;
@@ -149,7 +152,7 @@ namespace ucle::fnsim {
             {
                 mem_manager_ = std::make_unique<device_manager_type>(cfg.mem_addr_range);
 
-                device_config mem_cfg { 0, cfg.mem_size, device_class::memory, false, 0 };
+                device_config_type mem_cfg { 0, cfg.mem_size, device_class::memory, false, 0 };
                 mem_manager_->add_device(std::make_unique<memory_type>(cfg.mem_size), mem_cfg);
 
                 if constexpr (separate_device_mapping)
@@ -180,7 +183,7 @@ namespace ucle::fnsim {
                 //     io_manager_->do_reset();
             }
 
-            void add_device(device_ptr dev_ptr, device_config dev_cfg) override
+            void add_device(device_ptr dev_ptr, device_config_type dev_cfg) override
             {
                 auto mapping = [&](){
                     switch (dev_cfg.dev_class) {

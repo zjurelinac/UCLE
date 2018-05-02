@@ -13,13 +13,14 @@ namespace ucle::fnsim {
     class functional_processor_simulator {
         public:
             using address_type = meta::arch_address_t<N>;
+            using device_config_type = device_config<address_type>;
 
             virtual ~functional_processor_simulator() = default;
 
             virtual status execute_single() = 0;
             virtual void reset() = 0;
 
-            virtual void add_device(device_ptr dev_ptr, device_config cfg) = 0;
+            virtual void add_device(device_ptr dev_ptr, device_config_type cfg) = 0;
 
             virtual address_type get_program_counter() const = 0;
             virtual void set_program_counter(address_type location) = 0;
