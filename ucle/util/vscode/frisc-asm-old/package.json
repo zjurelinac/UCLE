@@ -1,0 +1,26 @@
+{
+    "name": "frisc-asm-old",
+    "displayName": "FRISC Assembly (Old syntax)",
+    "description": "...",
+    "version": "0.0.1",
+    "publisher": "zjurelinac",
+    "engines": {
+        "vscode": "^1.22.0"
+    },
+    "categories": [
+        "Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "frisc-asm",
+            "aliases": ["FRISC Assembly (Old)", "frisc-asm"],
+            "extensions": [".a",".asm"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "frisc-asm",
+            "scopeName": "source.frisc-asm",
+            "path": "./syntaxes/frisc-asm.tmLanguage.json"
+        }]
+    }
+}
