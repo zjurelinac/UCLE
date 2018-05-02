@@ -65,11 +65,11 @@ namespace ucle::fnsim {
                 active_ints_ = 0;
                 for (const auto& worker : workers_) {
                     switch(worker.dev->status()) {
-                        case device_status::pending:
-                            worker.dev->work();
-                            break;
                         case device_status::interrupt:
                             active_ints_[worker.int_prio] = true;
+                            [[fallthrough]];
+                        case device_status::pending:
+                            worker.dev->work();
                             break;
                         case device_status::idle:
                         default:
