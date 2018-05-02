@@ -86,10 +86,11 @@ namespace ucle::fnsim {
             std::unordered_map<address_type, std::string> asm_annotations_;
     };
 
+    template <typename FunctionalProcessorSimulator>
     class basic_execution_policy {
         public:
             basic_execution_policy() = delete;
-            basic_execution_policy(functional_processor_simulator* fnsim) : fnsim_(fnsim) {}
+            basic_execution_policy(FunctionalProcessorSimulator* fnsim) : fnsim_(fnsim) {}
 
             void step()
             {
@@ -102,20 +103,23 @@ namespace ucle::fnsim {
             }
 
         private:
-            functional_processor_simulator* fnsim_;
+            FunctionalProcessorSimulator* fnsim_;
     };
 
-    class tracked_execution_policy : public basic_execution_policy {
+    template <typename FunctionalProcessorSimulator>
+    class tracked_execution_policy : public basic_execution_policy<FunctionalProcessorSimulator> {
         using clock_type = std::chrono::high_resolution_clock;
         using time_point = clock_type::time_point;
         using nseconds = std::chrono::nanoseconds;
 
+        using parent = basic_execution_policy<FunctionalProcessorSimulator>;
+
         public:
-            using basic_execution_policy::basic_execution_policy;
+            using parent::basic_execution_policy;
 
             void step()
             {
-                basic_execution_policy::step();
+                parent::step();
                 ++instr_cnt_;
             }
 
@@ -146,7 +150,7 @@ namespace ucle::fnsim {
         bool has_annotations        = true,
         bool has_exec_tracking      = false,
 
-        typename AddressType = address_t,
+        typename AddressType = address32_t,
 
         typename BreakpointProvider     = std::conditional_t<has_breakpoints,
                                                              basic_breakpoint_provider<AddressType>,
@@ -158,8 +162,8 @@ namespace ucle::fnsim {
                                                              basic_annotation_provider<AddressType>,
                                                              void_annotation_provider<AddressType>>,
         typename ExecutionPolicy        = std::conditional_t<has_exec_tracking,
-                                                             tracked_execution_policy,
-                                                             basic_execution_policy>
+                                                             tracked_execution_policy<functional_processor_simulator<AddressType>>,
+                                                             basic_execution_policy<functional_processor_simulator<AddressType>>>
     >
     class functional_simulation :
         public BreakpointProvider,
@@ -170,9 +174,10 @@ namespace ucle::fnsim {
 
         public:
             using address_type = AddressType;
+            using functional_processor_simulator_ptr_type = functional_processor_simulator_ptr<address_type>;
 
             functional_simulation() = delete;
-            functional_simulation(functional_processor_simulator_ptr fnsim_ptr)
+            functional_simulation(functional_processor_simulator_ptr_type fnsim_ptr)
                 : fnsim_{std::move(fnsim_ptr)}, exec_{fnsim_.get()} {}
 
             // Basic simulation functionality
@@ -303,7 +308,7 @@ namespace ucle::fnsim {
             }
 
         private:
-            functional_processor_simulator_ptr fnsim_;
+            functional_processor_simulator_ptr_type fnsim_;
 
             execution_policy exec_;
     };
@@ -423,7 +428,7 @@ namespace ucle::fnsim {
                 if (code.size() == 0) continue;
 
                 std::istringstream iss(code);
-                address_t address;
+                address32_t address;
                 unsigned byte;
 
                 iss >> std::hex >> address;

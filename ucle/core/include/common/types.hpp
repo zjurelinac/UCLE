@@ -21,13 +21,15 @@ namespace ucle {
     using dword_t = uint64_t;
     using sdword_t = int64_t;
 
-    using address_t = uint32_t;
+    using address8_t = uint8_t;
+    using address16_t = uint16_t;
+    using address32_t = uint32_t;
+    using address64_t = uint64_t;
+
     using size_t = uint32_t;
     using index_t = int32_t;
 
-    using identifier_t = uint32_t;
     using priority_t = uint32_t;
-
     using counter_t = uint64_t;
     using frequency_t = uint64_t;
 
@@ -38,7 +40,7 @@ namespace ucle {
         constexpr frequency_t operator "" _GHz(unsigned long long f) { return 1000000000*f; }
     }
 
-    template <typename AddressType = address_t>
+    template <typename AddressType = address32_t>
     struct address_range {
         using address_type = AddressType;
 

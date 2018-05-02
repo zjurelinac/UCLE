@@ -130,7 +130,7 @@ namespace ucle::fnsim {
 
               typename DeviceManager = device_manager<endianness, AddressType, MappedDeviceType, AddressSpace, max_int_prio>
     >
-    class functional_processor_simulator_impl : public functional_processor_simulator {
+    class functional_processor_simulator_impl : public functional_processor_simulator<AddressType> {
         public:
             using address_type = AddressType;
 
@@ -197,16 +197,16 @@ namespace ucle::fnsim {
                     io_manager_->add_device(std::move(dev_ptr), dev_cfg);
             }
 
-            byte_t get_mem_byte(address_t location) const override
+            byte_t get_mem_byte(address32_t location) const override
             {
                 return mem_manager_->template read<byte_t>(location);
             }
-            void set_mem_byte(address_t location, byte_t value) override
+            void set_mem_byte(address32_t location, byte_t value) override
             {
                 mem_manager_->template write<byte_t>(location, value);
             }
 
-            bool is_mem_address_valid(address_t location) override { return mem_manager_->is_address_valid(location); }
+            bool is_mem_address_valid(address32_t location) override { return mem_manager_->is_address_valid(location); }
 
         protected:
             virtual status execute_single_() = 0;
@@ -214,14 +214,14 @@ namespace ucle::fnsim {
             virtual void clear_internals_() = 0;
 
             template <typename T, typename = meta::is_storage_t<T>>
-            T read_(address_t location) const { return mem_manager_->template read<T>(location); }
+            T read_(address32_t location) const { return mem_manager_->template read<T>(location); }
             template <typename T, typename = meta::is_storage_t<T>>
-            void write_(address_t location, T value) { mem_manager_->template write<T>(location, value); }
+            void write_(address32_t location, T value) { mem_manager_->template write<T>(location, value); }
 
             template <typename T, typename = meta::is_storage_t<T>>
-            T io_read_(address_t location) const { return io_manager_->template read<T>(location); }
+            T io_read_(address32_t location) const { return io_manager_->template read<T>(location); }
             template <typename T, typename = meta::is_storage_t<T>>
-            void io_write_(address_t location, T value) { io_manager_->template write<T>(location, value); }
+            void io_write_(address32_t location, T value) { io_manager_->template write<T>(location, value); }
 
             void enable_interrupt_(priority_t prio)
             {

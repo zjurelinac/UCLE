@@ -10,7 +10,7 @@
 
 namespace ucle::fnsim {
 
-    template <typename MappedDeviceType, typename AddressType = address_t>
+    template <typename MappedDeviceType, typename AddressType = address32_t>
     class address_space {
         public:
             using address_type = AddressType;

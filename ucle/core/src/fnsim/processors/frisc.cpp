@@ -206,7 +206,7 @@ constexpr bool frisc::frisc_simulator::eval_cond_(word_t cond) const
 }
 
 fnsim::status frisc::frisc_simulator::execute_single_() {
-    reg<32> IR = read_<word_t>(address_t(regs_.PC));
+    reg<32> IR = read_<word_t>(address32_t(regs_.PC));
     regs_.PC += 4;
 
     auto opcode = IR[{31, 27}];
@@ -253,7 +253,7 @@ fnsim::register_info frisc::frisc_simulator::get_reg_info()
     };
 }
 
-fnsim::functional_processor_simulator_ptr frisc::make_frisc_simulator(fnsim::processor_config cfg)
+fnsim::functional_processor_simulator_32_ptr frisc::make_frisc_simulator(fnsim::processor_config cfg)
 {
     return std::make_unique<frisc_simulator>(cfg);
 }

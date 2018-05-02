@@ -27,7 +27,7 @@ namespace ucle::fnsim {
 
     using device_ptr = std::unique_ptr<device>;
 
-    template<byte_order endianness, typename AddressType = address_t>
+    template<byte_order endianness, typename AddressType = address32_t>
     class mapped_device : public device {
         public:
             using address_type = AddressType;
@@ -68,7 +68,7 @@ namespace ucle::fnsim {
             virtual void write_word_(address_type location, word_t value) = 0;
     };
 
-    template<byte_order endianness, typename AddressType = address_t>
+    template<byte_order endianness, typename AddressType = address32_t>
     class memory_block_device : public mapped_device<endianness, AddressType> {
         public:
             using address_type = AddressType;
@@ -123,7 +123,7 @@ namespace ucle::fnsim {
             std::unique_ptr<byte_t[]> data_;
     };
 
-    template<byte_order endianness = byte_order::little_endian, typename AddressType = address_t>
+    template<byte_order endianness = byte_order::little_endian, typename AddressType = address32_t>
     class memory final : public memory_block_device<endianness, AddressType> {
         public:
             using memory_block_device<endianness>::memory_block_device;
@@ -135,7 +135,7 @@ namespace ucle::fnsim {
             bool is_worker() override { return false; }
     };
 
-    template<unsigned reg_num, unsigned reg_size, byte_order endianness = byte_order::little_endian, typename AddressType = address_t>
+    template<unsigned reg_num, unsigned reg_size, byte_order endianness = byte_order::little_endian, typename AddressType = address32_t>
     class register_set_device : public mapped_device<endianness, AddressType> {
         public:
             using address_type = AddressType;

@@ -95,7 +95,7 @@ namespace ucle::fnsim {
     // Config structures
 
     struct device_config {
-        address_t           start_address       = 0;
+        address32_t           start_address       = 0;
         size_t              addr_space_size     = 0;
         device_class        dev_class           = device_class::addressable_device;
         bool                uses_interrupts     = false;
@@ -119,7 +119,7 @@ namespace ucle::fnsim {
 
     struct state_info {
         simulator_state state;
-        address_t       program_location;
+        address32_t     program_location;
         std::string     asm_annotation;
     };
 
