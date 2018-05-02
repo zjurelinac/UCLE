@@ -16,7 +16,7 @@
 namespace ucle::fnsim {
 
     template <byte_order endianness,                    // Is processor little- or big-endian
-              typename AddressType,                     // Primitive type used for memory addressing (ie. uint32_t)
+              unsigned N,                               // Processor architecture - 8, 16, 32 or 64 bits
         template<byte_order, typename AddrType>
               typename MappedDeviceType,                // Base class for all devices that could be added to the simulator
         template <typename MappedDevType>
@@ -33,7 +33,7 @@ namespace ucle::fnsim {
         };
 
         public:
-            using address_type = AddressType;
+            using address_type = meta::arch_address_t<N>;
             using address_range_type = address_range<address_type>;
 
             using mapped_device_type = MappedDeviceType<endianness, address_type>;
@@ -116,7 +116,7 @@ namespace ucle::fnsim {
     };
 
     template <byte_order endianness,                    // Is processor little- or big-endian
-              typename AddressType,                     // Primitive type used for memory addressing (ie. uint32_t)
+              unsigned N,                               // Processor architecture - 8, 16, 32 or 64 bits
         template<byte_order, typename AddrType>
               typename MappedDeviceType,                // Base class for all devices that could be added to the simulator
         template <typename MappedDevType>
@@ -128,11 +128,11 @@ namespace ucle::fnsim {
               bool separate_device_mapping = false,     // Does processor use separate IO device address space
               priority_t max_int_prio = 0,              // Maximum processor interrupt level (0 = no interrupts)
 
-              typename DeviceManager = device_manager<endianness, AddressType, MappedDeviceType, AddressSpace, max_int_prio>
+              typename DeviceManager = device_manager<endianness, N, MappedDeviceType, AddressSpace, max_int_prio>
     >
-    class functional_processor_simulator_impl : public functional_processor_simulator<AddressType> {
+    class functional_processor_simulator_impl : public functional_processor_simulator<N> {
         public:
-            using address_type = AddressType;
+            using address_type = meta::arch_address_t<N>;
 
             using mapped_device_type = MappedDeviceType<endianness, address_type>;
             using address_space_type = AddressSpace<mapped_device_type>;

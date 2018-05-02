@@ -48,11 +48,11 @@ namespace ucle::fnsim::frisc {
         }
     };
 
-    class frisc_simulator : public functional_processor_simulator_impl<byte_order::little_endian, address32_t, mapped_device, address_space, memory, processor_config, false, 2> {
+    class frisc_simulator : public functional_processor_simulator_impl<byte_order::little_endian, 32, mapped_device, address_space, memory, processor_config, false, 2> {
         using cbu = util::const_bin_util<word_t>;
         using unop = util::unop<word_t>;
         using binop = util::binop<word_t, arith_flags>;
-        using parent = functional_processor_simulator_impl<byte_order::little_endian, address32_t, mapped_device, address_space, memory, processor_config, false, 2>;
+        using parent = functional_processor_simulator_impl<byte_order::little_endian, 32, mapped_device, address_space, memory, processor_config, false, 2>;
 
         public:
             frisc_simulator(processor_config_type cfg) : parent::functional_processor_simulator_impl(cfg)
@@ -80,7 +80,7 @@ namespace ucle::fnsim::frisc {
             register_file regs_;
     };
 
-    functional_processor_simulator_32_ptr make_frisc_simulator(processor_config cfg);
+    functional_processor_simulator_ptr<32> make_frisc_simulator(processor_config cfg);
 
 }
 

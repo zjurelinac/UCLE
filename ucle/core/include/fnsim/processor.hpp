@@ -9,10 +9,10 @@
 
 namespace ucle::fnsim {
 
-    template <typename AddressType = address32_t>
+    template <unsigned N>
     class functional_processor_simulator {
         public:
-            using address_type = AddressType;
+            using address_type = meta::arch_address_t<N>;
 
             virtual ~functional_processor_simulator() = default;
 
@@ -41,11 +41,9 @@ namespace ucle::fnsim {
             simulator_state state_ = simulator_state::initialized;
     };
 
-    template <typename AddressType = address32_t>
-    using functional_processor_simulator_ptr = std::unique_ptr<functional_processor_simulator<AddressType>>;
+    template <unsigned N>
+    using functional_processor_simulator_ptr = std::unique_ptr<functional_processor_simulator<N>>;
 
-    using functional_processor_simulator_32 = functional_processor_simulator<>;
-    using functional_processor_simulator_32_ptr = functional_processor_simulator_ptr<>;
 }
 
 #endif  /* _UCLE_CORE_FNSIM_PROCESSOR_HPP_ */

@@ -16,10 +16,11 @@
 
 namespace ucle::fnsim::cli {
 
-    using fnsim_factory_32 = std::function<functional_processor_simulator_32_ptr(fnsim::processor_config)>;
+    template <unsigned N>
+    using fnsim_factory = std::function<functional_processor_simulator_ptr<N>(fnsim::processor_config)>;
 
     std::set<std::string> factory_options = {"frisc"};
-    std::unordered_map<std::string, fnsim_factory_32> factory = {
+    std::unordered_map<std::string, fnsim_factory<32>> factory_32 = {
         {"frisc", &frisc::make_frisc_simulator}
     };
 
