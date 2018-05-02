@@ -9,10 +9,14 @@ fnsim::status frisc::frisc_simulator::execute_move_(word_t, bool fn, const reg<3
 {
     auto src = IR[21] ? word_t(regs_.SR) : (fn ? unop::sign_extend(IR[{19, 0}], 20) : word_t(regs_.R[IR[{19, 17}]]));
 
-    if (IR[20])
+    if (IR[20]) {
         regs_.SR = src;
-    else
+
+        if (regs_.SR.GIE)
+            enable_interrupt_(frisc_int);
+    } else {
         regs_.R[IR[{25, 23}]] = src;
+    }
 
     return status::ok;
 }
@@ -162,12 +166,15 @@ fnsim::status frisc::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, cons
         case 0b11011: { /* RETX */
             auto rtcode = IR[{1, 0}];
             regs_.PC = pop_from_stack_();
+
             if (rtcode == 0b01) {   /* RETI */
-                // regs_.SR.GIE = 1;
+                regs_.SR.GIE = true;
+                enable_interrupt_(frisc_int);
             } else if (rtcode == 0b11) { /* RETN */
                 regs_.IIF = true;
                 enable_interrupt_(frisc_nmi);
             }
+
             break;
         }
         case 0b11111: /* HALT */
@@ -211,31 +218,32 @@ fnsim::status frisc::frisc_simulator::execute_single_() {
     auto fn = IR[26];
 
     status stat;
-    if (opcode == 0b00000) {
+    if (opcode == 0b00000)
         stat = execute_move_(opcode, fn, IR);
-    } else if (opcode >> 4 == 0b0) {   // opcode = 0xxxx
+    else if (opcode >> 4 == 0b0)   // opcode = 0xxxx
         stat = execute_alu_(opcode, fn, IR);
-    } else if (opcode >> 3 == 0b10) {  // opcode = 10xxx
+    else if (opcode >> 3 == 0b10)  // opcode = 10xxx
         stat = execute_mem_(opcode, fn, IR);
-    } else if (opcode >> 3 == 0b11) {  // opcode = 11xxx
+    else if (opcode >> 3 == 0b11)  // opcode = 11xxx
         stat = execute_ctrl_(opcode, fn, IR);
-    } else {
+    else
         stat = status::invalid_instruction;
-    }
 
     return stat;
 }
 
 void frisc::frisc_simulator::process_interrupt_(priority_t int_prio)
 {
+    if (!regs_.IIF) return;
+
     fmt::print_colored(fmt::YELLOW, "Processing interrupt: {}\n", int_prio);
 
     if (int_prio == frisc_nmi) {
-        if (!regs_.IIF) return;
-
         regs_.IIF = false;
         disable_interrupt_(frisc_nmi);
 
+        push_to_stack_(regs_.PC);
+        regs_.PC = 0x0C;  // Address of NMI handler
 
     } else {  // == frisc_int
         if (!regs_.SR.GIE) return;
@@ -243,8 +251,8 @@ void frisc::frisc_simulator::process_interrupt_(priority_t int_prio)
         regs_.SR.GIE = false;
         disable_interrupt_(frisc_int);
 
-        auto int_proc_addr = read_<word_t>(0x08);
-
+        push_to_stack_(regs_.PC);
+        regs_.PC = read_<word_t>(0x08);  // Address vector of INT handler
     }
 }
 
