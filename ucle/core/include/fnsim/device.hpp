@@ -28,18 +28,17 @@ namespace ucle::fnsim {
 
     template<byte_order endianness, typename AddressType = address32_t>
     class mapped_device : public device {
+        using self_type = mapped_device<endianness, AddressType>;
+
         public:
             using address_type = AddressType;
 
-            mapped_device() = default;
+            mapped_device()                         = default;
+            mapped_device(const self_type&)         = delete;
+            mapped_device(self_type&&)              = default;
 
-            mapped_device(const mapped_device<endianness, address_type>&) = delete;
-            mapped_device<endianness, address_type>& operator=(const mapped_device<endianness, address_type>&) = delete;
-
-            mapped_device(mapped_device<endianness, address_type>&&) = default;
-            mapped_device<endianness, address_type>& operator=(mapped_device<endianness, address_type>&&) = default;
-
-            ~mapped_device() override = default;
+            self_type& operator=(const self_type&)  = delete;
+            self_type& operator=(self_type&&)       = default;
 
             template <typename T, typename = meta::is_storage_t<T>>
             T read(address_type location) const
@@ -69,20 +68,20 @@ namespace ucle::fnsim {
 
     template<byte_order endianness, typename AddressType = address32_t>
     class memory_block_device : public mapped_device<endianness, AddressType> {
+        using self_type = memory_block_device<endianness, AddressType>;
+
         public:
             using address_type = AddressType;
 
-            memory_block_device() = delete;
-            memory_block_device(size_t memory_size)
-                : size_(memory_size), data_(std::make_unique<byte_t[]>(memory_size)) { reset(); }
+            memory_block_device()                   = delete;
+            memory_block_device(size_t memory_size) : size_(memory_size), data_(std::make_unique<byte_t[]>(memory_size)) { reset(); }
+            memory_block_device(const self_type&)   = delete;
+            memory_block_device(self_type&&)        = default;
 
-            memory_block_device(const memory_block_device<endianness, address_type>&) = delete;
-            memory_block_device<endianness, address_type>& operator=(const memory_block_device<endianness, address_type>&) = delete;
+            self_type& operator=(const self_type&)  = delete;
+            self_type& operator=(self_type&&)       = default;
 
-            memory_block_device(memory_block_device<endianness, address_type>&&) = default;
-            memory_block_device<endianness, address_type>& operator=(memory_block_device<endianness, address_type>&&) = default;
-
-            ~memory_block_device() override = default;
+            ~memory_block_device() override         = default;
 
             void reset() override { memset(data_.get(), 0, size_); }
 
@@ -136,6 +135,8 @@ namespace ucle::fnsim {
 
     template<unsigned reg_num, unsigned reg_size, byte_order endianness = byte_order::little_endian, typename AddressType = address32_t>
     class register_set_device : public mapped_device<endianness, AddressType> {
+        using self_type = register_set_device<reg_num, reg_size, endianness, AddressType>;
+
         public:
             using address_type = AddressType;
             using register_type = reg<reg_size>;
@@ -144,15 +145,14 @@ namespace ucle::fnsim {
 
             constexpr static auto register_size = sizeof(typename register_type::value_type);
 
-            register_set_device() = default;
+            register_set_device()                   = default;
+            register_set_device(const self_type&)   = delete;
+            register_set_device(self_type&&)        = default;
 
-            register_set_device(const register_set_device<reg_num, reg_size, endianness, address_type>&) = delete;
-            register_set_device<reg_num, reg_size, endianness, address_type>& operator=(const register_set_device<reg_num, reg_size, endianness, address_type>&) = delete;
+            self_type& operator=(const self_type&)  = delete;
+            self_type& operator=(self_type&&)       = default;
 
-            register_set_device(register_set_device<reg_num, reg_size, endianness, address_type>&&) = default;
-            register_set_device<reg_num, reg_size, endianness, address_type>& operator=(register_set_device<reg_num, reg_size, endianness, address_type>&&) = default;
-
-            ~register_set_device() override = default;
+            ~register_set_device() override         = default;
 
             void reset() override { regs_.fill(0); }
 
