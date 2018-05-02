@@ -26,7 +26,7 @@ namespace ucle::fnsim {
 
     using device_ptr = std::unique_ptr<device>;
 
-    template<byte_order endianness, typename AddressType = address32_t>
+    template<byte_order endianness, typename AddressType>
     class mapped_device : public device {
         using self_type = mapped_device<endianness, AddressType>;
 
@@ -66,7 +66,7 @@ namespace ucle::fnsim {
             virtual void write_word_(address_type location, word_t value) = 0;
     };
 
-    template<byte_order endianness, typename AddressType = address32_t>
+    template<byte_order endianness, typename AddressType>
     class memory_block_device : public mapped_device<endianness, AddressType> {
         using self_type = memory_block_device<endianness, AddressType>;
 
@@ -121,11 +121,13 @@ namespace ucle::fnsim {
             std::unique_ptr<byte_t[]> data_;
     };
 
-    template<byte_order endianness = byte_order::little_endian, typename AddressType = address32_t>
+    template<byte_order endianness, typename AddressType>
     class memory final : public memory_block_device<endianness, AddressType> {
         public:
-            using memory_block_device<endianness>::memory_block_device;
-            using memory_block_device<endianness>::operator=;
+            using address_type = AddressType;
+
+            using memory_block_device<endianness, address_type>::memory_block_device;
+            using memory_block_device<endianness, address_type>::operator=;
 
             device_status status() override {  return device_status::idle; }
             void work() override {}
@@ -133,7 +135,7 @@ namespace ucle::fnsim {
             bool is_worker() override { return false; }
     };
 
-    template<unsigned reg_num, unsigned reg_size, byte_order endianness = byte_order::little_endian, typename AddressType = address32_t>
+    template<unsigned reg_num, unsigned reg_size, byte_order endianness, typename AddressType>
     class register_set_device : public mapped_device<endianness, AddressType> {
         using self_type = register_set_device<reg_num, reg_size, endianness, AddressType>;
 
