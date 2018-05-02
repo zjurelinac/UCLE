@@ -7,16 +7,18 @@
 using namespace ucle;
 using namespace ucle::fnsim;
 
-class dummy_reg_device : public register_set_device<2, 32> {
+class dummy_reg_device : public register_set_device<2, 32, byte_order::little_endian, address32_t> {
     public:
         void work() override
         {
-            fmt::print_colored(fmt::BLUE, "Working.\n");
+            static int i = 0;
+            fmt::print_colored(fmt::BLUE, ".");
+            write_word_(0, ++i);
         }
 
         device_status status() override
         {
-            return cnt_++ % 4 == 0 ? device_status::interrupt : device_status::idle;
+            return device_status::pending;
         }
 
         bool is_worker() override { return true; }
@@ -31,7 +33,8 @@ int main(int, char* argv[])
 
     functional_simulation<false, false, false, true> sim { frisc::make_frisc_simulator({ 4096 }) };
 
-    sim.add_device(std::make_unique<dummy_reg_device>(), { 0x10000, 8, device_class::addressable_device, true, 2 });
+    auto dummy_dev = std::make_shared<dummy_reg_device>();
+    sim.add_device(dummy_dev, { 0x10000, 8, device_class::addressable_device, true, 2 });
 
     sim.load_pfile(argv[1]);
     auto stat = sim.run();
