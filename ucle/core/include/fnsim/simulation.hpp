@@ -434,7 +434,7 @@ namespace ucle::fnsim {
                 if (code.size() == 0) continue;
 
                 std::istringstream iss(code);
-                address32_t address;
+                address_type address;
                 unsigned byte;
 
                 iss >> std::hex >> address;

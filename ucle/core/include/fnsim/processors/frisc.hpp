@@ -60,8 +60,8 @@ namespace ucle::fnsim::frisc {
                 enable_interrupt_(2);
             }
 
-            address32_t get_program_counter() const override { return regs_.PC; };
-            void set_program_counter(address32_t location) override { regs_.PC = location; }
+            address_type get_program_counter() const override { return regs_.PC; };
+            void set_program_counter(address_type location) override { regs_.PC = location; }
             register_info get_reg_info() override;
 
         protected:
