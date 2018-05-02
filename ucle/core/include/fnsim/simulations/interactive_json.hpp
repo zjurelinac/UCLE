@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-namespace ucle::fnsim {
+namespace ucle::fnsim::cli {
 
     template <typename FunctionalSimulation>
     class interactive_json_simulation : public interactive_simulation<FunctionalSimulation> {
@@ -237,7 +237,7 @@ namespace ucle::fnsim {
     }
 
     template <typename FunctionalSimulation>
-    void run_interactive_json_simulation(FunctionalSimulation& sim, cli_config& cfg)
+    void run_interactive_json_simulation(FunctionalSimulation& sim, config& cfg)
     {
         interactive_json_simulation<FunctionalSimulation> tsim {sim, cfg};
         tsim.run();

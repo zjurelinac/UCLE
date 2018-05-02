@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace ucle::fnsim {
+namespace ucle::fnsim::cli {
 
     template <typename FunctionalSimulation>
     class interactive_text_simulation : public interactive_simulation<FunctionalSimulation> {
@@ -272,7 +272,7 @@ namespace ucle::fnsim {
     }
 
     template <typename FunctionalSimulation>
-    void run_interactive_text_simulation(FunctionalSimulation& sim, cli_config& cfg)
+    void run_interactive_text_simulation(FunctionalSimulation& sim, config& cfg)
     {
         cfg.verbosity = 1;
         interactive_text_simulation<FunctionalSimulation> tsim {sim, cfg};

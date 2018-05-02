@@ -22,12 +22,13 @@
 */
 
 int main(int argc, char* argv[]) {
+    using namespace ucle;
     using namespace ucle::fnsim;
-    using namespace ucle::literals;
+    using namespace ucle::fnsim::cli;
 
     CLI::App app {"Functional simulator CLI"};
 
-    cli_config cfg {};
+    fnsim::cli::config cfg {};
 
     app.add_set_ignore_case("simulator", cfg.simulator_name, factory_options, "Processor simulator to use for simulation")->required();
     app.add_option("pfile", cfg.pfile, "A path to the machine-code .p file to be executed")->required()->check(CLI::ExistingFile);

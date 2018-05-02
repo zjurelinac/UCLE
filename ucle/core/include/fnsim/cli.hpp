@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace ucle::fnsim {
+namespace ucle::fnsim::cli {
 
     using fnsim_factory = std::function<functional_processor_simulator_ptr(fnsim::processor_config)>;
 
@@ -23,7 +23,7 @@ namespace ucle::fnsim {
         {"frisc", &frisc::make_frisc_simulator}
     };
 
-    struct cli_config {
+    struct config {
         // Processor options
         std::string simulator_name;
         uint32_t fnsim_mem_size = 4096;
