@@ -24,7 +24,7 @@ namespace ucle::fnsim {
             virtual bool is_worker() = 0;
     };
 
-    using device_ptr = std::unique_ptr<device>;
+    using device_ptr = std::shared_ptr<device>;
 
     template<byte_order endianness, typename AddressType>
     class mapped_device : public device {
