@@ -8,7 +8,6 @@
 
 #include <util/const_bin_util.hpp>
 
-#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -24,13 +23,6 @@ namespace ucle::fnsim {
               priority_t max_int_prio = 0               // Maximum processor interrupt level (0 = no interrupts)
     >
     class device_manager {
-
-        struct worker_info {
-            device* dev;
-            bool does_int = false;
-            priority_t int_prio = 0;
-        };
-
         public:
             using address_type = meta::arch_address_t<N>;
             using address_range_type = address_range<address_type>;
@@ -52,10 +44,8 @@ namespace ucle::fnsim {
             {
                 asp_.register_device(dynamic_cast<mapped_device_ptr>(dev_ptr.get()), { dev_cfg.start_address, dev_cfg.start_address + dev_cfg.addr_space_size - 1 });
 
-                if (dev_ptr->is_worker()) {
-                    workers_.push_back({ dev_ptr.get(), dev_cfg.uses_interrupts, dev_cfg.interrupt_priority });
-                    std::sort(workers_.begin(), workers_.end(), [](auto l, auto r) { return l.int_prio > r.int_prio; });
-                }
+                if (dev_ptr->is_worker())
+                    workers_.push_back(dev_ptr.get());
 
                 devices_.push_back(std::move(dev_ptr));
             }
@@ -64,12 +54,12 @@ namespace ucle::fnsim {
             {
                 active_ints_ = 0;
                 for (const auto& worker : workers_) {
-                    switch(worker.dev->status()) {
+                    switch(worker->status()) {
                         case device_status::interrupt:
-                            active_ints_[worker.int_prio] = true;
+                            active_ints_[worker->interrupt_priority()] = true;
                             [[fallthrough]];
                         case device_status::pending:
-                            worker.dev->work();
+                            worker->work();
                             break;
                         case device_status::idle:
                         default:
@@ -108,7 +98,7 @@ namespace ucle::fnsim {
         private:
             address_space_type asp_;
             std::vector<device_ptr> devices_;
-            std::vector<worker_info> workers_;
+            std::vector<device*> workers_;
 
             bitfield_type enabled_ints_ {0};
             bitfield_type active_ints_ {0};
@@ -152,7 +142,7 @@ namespace ucle::fnsim {
             {
                 mem_manager_ = std::make_unique<device_manager_type>(cfg.mem_addr_range);
 
-                device_config_type mem_cfg { 0, cfg.mem_size, device_class::memory, false, 0 };
+                device_config_type mem_cfg { 0, cfg.mem_size, device_class::memory };
                 mem_manager_->add_device(std::make_unique<memory_type>(cfg.mem_size), mem_cfg);
 
                 if constexpr (separate_device_mapping)

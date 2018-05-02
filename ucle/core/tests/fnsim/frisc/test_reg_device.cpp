@@ -34,7 +34,7 @@ int main(int, char* argv[])
     functional_simulation<false, false, false, true> sim { frisc::make_frisc_simulator({ 4096 }) };
 
     auto dummy_dev = std::make_shared<dummy_reg_device>();
-    sim.add_device(dummy_dev, { 0x10000, 8, device_class::addressable_device, true, 2 });
+    sim.add_device(dummy_dev, { 0x10000, 8, device_class::addressable_device });
 
     sim.load_pfile(argv[1]);
     auto stat = sim.run();

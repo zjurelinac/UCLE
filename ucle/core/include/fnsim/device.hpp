@@ -22,6 +22,8 @@ namespace ucle::fnsim {
             virtual void reset() = 0;
 
             virtual bool is_worker() = 0;
+            virtual bool can_interrupt() { return false; }
+            virtual priority_t interrupt_priority() { return 0; }
     };
 
     using device_ptr = std::shared_ptr<device>;

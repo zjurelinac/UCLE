@@ -101,8 +101,6 @@ namespace ucle::fnsim {
         address_type        start_address       = 0;
         size_t              addr_space_size     = 0;
         device_class        dev_class           = device_class::addressable_device;
-        bool                uses_interrupts     = false;
-        priority_t          interrupt_priority  = 0;
     };
 
     struct processor_config {
