@@ -116,8 +116,8 @@ namespace ucle::fnsim {
             counter_t cycle_cnt_ {0};
     };
 
-    template <byte_order endianness,                    // Is processor little- or big-endian
-              unsigned N,                               // Processor architecture - 8, 16, 32 or 64 bits
+    template <unsigned N,                               // Processor architecture - 8, 16, 32 or 64 bits
+              byte_order endianness,                    // Is processor little- or big-endian
         template<byte_order, typename AddrType>
               typename MappedDeviceType,                // Base class for all devices that could be added to the simulator
         template <unsigned AddrSpN, typename MappedDevType>
