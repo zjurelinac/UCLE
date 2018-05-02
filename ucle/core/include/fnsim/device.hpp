@@ -3,7 +3,6 @@
 
 #include <fnsim/base.hpp>
 
-#include <fnsim/address_space.hpp>
 #include <fnsim/registers.hpp>
 
 #include <util/const_bin_util.hpp>

@@ -3,7 +3,6 @@
 
 #include <fnsim/base.hpp>
 
-#include <fnsim/address_space.hpp>
 #include <fnsim/device.hpp>
 #include <fnsim/processor.hpp>
 
