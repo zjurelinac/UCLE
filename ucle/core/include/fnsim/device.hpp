@@ -177,7 +177,7 @@ namespace ucle::fnsim {
                 if constexpr (register_size < sizeof(word_t))
                     throw invalid_memory_access("Register size too small to read a word");
 
-                return regs_[location / register_size];
+                return reg_(location);
             }
 
             void write_byte_(address_type location, byte_t value) override
@@ -198,8 +198,11 @@ namespace ucle::fnsim {
                 if constexpr (register_size < sizeof(word_t))
                     throw invalid_memory_access("Register size too small to write a word");
 
-                regs_[location / register_size] = value;
+                reg_(location) = value;
             }
+
+            register_type reg_(address_type location) const { return regs_[location / register_size]; }
+            register_type& reg_(address_type location) { return regs_[location / register_size]; }
 
         private:
             std::array<register_type, reg_num> regs_;
