@@ -12,9 +12,9 @@
 
 #include <array>
 
-namespace ucle::fnsim {
+namespace ucle::fnsim::frisc {
 
-    struct frisc_status_reg : public flags_reg<32> {
+    struct status_reg : public flags_reg<32> {
         using flags_reg<32>::operator=;
 
         flag_reference GIE  = operator[](4);
@@ -24,19 +24,19 @@ namespace ucle::fnsim {
         flag_reference N    = operator[](0);
     };
 
-    struct frisc_arith_flags : public bitfield<4> {
+    struct arith_flags : public bitfield<4> {
         using bitfield<4>::bitfield;
 
-        constexpr frisc_arith_flags() = default;
-        constexpr frisc_arith_flags(bool c, bool v, bool n, bool z)
+        constexpr arith_flags() = default;
+        constexpr arith_flags(bool c, bool v, bool n, bool z)
             { set(0, n); set(1, c); set(2, v); set(3, z); }
     };
 
-    struct frisc_register_file : public register_file {
+    struct register_file : public base_register_file {
         std::array<reg<32>, 8> R;
         reg<32>& SP = R[7];
         reg<32> PC;
-        frisc_status_reg SR;
+        status_reg SR;
         bool IIF = 0;
 
         void clear() override
@@ -51,7 +51,7 @@ namespace ucle::fnsim {
     class frisc_simulator : public functional_processor_simulator_impl<byte_order::little_endian, address_t, mapped_device, address_space, memory, processor_config, false, 2> {
         using cbu = util::const_bin_util<word_t>;
         using unop = util::unop<word_t>;
-        using binop = util::binop<word_t, frisc_arith_flags>;
+        using binop = util::binop<word_t, arith_flags>;
         using parent = functional_processor_simulator_impl<byte_order::little_endian, address_t, mapped_device, address_space, memory, processor_config, false, 2>;
 
         public:
@@ -77,7 +77,7 @@ namespace ucle::fnsim {
 
             constexpr bool eval_cond_(word_t cond) const;
 
-            frisc_register_file regs_;
+            register_file regs_;
     };
 
     functional_processor_simulator_ptr make_frisc_simulator(processor_config cfg);

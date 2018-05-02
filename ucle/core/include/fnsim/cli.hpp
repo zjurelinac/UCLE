@@ -20,7 +20,7 @@ namespace ucle::fnsim {
 
     std::set<std::string> factory_options = {"frisc"};
     std::unordered_map<std::string, fnsim_factory> factory = {
-        {"frisc", &make_frisc_simulator}
+        {"frisc", &frisc::make_frisc_simulator}
     };
 
     struct cli_config {

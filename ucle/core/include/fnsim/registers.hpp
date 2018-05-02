@@ -97,7 +97,7 @@ namespace ucle::fnsim {
             bitfield<N> value_ = 0;
     };
 
-    class register_file {
+    class base_register_file {
         // Abstract base class for all processor register files
 
         public:
