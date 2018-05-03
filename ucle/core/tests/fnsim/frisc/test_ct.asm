@@ -1,55 +1,64 @@
-CT_CR       EQU 10000
-CT_LR       EQU 10004
-CT_DC       EQU 10004
-CT_BS       EQU 10008
-CT_IACK     EQU 1000C
+CT1_CR      EQU     10000
+CT1_LR      EQU     10004
+CT1_DC      EQU     10004
+CT1_BS      EQU     10008
+CT1_IACK    EQU     1000C
 
-            ORG 0
-            MOVE 1000, SP
-            JP MAIN
-INT_VEC     DW 100
+CT2_CR      EQU     20000
+CT2_LR      EQU     20004
+CT2_DC      EQU     20004
+CT2_BS      EQU     20008
+CT2_IACK    EQU     2000C
 
-            ORG 0C
+            ORG     0
+            MOVE    1000, SP
+            JP      MAIN
+INT_VEC     DW      100
+
+            ORG     0C
 ; NMI_HNDLR   PUSH R0
 ;             MOVE SR, R0
 ;             PUSH R0
 ;
             ; Do stuff
-            STORE R0, (CT_BS)
-            MOVE 1, R3
-            MOVE 0DCBA, R5
-
+            STORE   R0, (CT2_BS)
+            MOVE    1, R6
 ;
 ;             POP R0
 ;             MOVE R0, SR
 ;             POP R0
             RETN
 
-            ORG 100
+            ORG     100
 INT_HNDLR   ; PUSH R0
-            ; MOVE SR, R0
-            ; PUSH R0
+            MOVE SR, R0
+            PUSH R0
 
-            STORE R0, (CT_BS)
-            MOVE 1, R3
+            STORE   R0, (CT1_BS)
+            ADD     R2, 1, R2
+            MOVE    1, R6
 
-            ; POP R0
-            ; MOVE R0, SR
+            POP R0
+            MOVE R0, SR
             ; POP R0
             RETI
 
-MAIN        MOVE %B 10000, R0
-            MOVE R0, SR         ; GIE = 1
+MAIN        MOVE    %B 10000, R0
+            MOVE    R0, SR          ; GIE = 1
 
-            MOVE %D 3000, R0
-            STORE R0, (CT_LR)   ; Count down from 3000
+            MOVE    %D 9, R0
+            STORE   R0, (CT1_LR)    ; Count down from 5
 
-            MOVE 7, R0          ; start = 1, do_int = 1, nmi = 1
-            STORE R0, (CT_CR)   ; Start CT
+            MOVE    3, R0           ; START = 1, DO_INT = 1, NMI = 0
+            STORE   R0, (CT1_CR)    ; Start CT1
 
-            MOVE 0, R2
-LOOP        ADD R2, 1, R2       ; Count cycles till interrupt, cnt = R2 * 3
-            CMP R3, 1           ; On CT interrupt, R3 will become 1, then stop
-            JP_NZ LOOP
-            LOAD R4, (CT_DC)    ; Store current CT value to R4
+            ; MOVE    %D 3, R0        ; Cound down from 3
+            ; STORE   R0, (CT2_LR)
+
+            ; MOVE    7, R0           ; START = 1, DO_INT = 1, NMI = 1
+            ; STORE   R0, (CT2_CR)    ; Start CT2
+
+LOOP        ADD     R1, 1, R1       ; Count cycles till interrupt, cnt = R1 * 3
+            CMP     R6, 1           ; On CT interrupt, R6 will become 1, then stop
+            JP_NZ   LOOP
             HALT

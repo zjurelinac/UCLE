@@ -1,55 +1,64 @@
-                       CT_CR       EQU 10000
-                       CT_LR       EQU 10004
-                       CT_DC       EQU 10004
-                       CT_BS       EQU 10008
-                       CT_IACK     EQU 1000C
+                       CT1_CR      EQU     10000
+                       CT1_LR      EQU     10004
+                       CT1_DC      EQU     10004
+                       CT1_BS      EQU     10008
+                       CT1_IACK    EQU     1000C
                        
-                                   ORG 0
-00000000  00 10 80 07              MOVE 1000, SP
-00000004  0C 01 00 C4              JP MAIN
-00000008  00 01 00 00  INT_VEC     DW 100
+                       CT2_CR      EQU     20000
+                       CT2_LR      EQU     20004
+                       CT2_DC      EQU     20004
+                       CT2_BS      EQU     20008
+                       CT2_IACK    EQU     2000C
                        
-                                   ORG 0C
+                                   ORG     0
+00000000  00 10 80 07              MOVE    1000, SP
+00000004  20 01 00 C4              JP      MAIN
+00000008  00 01 00 00  INT_VEC     DW      100
+                       
+                                   ORG     0C
                        ; NMI_HNDLR   PUSH R0
                        ;             MOVE SR, R0
                        ;             PUSH R0
                        ;
                                    ; Do stuff
-0000000C  08 00 01 B8              STORE R0, (CT_BS)
-00000010  01 00 80 05              MOVE 1, R3
-00000014  BA DC 80 06              MOVE 0DCBA, R5
-                       
+0000000C  08 00 02 B8              STORE   R0, (CT2_BS)
+00000010  01 00 00 07              MOVE    1, R6
                        ;
                        ;             POP R0
                        ;             MOVE R0, SR
                        ;             POP R0
-00000018  03 00 00 D8              RETN
+00000014  03 00 00 D8              RETN
                        
-                                   ORG 100
+                                   ORG     100
                        INT_HNDLR   ; PUSH R0
-                                   ; MOVE SR, R0
-                                   ; PUSH R0
+00000100  00 00 20 00              MOVE SR, R0
+00000104  00 00 00 88              PUSH R0
                        
-00000100  08 00 01 B8              STORE R0, (CT_BS)
-00000104  01 00 80 05              MOVE 1, R3
+00000108  08 00 01 B8              STORE   R0, (CT1_BS)
+0000010C  01 00 20 25              ADD     R2, 1, R2
+00000110  01 00 00 07              MOVE    1, R6
                        
+00000114  00 00 00 80              POP R0
+00000118  00 00 10 00              MOVE R0, SR
                                    ; POP R0
-                                   ; MOVE R0, SR
-                                   ; POP R0
-00000108  01 00 00 D8              RETI
+0000011C  01 00 00 D8              RETI
                        
-0000010C  10 00 00 04  MAIN        MOVE %B 10000, R0
-00000110  00 00 10 00              MOVE R0, SR         ; GIE = 1
+00000120  10 00 00 04  MAIN        MOVE    %B 10000, R0
+00000124  00 00 10 00              MOVE    R0, SR          ; GIE = 1
                        
-00000114  B8 0B 00 04              MOVE %D 3000, R0
-00000118  04 00 01 B8              STORE R0, (CT_LR)   ; Count down from 3000
+00000128  09 00 00 04              MOVE    %D 9, R0
+0000012C  04 00 01 B8              STORE   R0, (CT1_LR)    ; Count down from 5
                        
-0000011C  07 00 00 04              MOVE 7, R0          ; start = 1, do_int = 1, nmi = 1
-00000120  00 00 01 B8              STORE R0, (CT_CR)   ; Start CT
+00000130  03 00 00 04              MOVE    3, R0           ; START = 1, DO_INT = 1, NMI = 0
+00000134  00 00 01 B8              STORE   R0, (CT1_CR)    ; Start CT1
                        
-00000124  00 00 00 05              MOVE 0, R2
-00000128  01 00 20 25  LOOP        ADD R2, 1, R2       ; Count cycles till interrupt, cnt = R2 * 3
-0000012C  01 00 30 6C              CMP R3, 1           ; On CT interrupt, R3 will become 1, then stop
-00000130  28 01 00 C6              JP_NZ LOOP
-00000134  04 00 01 B2              LOAD R4, (CT_DC)    ; Store current CT value to R4
-00000138  00 00 00 F8              HALT
+                                   ; MOVE    %D 3, R0        ; Cound down from 3
+                                   ; STORE   R0, (CT2_LR)
+                       
+                                   ; MOVE    7, R0           ; START = 1, DO_INT = 1, NMI = 1
+                                   ; STORE   R0, (CT2_CR)    ; Start CT2
+                       
+00000138  01 00 90 24  LOOP        ADD     R1, 1, R1       ; Count cycles till interrupt, cnt = R1 * 3
+0000013C  01 00 60 6C              CMP     R6, 1           ; On CT interrupt, R6 will become 1, then stop
+00000140  38 01 00 C6              JP_NZ   LOOP
+00000144  00 00 00 F8              HALT

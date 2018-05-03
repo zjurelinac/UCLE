@@ -27,19 +27,19 @@ namespace ucle::fnsim::frisc {
         public:
             counter_timer() {}
             counter_timer(ticker_fn_type ticker) : ticker_(ticker) {}
-            counter_timer(zcount_fn_type zc_notifier) : zc_notifier_(zc_notifier) {}
             counter_timer(ticker_fn_type ticker, zcount_fn_type zc_notifier) : ticker_(ticker), zc_notifier_(zc_notifier) {}
 
             void work() override
             {
-                if (!ticker_()) return;
+                if (ticker_ && !ticker_()) return;
 
                 DC_ -= 1;
                 if (DC_ == 0) {
                     status_ = true;
                     DC_ = LR_;
 
-                    zc_notifier_();
+                    if (zc_notifier_)
+                        zc_notifier_();
                 }
             }
 
@@ -110,6 +110,23 @@ namespace ucle::fnsim::frisc {
 
             ticker_fn_type ticker_ { nullptr };
             zcount_fn_type zc_notifier_ { nullptr };
+    };
+
+    class ct_chainer {
+        public:
+            void zc_notify() { ticked_ = true; }
+
+            bool should_tick()
+            {
+                if (!ticked_)
+                    return false;
+
+                ticked_ = false;
+                return true;
+            }
+
+        private:
+            bool ticked_ { false };
     };
 
 }
