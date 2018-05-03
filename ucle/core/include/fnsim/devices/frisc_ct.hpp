@@ -7,6 +7,7 @@
 #include <fnsim/processors/frisc.hpp>
 
 #include <cmath>
+#include <chrono>
 #include <functional>
 
 namespace ucle::fnsim::frisc {
@@ -16,6 +17,7 @@ namespace ucle::fnsim::frisc {
 
         using ticker_fn_type = std::function<bool()>;
         using zcount_fn_type = std::function<void()>;
+        using reset_fn_type  = std::function<void()>;
 
         enum { CR = 0, DC = 4, LR = 4, SR = 8, IACK = 12 };
 
@@ -29,19 +31,20 @@ namespace ucle::fnsim::frisc {
             counter_timer() {}
             counter_timer(ticker_fn_type ticker) : ticker_(ticker) {}
             counter_timer(ticker_fn_type ticker, zcount_fn_type zc_notifier) : ticker_(ticker), zc_notifier_(zc_notifier) {}
+            counter_timer(ticker_fn_type ticker, zcount_fn_type zc_notifier, reset_fn_type resetter) : ticker_(ticker), zc_notifier_(zc_notifier), resetter_(resetter) {}
 
             void work() override
             {
                 if (ticker_ && !ticker_()) return;
 
                 DC_ -= 1;
-                if (DC_ == 0) {
-                    status_ = true;
-                    DC_ = LR_;
+                if (DC_ != 0) return;
 
-                    if (zc_notifier_)
-                        zc_notifier_();
-                }
+                status_ = true;
+                DC_ = LR_;
+
+                if (zc_notifier_)
+                    zc_notifier_();
             }
 
             device_status status() override
@@ -59,6 +62,9 @@ namespace ucle::fnsim::frisc {
                 CR_ = 0;
                 LR_ = DC_ = 0;
                 status_ = false;
+
+                if (resetter_)
+                    resetter_();
             }
 
             bool is_worker() override       { return true; }
@@ -111,6 +117,7 @@ namespace ucle::fnsim::frisc {
 
             ticker_fn_type ticker_ { nullptr };
             zcount_fn_type zc_notifier_ { nullptr };
+            reset_fn_type  resetter_ { nullptr };
     };
 
     class ct_chainer {
@@ -138,7 +145,7 @@ namespace ucle::fnsim::frisc {
             approximate_freq_ticker(frequency_t freq, frequency_t approx_proc_freq = 50_MHz)
                 : freq_frac_ { static_cast<frequency_t>(static_cast<double>(approx_proc_freq) / freq + 0.5) } { fmt::print("Freq: {}\n", freq_frac_); }
             bool should_tick() { return cnt_++ % freq_frac_ == freq_frac_ - 1; }
-
+            void reset() { cnt_ = 0; }
         private:
             frequency_t freq_frac_;
             counter_t cnt_ { 0 };
@@ -146,10 +153,13 @@ namespace ucle::fnsim::frisc {
 
     class fixed_freq_ticker {
         static constexpr frequency_t max_allowed_freq = 1_MHz;
-        static constexpr unsigned check_delta = 50;
+        static constexpr unsigned default_check_every = 50;
+
+        using clock_type = std::chrono::high_resolution_clock;
+        using time_point_type = clock_type::time_point;
 
         public:
-            fixed_freq_ticker(frequency_t freq, unsigned check_every = check_delta) : freq_ { freq }
+            fixed_freq_ticker(frequency_t freq, unsigned check_every = default_check_every) : freq_ { freq }
             {
                 if (freq > max_allowed_freq)
                     throw impossible_value("Frequency value too large");
@@ -160,8 +170,12 @@ namespace ucle::fnsim::frisc {
 
             }
 
+            void reset() { cnt_ = 0; }
+
         private:
             frequency_t freq_;
+
+            counter_t cnt_ { 0 };
     };
 }
 
