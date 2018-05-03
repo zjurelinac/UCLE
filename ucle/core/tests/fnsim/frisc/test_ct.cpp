@@ -17,10 +17,10 @@ int main(int, char* argv[])
     frisc::approximate_freq_ticker ticker { 1_MHz, 35_MHz };
     frisc::ct_chainer chainer;
 
-    auto ct_dev_1 = std::make_shared<frisc::counter_timer>([&] { return ticker.should_tick(); }, [&] { chainer.zc_notify(); }, [&] { ticker.reset(); });
+    auto ct_dev_1 = std::make_shared<frisc::counter_timer>(&ticker, [&] { chainer.zc_notify(); } );
     sim.add_device(ct_dev_1, { 0x10000, 16, device_class::addressable_device });
 
-    auto ct_dev_2 = std::make_shared<frisc::counter_timer>([&] { return chainer.should_tick(); });
+    auto ct_dev_2 = std::make_shared<frisc::counter_timer>(&chainer);
     sim.add_device(ct_dev_2, { 0x20000, 16, device_class::addressable_device });
 
     sim.load_pfile(argv[1]);

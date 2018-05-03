@@ -14,12 +14,16 @@ namespace ucle::fnsim::frisc {
 
     using namespace ucle::literals;
 
+    class base_tick_generator {
+        public:
+            virtual bool should_tick() { return false; }
+            virtual void reset() {}
+    };
+
     class counter_timer : public register_set_device<0, 32, byte_order::little_endian, address32_t> {
         using parent = register_set_device<0, 32, byte_order::little_endian, address32_t>;
 
-        using ticker_fn_type = std::function<bool()>;
         using zcount_fn_type = std::function<void()>;
-        using reset_fn_type  = std::function<void()>;
 
         enum { CR = 0, DC = 4, LR = 4, SR = 8, IACK = 12 };
 
@@ -31,13 +35,12 @@ namespace ucle::fnsim::frisc {
 
         public:
             counter_timer() {}
-            counter_timer(ticker_fn_type ticker) : ticker_(ticker) {}
-            counter_timer(ticker_fn_type ticker, zcount_fn_type zc_notifier) : ticker_(ticker), zc_notifier_(zc_notifier) {}
-            counter_timer(ticker_fn_type ticker, zcount_fn_type zc_notifier, reset_fn_type resetter) : ticker_(ticker), zc_notifier_(zc_notifier), resetter_(resetter) {}
+            counter_timer(base_tick_generator* ticker) : ticker_(ticker) {}
+            counter_timer(base_tick_generator* ticker, zcount_fn_type zc_notifier) : ticker_(ticker), zc_notifier_(zc_notifier) {}
 
             void work() override
             {
-                if (ticker_ && !ticker_()) return;
+                if (ticker_ && !ticker_->should_tick()) return;
 
                 DC_ -= 1;
                 if (DC_ != 0) return;
@@ -65,8 +68,8 @@ namespace ucle::fnsim::frisc {
                 LR_ = DC_ = 0;
                 status_ = false;
 
-                if (resetter_)
-                    resetter_();
+                if (ticker_)
+                    ticker_->reset();
             }
 
             bool is_worker() override       { return true; }
@@ -117,16 +120,15 @@ namespace ucle::fnsim::frisc {
 
             bool status_ { false };  // status == did count down
 
-            ticker_fn_type ticker_ { nullptr };
+            base_tick_generator* ticker_ { nullptr };
             zcount_fn_type zc_notifier_ { nullptr };
-            reset_fn_type  resetter_ { nullptr };
     };
 
-    class ct_chainer {
+    class ct_chainer : public base_tick_generator {
         public:
             void zc_notify() { ticked_ = true; }
 
-            bool should_tick()
+            bool should_tick() override
             {
                 if (!ticked_)
                     return false;
@@ -135,62 +137,23 @@ namespace ucle::fnsim::frisc {
                 return true;
             }
 
+            void reset() override { ticked_ = true; }
+
         private:
             bool ticked_ { false };
     };
 
-    class approximate_freq_ticker {
+    class approximate_freq_ticker : public base_tick_generator {
         public:
             approximate_freq_ticker(frequency_t freq, frequency_t approx_proc_freq = 50_MHz)
                 : freq_frac_ { static_cast<frequency_t>(static_cast<double>(approx_proc_freq) / freq + 0.5) } { fmt::print("Freq: {}\n", freq_frac_); }
-            bool should_tick() { return cnt_++ % freq_frac_ == freq_frac_ - 1; }
-            void reset() { cnt_ = 0; }
+            bool should_tick() override { return cnt_++ % freq_frac_ == freq_frac_ - 1; }
+            void reset() override { cnt_ = 0; }
         private:
             frequency_t freq_frac_;
             counter_t cnt_ { 0 };
     };
 
-    // class fixed_freq_ticker {
-    //     static constexpr frequency_t max_allowed_freq = 1_MHz;
-    //     static constexpr unsigned default_check_every = 1;
-
-    //     using clock_type = std::chrono::high_resolution_clock;
-    //     using time_point = clock_type::time_point;
-    //     using useconds = std::chrono::nanoseconds;
-
-    //     public:
-    //         fixed_freq_ticker(frequency_t freq, unsigned check_every = default_check_every)
-    //             : period_us_ { static_cast<counter_t>(static_cast<double>(1_MHz) / freq + 0.5) }, check_every_(check_every)
-    //         {
-    //             fmt::print("Period: {}us\n", period_us_);
-    //             if (freq > max_allowed_freq)
-    //                 throw impossible_value("Frequency value too large");
-    //         }
-
-    //         bool should_tick()
-    //         {
-    //             // if (cnt_++ % check_every_ != check_every_ - 1) return false;
-
-    //             auto current_us = std::chrono::duration_cast<useconds>(clock_type::now() - start_).count();
-
-    //             fmt::print_colored(fmt::BLUE, "current = {}us, last = {}us, delta = {}us, {}\n", current_us, last_us_, current_us - last_us_, current_us - last_us_ >= period_us_ ? "TICK!" : "NO TICK");
-    //             if (current_us - last_us_ < period_us_) return false;
-
-    //             last_us_ = current_us;
-    //             return true;
-    //         }
-
-    //         void reset() { last_us_ = cnt_ = 0; }
-
-    //     private:
-    //         counter_t period_us_;
-    //         unsigned check_every_;
-
-    //         time_point start_ { clock_type::now() };
-
-    //         counter_t last_us_ { 0 };
-    //         counter_t cnt_ { 0 };
-    // };
 }
 
 #endif  /* _UCLE_CORE_FNSIM_DEVICES_RTC_HPP_ */
