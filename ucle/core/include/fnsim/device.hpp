@@ -21,9 +21,9 @@ namespace ucle::fnsim {
             virtual void work() = 0;
             virtual void reset() = 0;
 
-            virtual bool is_worker() = 0;
-            virtual bool can_interrupt() { return false; }
-            virtual priority_t interrupt_priority() { return 0; }
+            virtual bool is_worker() const = 0;
+            virtual bool can_interrupt() const { return false; }
+            virtual priority_t interrupt_priority() const { return 0; }
     };
 
     using device_ptr = std::shared_ptr<device>;
@@ -134,7 +134,7 @@ namespace ucle::fnsim {
             device_status status() override {  return device_status::idle; }
             void work() override {}
 
-            bool is_worker() override { return false; }
+            bool is_worker() const override { return false; }
     };
 
     template<unsigned reg_num, unsigned reg_size, byte_order endianness, typename AddressType>

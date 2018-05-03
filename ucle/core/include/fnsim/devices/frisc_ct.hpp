@@ -77,9 +77,9 @@ namespace ucle::fnsim::frisc {
                     ticker_->reset();
             }
 
-            bool is_worker() override       { return true; }
-            bool can_interrupt() override   { return CR_[1]; }
-            priority_t interrupt_priority() { return CR_[2] ? frisc_nmi : frisc_int; }
+            bool is_worker() const override                { return true; }
+            bool can_interrupt() const override            { return CR_[1]; }
+            priority_t interrupt_priority() const override { return CR_[2] ? frisc_nmi : frisc_int; }
 
         protected:
 
@@ -117,7 +117,7 @@ namespace ucle::fnsim::frisc {
             }
 
         private:
-            bool running_()          { return CR_[0]; }
+            bool running_() const { return CR_[0]; }
 
             reg<32> CR_ { 0 };
             reg<16> LR_ { 0 };
