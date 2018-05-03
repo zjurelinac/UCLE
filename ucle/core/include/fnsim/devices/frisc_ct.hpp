@@ -20,6 +20,11 @@ namespace ucle::fnsim::frisc {
             virtual void reset() {}
     };
 
+    class base_countdown_notifier {
+        public:
+            virtual void notify() {}
+    };
+
     class counter_timer : public register_set_device<0, 32, byte_order::little_endian, address32_t> {
         using parent = register_set_device<0, 32, byte_order::little_endian, address32_t>;
 
@@ -36,7 +41,7 @@ namespace ucle::fnsim::frisc {
         public:
             counter_timer() {}
             counter_timer(base_tick_generator* ticker) : ticker_(ticker) {}
-            counter_timer(base_tick_generator* ticker, zcount_fn_type zc_notifier) : ticker_(ticker), zc_notifier_(zc_notifier) {}
+            counter_timer(base_tick_generator* ticker, base_countdown_notifier* notifier) : ticker_(ticker), notifier_(notifier) {}
 
             void work() override
             {
@@ -48,8 +53,8 @@ namespace ucle::fnsim::frisc {
                 status_ = true;
                 DC_ = LR_;
 
-                if (zc_notifier_)
-                    zc_notifier_();
+                if (notifier_)
+                    notifier_->notify();
             }
 
             device_status status() override
@@ -121,22 +126,19 @@ namespace ucle::fnsim::frisc {
             bool status_ { false };  // status == did count down
 
             base_tick_generator* ticker_ { nullptr };
-            zcount_fn_type zc_notifier_ { nullptr };
+            base_countdown_notifier* notifier_ { nullptr };
     };
 
-    class ct_chainer : public base_tick_generator {
+    class ct_chainer : public base_tick_generator, public base_countdown_notifier {
         public:
-            void zc_notify() { ticked_ = true; }
-
             bool should_tick() override
             {
-                if (!ticked_)
-                    return false;
+                if (!ticked_) return false;
 
                 ticked_ = false;
                 return true;
             }
-
+            void notify() { ticked_ = true; }
             void reset() override { ticked_ = true; }
 
         private:
