@@ -6,6 +6,7 @@
 
 #include <fnsim/processors/frisc.hpp>
 
+#include <cmath>
 #include <functional>
 
 namespace ucle::fnsim::frisc {
@@ -129,6 +130,39 @@ namespace ucle::fnsim::frisc {
             bool ticked_ { false };
     };
 
+
+    using namespace ucle::literals;
+
+    class approximate_freq_ticker {
+        public:
+            approximate_freq_ticker(frequency_t freq, frequency_t approx_proc_freq = 50_MHz)
+                : freq_frac_ { static_cast<frequency_t>(static_cast<double>(approx_proc_freq) / freq + 0.5) } { fmt::print("Freq: {}\n", freq_frac_); }
+            bool should_tick() { return cnt_++ % freq_frac_ == freq_frac_ - 1; }
+
+        private:
+            frequency_t freq_frac_;
+            counter_t cnt_ { 0 };
+    };
+
+    class fixed_freq_ticker {
+        static constexpr frequency_t max_allowed_freq = 1_MHz;
+        static constexpr unsigned check_delta = 50;
+
+        public:
+            fixed_freq_ticker(frequency_t freq, unsigned check_every = check_delta) : freq_ { freq }
+            {
+                if (freq > max_allowed_freq)
+                    throw impossible_value("Frequency value too large");
+            }
+
+            bool should_tick()
+            {
+
+            }
+
+        private:
+            frequency_t freq_;
+    };
 }
 
 #endif  /* _UCLE_CORE_FNSIM_DEVICES_RTC_HPP_ */

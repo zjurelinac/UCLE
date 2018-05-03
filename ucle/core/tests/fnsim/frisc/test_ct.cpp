@@ -10,12 +10,14 @@ using namespace ucle::fnsim;
 
 int main(int, char* argv[])
 {
+    using namespace ucle::literals;
 
     functional_simulation<false, false, false, true> sim { frisc::make_frisc_simulator({ 4096 }) };
 
+    frisc::approximate_freq_ticker ticker { 1_MHz, 35_MHz };
     frisc::ct_chainer chainer;
 
-    auto ct_dev_1 = std::make_shared<frisc::counter_timer>(nullptr, [&] { chainer.zc_notify(); });
+    auto ct_dev_1 = std::make_shared<frisc::counter_timer>([&] { return ticker.should_tick(); }, [&] { chainer.zc_notify(); });
     sim.add_device(ct_dev_1, { 0x10000, 16, device_class::addressable_device });
 
     auto ct_dev_2 = std::make_shared<frisc::counter_timer>([&] { return chainer.should_tick(); });
@@ -26,4 +28,5 @@ int main(int, char* argv[])
     fmt::print("Result: {}\n", to_string(stat));
 
     print_reg_info(sim.get_reg_info());
+    print_exec_info(sim.get_exec_info());
 }

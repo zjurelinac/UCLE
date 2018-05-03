@@ -34,7 +34,7 @@ INT_HNDLR   ; PUSH R0
             MOVE SR, R0
             PUSH R0
 
-            STORE   R0, (CT1_BS)
+            STORE   R0, (CT2_BS)
             ADD     R2, 1, R2
             MOVE    1, R6
 
@@ -46,17 +46,17 @@ INT_HNDLR   ; PUSH R0
 MAIN        MOVE    %B 10000, R0
             MOVE    R0, SR          ; GIE = 1
 
-            MOVE    %D 9, R0
-            STORE   R0, (CT1_LR)    ; Count down from 5
+            MOVE    %D 1000, R0
+            STORE   R0, (CT1_LR)    ; Count down from 1000
 
-            MOVE    3, R0           ; START = 1, DO_INT = 1, NMI = 0
+            MOVE    1, R0           ; START = 1, DO_INT = 0, NMI = 0
             STORE   R0, (CT1_CR)    ; Start CT1
 
-            ; MOVE    %D 3, R0        ; Cound down from 3
-            ; STORE   R0, (CT2_LR)
+            MOVE    %D 1000, R0     ; Cound down from 1000
+            STORE   R0, (CT2_LR)
 
-            ; MOVE    7, R0           ; START = 1, DO_INT = 1, NMI = 1
-            ; STORE   R0, (CT2_CR)    ; Start CT2
+            MOVE    3, R0           ; START = 1, DO_INT = 1, NMI = 0
+            STORE   R0, (CT2_CR)    ; Start CT2
 
 LOOP        ADD     R1, 1, R1       ; Count cycles till interrupt, cnt = R1 * 3
             CMP     R6, 1           ; On CT interrupt, R6 will become 1, then stop
