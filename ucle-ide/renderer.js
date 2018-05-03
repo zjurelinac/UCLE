@@ -1,23 +1,16 @@
 const loader = require('monaco-loader');
 const { remote, ipcRenderer } = require('electron');
 const path = require('path');
-const Menu = remote.Menu;
-const MenuItem = remote.MenuItem;
 
 const FileManager = require('./scripts/file_manage');
 const UCLETabs = require('./scripts/tabs');
+const UCLEServer = require('./scripts/ucle_ide_server')
 let quickTools, friscAssembly;
 
 loader().then((monaco) => {
 	var initType = false;
 	var el = document.querySelector('.ucle-tabs');
 	var model = monaco.editor.createModel("");
-
-	/*const ctxMenu = new Menu();
-
-	ctxMenu.append(new MenuItem({
-		label: 'HELLO'
-	}));*/
 
 	friscAssembly = require("./scripts/frisc_language")(monaco);
 
@@ -42,8 +35,11 @@ loader().then((monaco) => {
 
 	const fileManager = new FileManager({ editor, monaco });
 	const ucleTabs = new UCLETabs({ editor, monaco });
+	const ucleServer = new UCLEServer({ editor, monaco });
+
 	ucleTabs.init(el, { tabOverlapDistance: 14, minWidth: 45, maxWidth: 243 });
-	quickTools = require("./scripts/quick_tools")(fileManager,ucleTabs);
+
+	quickTools = require("./scripts/quick_tools")(fileManager,ucleTabs, ucleServer);
 
 	editor.onDidChangeModelContent(function(e) {
 		if(!initType && !ucleTabs.currentTab) {
@@ -80,12 +76,23 @@ loader().then((monaco) => {
 			if(currFileName == 'untitled') {
 				var savedPath = fileManager.saveAsFile();
 				ucleTabs.updateTab(currTab, {title: ucleTabs.getFileName(savedPath), fullPath: savedPath});
-				ucleTabs.changeEditorLanguage(currTab, ucleTabs.getFileName(savedPath));				
+				ucleTabs.changeEditorLanguage(currTab, ucleTabs.getFileName(savedPath));                
 			} else {
 				fileManager.saveFile(currFilePath);
 			}
 			ucleTabs.updateTabContent(currTab);
 		}
+	});
+
+	ipcRenderer.on('run-simulation', (e) => {
+		var currTabValue = ucleTabs.currentTabValue;
+		if(currTabValue) {
+			ucleServer.runSim("1.p");
+		}
+	});
+
+	ipcRenderer.on('sim-response', (e, data) => {
+		console.log(data);
 	});
 
 	/*document.getElementById("quick-tools").addEventListener("contextmenu", function(e) {

@@ -1,9 +1,12 @@
 const { remote, ipcRenderer } = require('electron');
 
-module.exports = (fileManager, ucleTabs) => {
+const Menu = remote.Menu;
+const MenuItem = remote.MenuItem;
+
+module.exports = (fileManager, ucleTabs, ucleServer) => {
 
 	document.getElementById("listed-files").addEventListener("click", function(e) {
-		if (e.target && (e.target.matches("li.dir") || e.target.matches("span"))) {
+		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir"))) {
 			var child = e.target.children[0]; 
 			if(child.className == "dir-ico-opened") {
 				child.className = "dir-ico-closed";
@@ -23,7 +26,7 @@ module.exports = (fileManager, ucleTabs) => {
 
 	document.getElementById("listed-files").addEventListener("mouseover", function(e) {
 		e.preventDefault();
-		if(e.target && (e.target.matches("li.dir") || e.target.matches("li.file") || e.target.matches("span"))) {
+		if(e.target && (e.target.matches("li.dir") || e.target.matches("li.file") || e.target.matches("div.dir"))) {
 			document.getElementById(e.target.id).style.cursor = "pointer";
 			document.getElementById(e.target.id).style.background = "#e9e9e9"
 		}
@@ -31,7 +34,7 @@ module.exports = (fileManager, ucleTabs) => {
 
 	document.getElementById("listed-files").addEventListener("mouseout", function(e) {
 		e.preventDefault();
-		if(e.target && (e.target.matches("li.dir") || e.target.matches("li.file") || e.target.matches("span"))) {
+		if(e.target && (e.target.matches("li.dir") || e.target.matches("li.file") || e.target.matches("div.dir"))) {
 			document.getElementById(e.target.id).style.background = "white";
 		}
 	});
@@ -54,6 +57,13 @@ module.exports = (fileManager, ucleTabs) => {
 	document.getElementById("openbtn").addEventListener("click", function(e) {
 		fileManager.openDirectory();
 		ucleTabs.closeAllTabs();
+	});
+
+	document.getElementById("run-sim").addEventListener("click", function(e) {
+		var currTabValue = ucleTabs.currentTabValue;
+		if(currTabValue) {
+			ucleServer.runSim("1.p");
+		}
 	});
 
 	ipcRenderer.on('open-dir', (e) => {

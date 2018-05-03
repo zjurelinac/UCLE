@@ -1,6 +1,5 @@
 const { app, BrowserWindow, Menu } = require("electron");
 const dialog = require('electron').dialog;
-
 let mainWindow, template;
 
 function createWindow () {

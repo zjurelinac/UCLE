@@ -66,9 +66,9 @@ class FileManager {
 			var child = children[i];
 			if(child.type == 'directory') {
 				let childListID = child.path + '-' + child.name;
-				list.innerHTML += '<li id="' + child.path + '" class="dir"><i class="dir-ico-closed"></i>' + child.name + '</li><ul id="' + childListID + '"' + 'style="display: '+  'inherit;"></ul><br/>';
+				list.innerHTML += '<li id="' + child.path + '" title="' +  child.path + '" class="dir"><i class="dir-ico-closed"></i>' + child.name + '</li><ul id="' + childListID + '"' + 'style="display:inherit;"></ul><br/>';
 			} else {
-				list.innerHTML += '<li id="' + child.path + '" class="file"><i class="file-ico"></i>'+ child.name + '</li> <br/>';
+				list.innerHTML += '<li id="' + child.path + '" title="' +  child.path + '" class="file"><i class="file-ico"></i>'+ child.name + '</li> <br/>';
 			}
 		}
 	}
@@ -98,7 +98,7 @@ class FileManager {
 
 		if(init) {
 			document.getElementById('openbtn').style.display = "none";
-			document.getElementById('listed-files').innerHTML += '<span id="' + filePath + '"><i class="dir-ico-closed"></i>' + dirName + '</span><ul id="' + listID + '"' + 'style="display: ' + 'none;"></ul><br/>';
+			document.getElementById('listed-files').innerHTML += '<div id="' + filePath + '" style="width:100%" title="' + filePath + '" class="dir"><i class="dir-ico-closed"></i>' + dirName + '</div><ul id="' + listID + '"' + 'style="display: none;"></ul><br/>';
 		}
 
 		this.walkThroughFiles(tree.children, listID);
