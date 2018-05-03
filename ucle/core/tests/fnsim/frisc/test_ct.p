@@ -9,16 +9,21 @@
 00000004  0C 01 00 C4              JP MAIN
 00000008  00 01 00 00  INT_VEC     DW 100
                        
-0000000C  00 00 00 88  NMI_HNDLR   PUSH R0
-00000010  00 00 20 00              MOVE SR, R0
-00000014  00 00 00 88              PUSH R0
-                       
+                                   ORG 0C
+                       ; NMI_HNDLR   PUSH R0
+                       ;             MOVE SR, R0
+                       ;             PUSH R0
+                       ;
                                    ; Do stuff
+0000000C  08 00 01 B8              STORE R0, (CT_BS)
+00000010  01 00 80 05              MOVE 1, R3
+00000014  BA DC 80 06              MOVE 0DCBA, R5
                        
-00000018  00 00 00 80              POP R0
-0000001C  00 00 10 00              MOVE R0, SR
-00000020  00 00 00 80              POP R0
-00000024  03 00 00 D8              RETN
+                       ;
+                       ;             POP R0
+                       ;             MOVE R0, SR
+                       ;             POP R0
+00000018  03 00 00 D8              RETN
                        
                                    ORG 100
                        INT_HNDLR   ; PUSH R0
@@ -26,7 +31,7 @@
                                    ; PUSH R0
                        
 00000100  08 00 01 B8              STORE R0, (CT_BS)
-00000104  CD AB 00 07              MOVE 0ABCD, R6
+00000104  01 00 80 05              MOVE 1, R3
                        
                                    ; POP R0
                                    ; MOVE R0, SR
@@ -36,15 +41,15 @@
 0000010C  10 00 00 04  MAIN        MOVE %B 10000, R0
 00000110  00 00 10 00              MOVE R0, SR         ; GIE = 1
                        
-00000114  05 00 00 04              MOVE 5, R0
-00000118  04 00 01 B8              STORE R0, (CT_LR)
+00000114  B8 0B 00 04              MOVE %D 3000, R0
+00000118  04 00 01 B8              STORE R0, (CT_LR)   ; Count down from 3000
                        
-0000011C  03 00 00 04              MOVE 3, R0          ; start = 1, do_int = 1
-00000120  00 00 01 B8              STORE R0, (CT_CR)
+0000011C  07 00 00 04              MOVE 7, R0          ; start = 1, do_int = 1, nmi = 1
+00000120  00 00 01 B8              STORE R0, (CT_CR)   ; Start CT
                        
-00000124  00 00 00 24              ADD R0, 0, R0
-00000128  04 00 81 B0              LOAD R1, (CT_DC)
-0000012C  04 00 01 B1              LOAD R2, (CT_DC)
-00000130  04 00 81 B1              LOAD R3, (CT_DC)
-00000134  04 00 01 B2              LOAD R4, (CT_DC)
+00000124  00 00 00 05              MOVE 0, R2
+00000128  01 00 20 25  LOOP        ADD R2, 1, R2       ; Count cycles till interrupt, cnt = R2 * 3
+0000012C  01 00 30 6C              CMP R3, 1           ; On CT interrupt, R3 will become 1, then stop
+00000130  28 01 00 C6              JP_NZ LOOP
+00000134  04 00 01 B2              LOAD R4, (CT_DC)    ; Store current CT value to R4
 00000138  00 00 00 F8              HALT

@@ -6,13 +6,15 @@
 
 #include <fnsim/processors/frisc.hpp>
 
+#include <functional>
+
 namespace ucle::fnsim::frisc {
 
-    // TODO: fix interrupt handling
-    // TODO: allow different clock sources
-    // TODO: notify others on countdown finish
     class counter_timer : public register_set_device<0, 32, byte_order::little_endian, address32_t> {
         using parent = register_set_device<0, 32, byte_order::little_endian, address32_t>;
+
+        using ticker_fn_type = std::function<bool()>;
+        using zcount_fn_type = std::function<void()>;
 
         enum { CR = 0, DC = 4, LR = 4, SR = 8, IACK = 12 };
 
@@ -23,14 +25,21 @@ namespace ucle::fnsim::frisc {
         // 12: Interrupt Acknowledge (write only) -> Device interrupt handling done
 
         public:
+            counter_timer() {}
+            counter_timer(ticker_fn_type ticker) : ticker_(ticker) {}
+            counter_timer(zcount_fn_type zc_notifier) : zc_notifier_(zc_notifier) {}
+            counter_timer(ticker_fn_type ticker, zcount_fn_type zc_notifier) : ticker_(ticker), zc_notifier_(zc_notifier) {}
+
             void work() override
             {
-                fmt::print_colored(fmt::BLUE, ".");
+                if (!ticker_()) return;
 
                 DC_ -= 1;
                 if (DC_ == 0) {
                     status_ = true;
                     DC_ = LR_;
+
+                    zc_notifier_();
                 }
             }
 
@@ -98,6 +107,9 @@ namespace ucle::fnsim::frisc {
             reg<16> DC_ { 0 };
 
             bool status_ { false };  // status == did count down
+
+            ticker_fn_type ticker_ { nullptr };
+            zcount_fn_type zc_notifier_ { nullptr };
     };
 
 }
