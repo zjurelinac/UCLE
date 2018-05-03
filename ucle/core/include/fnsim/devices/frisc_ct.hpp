@@ -83,7 +83,7 @@ namespace ucle::fnsim::frisc {
 
         protected:
 
-            word_t read_word_(address_type location) const override
+            word_t read_word_(address_type location) override
             {
                 switch (location) {
                     case CR:

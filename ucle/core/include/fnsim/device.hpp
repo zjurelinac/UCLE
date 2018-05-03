@@ -43,7 +43,7 @@ namespace ucle::fnsim {
             self_type& operator=(self_type&&)       = default;
 
             template <typename T, typename = meta::is_storage_t<T>>
-            T read(address_type location) const
+            T read(address_type location)
             {
                 if constexpr (std::is_same_v<T, byte_t>) return read_byte_(location);
                 if constexpr (std::is_same_v<T, half_t>) return read_half_(location);
@@ -59,9 +59,9 @@ namespace ucle::fnsim {
             }
 
         protected:
-            virtual byte_t read_byte_(address_type location) const = 0;
-            virtual half_t read_half_(address_type location) const = 0;
-            virtual word_t read_word_(address_type location) const = 0;
+            virtual byte_t read_byte_(address_type location) = 0;
+            virtual half_t read_half_(address_type location) = 0;
+            virtual word_t read_word_(address_type location) = 0;
 
             virtual void write_byte_(address_type location, byte_t value) = 0;
             virtual void write_half_(address_type location, half_t value) = 0;
@@ -88,17 +88,17 @@ namespace ucle::fnsim {
             void reset() override { memset(data_.get(), 0, size_); }
 
         protected:
-            byte_t read_byte_(address_type location) const override
+            byte_t read_byte_(address_type location) override
             {
                 return data_[location];
             }
 
-            half_t read_half_(address_type location) const override
+            half_t read_half_(address_type location) override
             {
                 return *(reinterpret_cast<half_t*>(&data_[location]));
             }
 
-            word_t read_word_(address_type location) const override
+            word_t read_word_(address_type location) override
             {
                 return *(reinterpret_cast<word_t*>(&data_[location]));
             }
@@ -165,12 +165,12 @@ namespace ucle::fnsim {
             }
 
         protected:
-            byte_t read_byte_(address_type location) const override
+            byte_t read_byte_(address_type location) override
             {
                 return cbu::nth_byte_of(read_word_(location), location & register_size);
             }
 
-            half_t read_half_(address_type location) const override
+            half_t read_half_(address_type location) override
             {
                 if constexpr (register_size < sizeof(half_t))
                     throw invalid_memory_access("Register size too small to read a half-word");
@@ -178,7 +178,7 @@ namespace ucle::fnsim {
                 return cbu::nth_half_of(read_word_(location), (location & register_size) >> 1);
             }
 
-            word_t read_word_(address_type location) const override
+            word_t read_word_(address_type location) override
             {
                 if constexpr (register_size < sizeof(word_t))
                     throw invalid_memory_access("Register size too small to read a word");
