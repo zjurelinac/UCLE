@@ -10,8 +10,8 @@ namespace ucle::fnsim::frisc {
 
     class base_io_device {
         public:
-            virtual bool ready() { return false; }
-            virtual byte_t read() { return 0; }
+            virtual bool ready()             { return false; }
+            virtual byte_t read()            { return 0; }
             virtual void write(byte_t value) {}
     };
 
@@ -22,7 +22,7 @@ namespace ucle::fnsim::frisc {
         enum work_mode { mode_output = 0b00, mode_input = 0b01, mode_bitset = 0b10, mode_bittest = 0b11 };
 
         // Registers:
-        //  0: Control Register -> 0 = device disabled, 1 = device enabled
+        //  0: Control Register
         //  4: Data Register    -> 8-bit register
         //  8: Status Register  -> 0 = no interrupt, 1 = ; write = interrupt accepted
         // 12: Interrupt Acknowledge (write only) -> Device interrupt handling done
@@ -32,27 +32,35 @@ namespace ucle::fnsim::frisc {
 
             void work() override
             {
-                // TODO
-            }
-
-            device_status status() override
-            {
                 switch (mode_()) {
                     case mode_output:
                         // TODO
                     case mode_input:
                         // TODO
                     case mode_bittest:
-                        // TODO
+                        DR_ = io_dev_->read();
+
+                        if (DR_ != last_read_ && can_interrupt() && test_bits_()) {
+                            status_ = true;
+                            last_read_ = DR_;
+                        }
+                    case mode_bitset:
+                    default:
+                        return;
+                }
+            }
+
+            device_status status() override
+            {
+                switch (mode_()) {
+                    case mode_output:
+                    case mode_input:
+                    case mode_bittest:
+                        return (can_interrupt() && status_ && int_ack_) ? device_status::interrupt : device_status::pending;
                     case mode_bitset:
                     default:
                         return device_status::idle;
                 }
-
-                // if (status_ && can_interrupt())
-                //     return device_status::interrupt;
-                // else if (running_())
-                //     return device_status::pending;
             }
 
             void reset() override
@@ -60,6 +68,8 @@ namespace ucle::fnsim::frisc {
                 CR_ = 0;
                 DR_ = 0;
                 status_ = false;
+                int_ack_ = true;
+                last_read_ = 0;
             }
 
             bool is_worker() const override                { return true; }
@@ -74,17 +84,7 @@ namespace ucle::fnsim::frisc {
                     case CR:
                         return CR_;
                     case DR:
-                        switch (mode_()) {
-                            case mode_input:
-                                // TODO
-                            case mode_bittest:
-                                DR_ = io_dev_->read();
-                                return DR_;
-                            case mode_output:
-                            case mode_bitset:
-                                return DR_;
-                        }
-                        break;
+                        return DR_;
                     case SR:
                         return status_;
                     case IACK:  // write-only
@@ -112,9 +112,11 @@ namespace ucle::fnsim::frisc {
                         }
                         break;
                     case SR:
-                        status_ = false;
+                        int_ack_ = status_ = false;
                         break;
-                    case IACK:  // useless (?)
+                    case IACK:
+                        int_ack_ = true;
+                        break;
                     default:
                         break;
                 }
@@ -126,10 +128,18 @@ namespace ucle::fnsim::frisc {
             byte_t mask_active_bits_() const { return CR_[{23, 16}]; }
             byte_t mask_() const             { return CR_[{15, 8}]; }
 
+            bool test_bits_()
+            {
+                auto val = (DR_ ^ ~mask_active_bits_()) & mask_();
+                return aor_() ? val == mask_() : val != 0;
+            }
+
             reg<32> CR_ { 0 };
             reg<8> DR_ { 0 };
 
-            bool status_ { false };  // status == did count down
+            bool status_ { false };
+            bool int_ack_ { true };
+            byte_t last_read_ { 0 };
 
             base_io_device* io_dev_;
     };

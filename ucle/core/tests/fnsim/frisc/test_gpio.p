@@ -10,7 +10,7 @@
                        
                                    ORG     0
 00000000  00 10 80 07              MOVE    1000, SP
-00000004  1C 01 00 C4              JP      MAIN
+00000004  10 01 00 C4              JP      MAIN
 00000008  00 01 00 00  INT_VEC     DW      100
                        
                                    ORG     0C
@@ -26,26 +26,41 @@
 00000024  03 00 00 D8              RETN
                        
                                    ORG     100
-00000100  00 00 00 88  INT_HNDLR   PUSH    R0
-00000104  00 00 20 00              MOVE    SR, R0
-00000108  00 00 00 88              PUSH    R0
+                       INT_HNDLR   ; PUSH    R0
+                                   ; MOVE    SR, R0
+                                   ; PUSH    R0
                        
                                    ; Do stuff
+00000100  08 00 02 B8              STORE   R0, (GPIO2_BS)
+00000104  01 00 00 07              MOVE    1, R6
+00000108  0C 00 02 B8              STORE   R0, (GPIO2_IACK)
                        
-0000010C  00 00 00 80              POP     R0
-00000110  00 00 10 00              MOVE    R0, SR
-00000114  00 00 00 80              POP     R0
-00000118  01 00 00 D8              RETI
+                                   ; POP     R0
+                                   ; MOVE    R0, SR
+                                   ; POP     R0
+0000010C  01 00 00 D8              RETI
                        
-0000011C  10 00 00 04  MAIN        MOVE    %B 10000, R0
-00000120  00 00 10 00              MOVE    R0, SR          ; GIE = 1
+00000110  10 00 00 04  MAIN        MOVE    %B 10000, R0
+00000114  00 00 10 00              MOVE    R0, SR          ; GIE = 1
                        
-00000124  02 00 00 04              MOVE    %B 10, R0
-00000128  00 00 01 B8              STORE   R0, (GPIO1_CR)
+                       ;             ;  LED test program
+                       ;             MOVE    %B 10, R0
+                       ;             STORE   R0, (GPIO1_CR)
                        
-0000012C  FF 00 80 04              MOVE    0FF, R1
-00000130  04 00 81 B8  LOOP        STORE   R1, (GPIO1_DR)
-00000134  01 00 90 34              SUB     R1, 1, R1
-00000138  30 01 00 C6              JP_NZ   LOOP
+                       ;             MOVE    0FF, R1
+                       ; LOOP1       STORE   R1, (GPIO1_DR)
+                       ;             SUB     R1, 1, R1
+                       ;             JP_NZ   LOOP1
                        
-0000013C  00 00 00 F8              HALT
+                                   ; SWITCH test program
+00000118  30 01 00 B0              LOAD    R0, (SW_CR)
+0000011C  00 00 02 B8              STORE   R0, (GPIO2_CR)
+                       
+00000120  01 00 20 25  LOOP2       ADD     R2, 1, R2
+00000124  01 00 60 6C              CMP     R6, 1
+00000128  20 01 00 C6              JP_NZ   LOOP2
+                       
+0000012C  00 00 00 F8              HALT
+                       
+                                   ;     --------aaaaaaaammmmmmmm---opiMM
+00000130  17 0F FF 00  SW_CR       DW %B 00000000111111110000111100010111
