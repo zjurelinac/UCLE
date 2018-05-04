@@ -34,16 +34,27 @@ namespace ucle::fnsim::frisc {
             {
                 switch (mode_()) {
                     case mode_output:
-                        // TODO
+                        if (io_dev_->ready())
+                            status_ = true;
+                        return;
+
                     case mode_input:
-                        // TODO
+                        if (!io_dev_->ready())
+                            return;
+
+                        DR_ = io_dev_->read();
+                        status_ = true;
+                        return;
+
                     case mode_bittest:
                         DR_ = io_dev_->read();
 
-                        if (DR_ != last_read_ && can_interrupt() && test_bits_()) {
+                        if (DR_ != last_read_ && test_bits_()) {
                             status_ = true;
                             last_read_ = DR_;
                         }
+                        return;
+
                     case mode_bitset:
                     default:
                         return;
@@ -67,7 +78,7 @@ namespace ucle::fnsim::frisc {
             {
                 CR_ = 0;
                 DR_ = 0;
-                status_ = false;
+
                 int_ack_ = true;
                 last_read_ = 0;
             }
@@ -104,7 +115,7 @@ namespace ucle::fnsim::frisc {
                             case mode_bitset:
                                 io_dev_->write(DR_ = value);
                             case mode_output:
-                                // TODO:
+                                io_dev_->write(DR_ = value);
                             case mode_input:
                             case mode_bittest:
                             default:
