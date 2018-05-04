@@ -110,12 +110,6 @@ namespace ucle::fnsim {
         device_mapping      default_mapping         = device_mapping::memory;
     };
 
-    struct simulation_config {
-        bool            count_exec_cycles   = false;
-        bool            measure_exec_time   = false;
-        detail_level    detailness          = detail_level::none;
-    };
-
     // Utility structures
 
     template <typename AddressType>
