@@ -33,6 +33,8 @@ namespace ucle::fnsim::frisc {
         // 12: Interrupt Acknowledge (write only) -> Device interrupt handling done
 
         public:
+            static constexpr unsigned address_space_size = 16;
+
             counter_timer() {}
             counter_timer(base_tick_generator* ticker) : ticker_(ticker) {}
             counter_timer(base_tick_generator* ticker, base_countdown_notifier* notifier) : ticker_(ticker), notifier_(notifier) {}

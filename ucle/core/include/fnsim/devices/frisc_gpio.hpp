@@ -28,6 +28,8 @@ namespace ucle::fnsim::frisc {
         // 12: Interrupt Acknowledge (write only) -> Device interrupt handling done
 
         public:
+            static constexpr unsigned address_space_size = 16;
+
             gpio(base_io_device* io_dev) : io_dev_ { io_dev } {}
 
             device_status status() override

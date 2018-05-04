@@ -89,16 +89,16 @@ int main(int, char* argv[])
     uart_tx_device uart_tx;
 
     auto gpio_dev_1 = std::make_shared<frisc::gpio>(&led);
-    sim.add_device(gpio_dev_1, { 0x10000, 16, device_class::addressable_device });
+    sim.add_device(gpio_dev_1, { 0x10000, frisc::gpio::address_space_size, device_class::addressable_device });
 
     auto gpio_dev_2 = std::make_shared<frisc::gpio>(&sw);
-    sim.add_device(gpio_dev_2, { 0x20000, 16, device_class::addressable_device });
+    sim.add_device(gpio_dev_2, { 0x20000, frisc::gpio::address_space_size, device_class::addressable_device });
 
     auto gpio_dev_3 = std::make_shared<frisc::gpio>(&uart_rx);
-    sim.add_device(gpio_dev_3, { 0x30000, 16, device_class::addressable_device });
+    sim.add_device(gpio_dev_3, { 0x30000, frisc::gpio::address_space_size, device_class::addressable_device });
 
     auto gpio_dev_4 = std::make_shared<frisc::gpio>(&uart_tx);
-    sim.add_device(gpio_dev_4, { 0x40000, 16, device_class::addressable_device });
+    sim.add_device(gpio_dev_4, { 0x40000, frisc::gpio::address_space_size, device_class::addressable_device });
 
     sim.load_pfile(argv[1]);
     auto stat = sim.run();

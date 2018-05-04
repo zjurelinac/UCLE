@@ -18,10 +18,10 @@ int main(int, char* argv[])
     frisc::ct_chainer chainer;
 
     auto ct_dev_1 = std::make_shared<frisc::counter_timer>(&ticker, &chainer);
-    sim.add_device(ct_dev_1, { 0x10000, 16, device_class::addressable_device });
+    sim.add_device(ct_dev_1, { 0x10000, frisc::counter_timer::address_space_size, device_class::addressable_device });
 
     auto ct_dev_2 = std::make_shared<frisc::counter_timer>(&chainer);
-    sim.add_device(ct_dev_2, { 0x20000, 16, device_class::addressable_device });
+    sim.add_device(ct_dev_2, { 0x20000, frisc::counter_timer::address_space_size, device_class::addressable_device });
 
     sim.load_pfile(argv[1]);
     auto stat = sim.run();
