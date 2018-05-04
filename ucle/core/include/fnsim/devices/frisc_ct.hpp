@@ -37,6 +37,16 @@ namespace ucle::fnsim::frisc {
             counter_timer(base_tick_generator* ticker) : ticker_(ticker) {}
             counter_timer(base_tick_generator* ticker, base_countdown_notifier* notifier) : ticker_(ticker), notifier_(notifier) {}
 
+            device_status status() override
+            {
+                if (can_interrupt() && status_ && int_ack_)
+                    return device_status::interrupt;
+                else if (running_())
+                    return device_status::pending;
+                else
+                    return device_status::idle;
+            }
+
             void work() override
             {
                 if (ticker_ && !ticker_->should_tick()) return;
@@ -49,16 +59,6 @@ namespace ucle::fnsim::frisc {
 
                 if (notifier_)
                     notifier_->notify();
-            }
-
-            device_status status() override
-            {
-                if (can_interrupt() && status_ && int_ack_)
-                    return device_status::interrupt;
-                else if (running_())
-                    return device_status::pending;
-                else
-                    return device_status::idle;
             }
 
             void reset() override

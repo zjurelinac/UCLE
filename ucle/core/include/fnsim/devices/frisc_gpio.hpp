@@ -30,6 +30,19 @@ namespace ucle::fnsim::frisc {
         public:
             gpio(base_io_device* io_dev) : io_dev_ { io_dev } {}
 
+            device_status status() override
+            {
+                switch (mode_()) {
+                    case mode_output:
+                    case mode_input:
+                    case mode_bittest:
+                        return (can_interrupt() && status_ && int_ack_) ? device_status::interrupt : device_status::pending;
+                    case mode_bitset:
+                    default:
+                        return device_status::idle;
+                }
+            }
+
             void work() override
             {
                 switch (mode_()) {
@@ -58,19 +71,6 @@ namespace ucle::fnsim::frisc {
                     case mode_bitset:
                     default:
                         return;
-                }
-            }
-
-            device_status status() override
-            {
-                switch (mode_()) {
-                    case mode_output:
-                    case mode_input:
-                    case mode_bittest:
-                        return (can_interrupt() && status_ && int_ack_) ? device_status::interrupt : device_status::pending;
-                    case mode_bitset:
-                    default:
-                        return device_status::idle;
                 }
             }
 

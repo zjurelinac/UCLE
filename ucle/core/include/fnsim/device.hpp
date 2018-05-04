@@ -18,6 +18,7 @@ namespace ucle::fnsim {
             virtual ~device() = default;
 
             virtual device_status status() = 0;
+
             virtual void work() = 0;
             virtual void reset() = 0;
 
