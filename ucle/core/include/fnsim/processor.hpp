@@ -26,7 +26,12 @@ namespace ucle::fnsim {
             virtual void set_program_counter(address_type location) = 0;
 
             virtual byte_t get_mem_byte(address_type location) const = 0;
+            virtual half_t get_mem_half(address_type location) const = 0;
+            virtual word_t get_mem_word(address_type location) const = 0;
+
             virtual void set_mem_byte(address_type location, byte_t value) = 0;
+            virtual void set_mem_half(address_type location, half_t value) = 0;
+            virtual void set_mem_word(address_type location, word_t value) = 0;
 
             auto get_state() { return state_; }
             void set_state(simulator_state state) { state_ = state; }

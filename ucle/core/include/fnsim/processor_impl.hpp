@@ -189,14 +189,13 @@ namespace ucle::fnsim {
                     io_manager_->add_device(std::move(dev_ptr), dev_cfg);
             }
 
-            byte_t get_mem_byte(address_type location) const override
-            {
-                return mem_manager_->template read<byte_t>(location);
-            }
-            void set_mem_byte(address_type location, byte_t value) override
-            {
-                mem_manager_->template write<byte_t>(location, value);
-            }
+            byte_t get_mem_byte(address_type location) const override { return mem_manager_->template read<byte_t>(location); }
+            half_t get_mem_half(address_type location) const override { return mem_manager_->template read<half_t>(location); }
+            word_t get_mem_word(address_type location) const override { return mem_manager_->template read<word_t>(location); }
+
+            void set_mem_byte(address_type location, byte_t value) override { mem_manager_->template write<byte_t>(location, value); }
+            void set_mem_half(address_type location, half_t value) override { mem_manager_->template write<half_t>(location, value); }
+            void set_mem_word(address_type location, word_t value) override { mem_manager_->template write<word_t>(location, value); }
 
             bool is_mem_address_valid(address_type location) override { return mem_manager_->is_address_valid(location); }
 
