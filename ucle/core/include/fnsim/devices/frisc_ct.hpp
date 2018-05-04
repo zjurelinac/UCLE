@@ -6,10 +6,6 @@
 
 #include <fnsim/processors/frisc.hpp>
 
-#include <cmath>
-#include <chrono>
-#include <functional>
-
 namespace ucle::fnsim::frisc {
 
     using namespace ucle::literals;
@@ -27,8 +23,6 @@ namespace ucle::fnsim::frisc {
 
     class counter_timer : public register_set_device<0, 32, byte_order::little_endian, address32_t> {
         using parent = register_set_device<0, 32, byte_order::little_endian, address32_t>;
-
-        using zcount_fn_type = std::function<void()>;
 
         enum { CR = 0, DC = 4, LR = 4, SR = 8, IACK = 12 };
 
