@@ -141,8 +141,8 @@ namespace ucle::fnsim::frisc {
 
             bool test_bits_()
             {
-                auto val = (DR_ ^ ~mask_active_bits_()) & mask_();
-                return aor_() ? val == mask_() : val != 0;
+                auto val = DR_ ^ ~mask_active_bits_();
+                return aor_() ? (val == mask_()) : (val & mask_() != 0);
             }
 
             reg<32> CR_ { 0 };
