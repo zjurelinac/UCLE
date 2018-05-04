@@ -59,7 +59,7 @@ namespace ucle::fnsim::frisc {
 
             device_status status() override
             {
-                if (status_ && can_interrupt())
+                if (can_interrupt() && status_ && int_ack_)
                     return device_status::interrupt;
                 else if (running_())
                     return device_status::pending;
@@ -72,6 +72,7 @@ namespace ucle::fnsim::frisc {
                 CR_ = 0;
                 LR_ = DC_ = 0;
                 status_ = false;
+                int_ack_ = true;
 
                 if (ticker_)
                     ticker_->reset();
@@ -108,9 +109,11 @@ namespace ucle::fnsim::frisc {
                         LR_ = DC_ = value;
                         break;
                     case SR:
-                        status_ = false;
+                        int_ack_ = status_ = false;
                         break;
-                    case IACK:  // useless (?)
+                    case IACK:
+                        int_ack_ = true;
+                        break;
                     default:
                         break;
                 }
@@ -124,6 +127,7 @@ namespace ucle::fnsim::frisc {
             reg<16> DC_ { 0 };
 
             bool status_ { false };  // status == did count down
+            bool int_ack_ { true };
 
             base_tick_generator* ticker_ { nullptr };
             base_countdown_notifier* notifier_ { nullptr };

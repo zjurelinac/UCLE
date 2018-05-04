@@ -23,11 +23,12 @@
                                    ; Do stuff
 0000000C  08 00 02 B8              STORE   R0, (CT2_BS)
 00000010  01 00 00 07              MOVE    1, R6
+00000014  0C 00 02 B8              STORE   R0, (CT2_IACK)
                        ;
                        ;             POP R0
                        ;             MOVE R0, SR
                        ;             POP R0
-00000014  03 00 00 D8              RETN
+00000018  03 00 00 D8              RETN
                        
                                    ORG     100
                        INT_HNDLR   ; PUSH R0

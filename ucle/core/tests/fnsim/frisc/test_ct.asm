@@ -23,6 +23,7 @@ INT_VEC     DW      100
             ; Do stuff
             STORE   R0, (CT2_BS)
             MOVE    1, R6
+            STORE   R0, (CT2_IACK)
 ;
 ;             POP R0
 ;             MOVE R0, SR
