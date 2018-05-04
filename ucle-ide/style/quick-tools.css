@@ -29,7 +29,7 @@ html, body {
 
 ul {
 	list-style-type: none;
-	padding-left:10px;
+	padding-left:0px;
 }
 
 li.tools {
@@ -39,7 +39,11 @@ li.tools {
 i.dir-ico-opened {
 	background:url(../icons/dir-opened.png);
 	background-repeat:no-repeat;
+	background-position: bottom; 
 	display: inline-block;
+	position:relative;
+	bottom: 0;
+	right: 0;
 	width: 20px;
 	height: 15px;
 }
@@ -47,7 +51,11 @@ i.dir-ico-opened {
 i.dir-ico-closed {
 	background:url(../icons/dir-closed.png);
 	background-repeat:no-repeat;
+	background-position: bottom; 
 	display: inline-block;
+	position: relative;
+	bottom: 0;
+	right: 0;	
 	width: 20px;
 	height: 15px;
 }
@@ -63,6 +71,7 @@ i.file-ico {
 	background-position: bottom; 
 	background-size: 15px 15px;
 	bottom: 0;
+	right: 0;
 	display: inline-block;
 	width: 20px;
 	height: 20px;
@@ -78,9 +87,12 @@ i.file-ico {
 	width:20%;
 	height:100%;
 	overflow-y: auto;
+	overflow-x: auto;
+	white-space: nowrap;
 	transition: 0.5s;
 	position: relative;
 	font-size: 16px;
+	resize:horizontal;
 }
 
 .tools {

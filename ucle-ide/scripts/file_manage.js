@@ -62,13 +62,25 @@ class FileManager {
 
 	walkThroughFiles(children, listID) {
 		let list = document.getElementById(listID);
+
 		for (var i = 0, len = children.length; i < len; i++) {
 			var child = children[i];
+			let childListID = child.path + '-' + child.name;
+
 			if(child.type == 'directory') {
-				let childListID = child.path + '-' + child.name;
-				list.innerHTML += '<li id="' + child.path + '" title="' +  child.path + '" class="dir"><i class="dir-ico-closed"></i>' + child.name + '</li><ul id="' + childListID + '"' + 'style="display:inherit;"></ul><br/>';
+				list.innerHTML += '<li id="' + child.path + '" title="' +  child.path + '" class="dir" style="width:100%;"><i class="dir-ico-closed" style="margin-left:10px; padding-right: 5px"></i>' + child.name + '</li><ul id="' + childListID + '"' + 'style="display:inherit; width:100%"></ul><br/>';
 			} else {
-				list.innerHTML += '<li id="' + child.path + '" title="' +  child.path + '" class="file"><i class="file-ico"></i>'+ child.name + '</li> <br/>';
+				list.innerHTML += '<li id="' + child.path + '" title="' +  child.path + '" class="file" style="width:100%;"><i class="file-ico" style="margin-left:10px; padding-right: 5px"></i>'+ child.name + '</li> <br/>';
+			}
+		}
+
+		let elements = list.getElementsByTagName("li");
+
+		var parentNode = list.parentNode.firstChild;
+
+		if(parentNode && parentNode.firstChild.style) {
+			for(var i = 0; i < elements.length; i++) {
+				elements[i].getElementsByTagName("i")[0].style.marginLeft = parseInt(parentNode.firstChild.style.marginLeft, 10) + 15 + "px";
 			}
 		}
 	}
@@ -86,7 +98,7 @@ class FileManager {
 
 		if(list != null && list.innerHTML != '') {
 			if(list.style.display == 'none') {
-				list.style.display = 'inherit';
+				list.style.display = 'block';
 			} else {
 				list.style.display = 'none';
 			}
@@ -98,7 +110,7 @@ class FileManager {
 
 		if(init) {
 			document.getElementById('openbtn').style.display = "none";
-			document.getElementById('listed-files').innerHTML += '<div id="' + filePath + '" style="width:100%" title="' + filePath + '" class="dir"><i class="dir-ico-closed"></i>' + dirName + '</div><ul id="' + listID + '"' + 'style="display: none;"></ul><br/>';
+			document.getElementById('listed-files').innerHTML += '<div id="div-' + filePath + '" style="width:100%"><div id="' + filePath + '" title="' + filePath + '" style:"width:100%; display:block;" class="dir"><i class="dir-ico-closed"></i>' + dirName + '</div><ul id="' + listID + '"' + 'style="display: none; width:100%"></ul></div>';
 		}
 
 		this.walkThroughFiles(tree.children, listID);
