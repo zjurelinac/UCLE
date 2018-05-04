@@ -161,8 +161,8 @@ namespace ucle::fnsim {
 
             void reset() override
             {
-                if constexpr(reg_num > 0)
-                    regs_.fill(0);
+                for (auto& reg : regs_)
+                    reg = 0;
             }
 
         protected:

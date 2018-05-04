@@ -21,7 +21,7 @@ class dummy_reg_device : public register_set_device<2, 32, byte_order::little_en
             return device_status::pending;
         }
 
-        bool is_worker() override { return true; }
+        bool is_worker() const override { return true; }
 
     private:
 
