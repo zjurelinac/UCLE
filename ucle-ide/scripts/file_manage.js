@@ -31,8 +31,8 @@ class FileManager {
 
 	openDirectory() {
 		var filename = remote.dialog.showOpenDialog({ properties: ['openDirectory']});
-		if(!filename) return;
-		this.readFolder(filename.toString() + '/');
+		if(!filename || document.getElementById("div-" + filename.toString())) return;
+		this.readFolder(filename.toString());
 	}
 
 	saveAsFile() {
@@ -87,7 +87,11 @@ class FileManager {
 
 	readFolder(filePath, init = true) {
 		if(filePath === null || filePath === undefined) { 
-			filePath = './'
+			if(process.platform == "win32") {
+				filePath: "C:\\";
+			} else {
+				filePath: "/";
+			}
 		}
 
 		var dirName = this.getDirName(filePath);
@@ -106,14 +110,17 @@ class FileManager {
 		}
 		const tree = dirTree(filePath);
 
-		tree.path = dirName;
-
 		if(init) {
 			document.getElementById('openbtn').style.display = "none";
 			document.getElementById('listed-files').innerHTML += '<div id="div-' + filePath + '" style="width:100%"><div id="' + filePath + '" title="' + filePath + '" style:"width:100%; display:block;" class="dir"><i class="dir-ico-closed"></i>' + dirName + '</div><ul id="' + listID + '"' + 'style="display: none; width:100%"></ul></div>';
 		}
 
 		this.walkThroughFiles(tree.children, listID);
+	}
+
+	removeFolder(filePath) {
+		var folder = document.getElementById("div-" + filePath);
+		folder.parentNode.removeChild(folder);
 	}
 }
 

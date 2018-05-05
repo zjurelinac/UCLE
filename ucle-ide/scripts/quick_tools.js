@@ -17,6 +17,32 @@ module.exports = (fileManager, ucleTabs, ucleServer) => {
 		}
 	});
 
+	function addButtonClick(button) {
+		button.addEventListener("click", function(e) {
+			fileManager.openDirectory();
+		});
+	}
+
+	document.getElementById("listed-files").addEventListener("contextmenu", function(e) {
+		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir"))) {
+			var contextMenu = new Menu();
+
+			contextMenu.append(new MenuItem({
+				click() {
+					fileManager.removeFolder(e.target.id); 
+					if(!document.querySelector('[id^="div-"')) {
+						var button = document.getElementById("openbtn");
+						button.style.display = "block";
+						addButtonClick(button);
+					}
+				},
+				label: "Remove folder from workspace"
+			}));
+
+			contextMenu.popup(remote.getCurrentWindow());
+		}
+	});
+
 	document.getElementById("listed-files").addEventListener("dblclick", function(e) {
 		if(e.target && e.target.matches("li.file")) {
 			fileManager.openFile(e.target.id);
@@ -54,11 +80,6 @@ module.exports = (fileManager, ucleTabs, ucleServer) => {
 		}
 	});
 
-	document.getElementById("openbtn").addEventListener("click", function(e) {
-		fileManager.openDirectory();
-		ucleTabs.closeAllTabs();
-	});
-
 	document.getElementById("run-sim").addEventListener("click", function(e) {
 		var currTabValue = ucleTabs.currentTabValue;
 		if(currTabValue) {
@@ -69,4 +90,6 @@ module.exports = (fileManager, ucleTabs, ucleServer) => {
 	ipcRenderer.on('open-dir', (e) => {
 		fileManager.openDirectory();
 	});
+
+	addButtonClick(document.getElementById("openbtn"));
 };
