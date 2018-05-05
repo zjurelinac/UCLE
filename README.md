@@ -24,7 +24,7 @@ The idea of **UCLE** is precisely this - to allow you, whoever you might be (a s
 
 and many, many more.
 
-It is meant to **show** you all these things **in action**, but also to allow you to **experiment** with them, to change and extend some or all of the components, or even design whole new systems in a way you see as the most appropriate for your purposes.
+It is meant to **show** you all these things **in action** and with lots of details, but also to allow you to **experiment** with them, to change and extend some/all of the components, or even **design whole new systems** in a way you see most appropriate for your purposes, be it **learning**, **teaching**, **prototyping**, or just plain old **fun**.
 
 
 ## Features
