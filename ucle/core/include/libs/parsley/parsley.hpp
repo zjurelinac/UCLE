@@ -92,8 +92,13 @@ namespace ucle::parsley {
                 parse_result parse(std::string_view input) override
                 {
                     for (const auto& item : items_) {
-                        if (auto res = item->parse(input); res.status == parse_status::success)
-                            return res;
+                        if (auto res = item->parse(input); res.status == parse_status::success) {
+                            std::vector<parse_info> children;
+                            if (keep_info(res.info))
+                                children.push_back(res.info);
+
+                            return { parse_status::success, { res.info.contents, children } };
+                        }
                     }
 
                     return { parse_status::fail };
@@ -230,7 +235,7 @@ namespace ucle::parsley {
                 std::size_t lit_len_;
         };
 
-        class any_parser : public base_parser {
+      class any_parser : public base_parser {
             parse_result parse(std::string_view input) override
             {
                 if (input.length() > 0)
