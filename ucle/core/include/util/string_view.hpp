@@ -11,52 +11,6 @@ namespace ucle::util {
     using char_predicate = std::function<bool(char)>;
     using view_predicate = std::function<bool(std::string_view)>;
 
-    // auto split(std::string_view input, const char* delim)
-    // {
-    //     std::vector<std::string_view> parts;
-    //     std::size_t last_pos = 0, pos = 0;
-    //     auto delim_len = strlen(delim);
-
-    //     while ((pos = input.find(delim, last_pos)) != std::string_view::npos) {
-    //         auto item = trim(input.substr(last_pos, pos - last_pos + 1 - delim_len));
-
-    //         if (item.length() > 0)
-    //             parts.push_back(item);
-
-    //         last_pos = pos + 1;
-    //     }
-
-    //     return parts;
-    // }
-
-    // auto split_on_any_of(std::string_view input, const char* delims)
-    // {
-    //     std::vector<std::string_view> parts;
-    //     std::size_t last_pos = 0, pos = 0;
-
-    //     while ((pos = input.find_first_of(delims, last_pos)) != std::string_view::npos) {
-    //         auto item = trim(input.substr(last_pos, pos - last_pos));
-
-    //         if (item.length() > 0)
-    //             parts.push_back(item);
-
-    //         last_pos = pos + 1;
-    //     }
-
-    //     return parts;
-    // }
-
-    // using split_result = std::pair<std::string_view, std::string_view>;
-
-    // split_result split_once(std::string_view input, const char* delim)
-    // {
-    //     auto pos = input.find(delim);
-    //     if (pos == std::string_view::npos)
-    //         return { input, {} };
-
-    //     return { input.substr(0, pos), input.substr(pos + strlen(delim)) };
-    // }
-
     // Predicates
 
     bool starts_with(std::string_view input, std::string_view x)
