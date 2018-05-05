@@ -1,5 +1,9 @@
 #include <libs/parsley/parsley.hpp>
 
+#include <libs/fmt/format.h>
+
+#include <cstdio>
+
 std::string simple_grammar = R"(
     Additive    <- Multitive '+' Additive / Multitive
     Multitive   <- Primary '*' Multitive / Primary
@@ -11,16 +15,29 @@ std::string simple_grammar = R"(
 using namespace ucle;
 using namespace ucle::parsley;
 
+void indent(int level) { for (int i = 0; i < level; ++i) printf("  "); }
+
+void print_parse_info(const parse_info& pi, unsigned depth = 1)
+{
+    indent(depth);
+    fmt::print("<{}> {}\n", pi.symbol_name.length() > 0 ? pi.symbol_name : "unnamed", pi.contents.length() > 0 ? pi.contents : "");
+    for (const auto& child : pi.children)
+        print_parse_info(child, depth + 1);
+}
+
 void try_parse(const parsers::base_ptr& p, const char* input)
 {
     auto res = p->parse(input);
-    fmt::print("{} => {} {} [{}]\n", input, to_string(res.status), res.contents, res.symbol_name.length() > 0 ? res.symbol_name : "none");
+    fmt::print("Parsing {} :: [{}]\n", input, to_string(res.status));
+    print_parse_info(res.info);
 }
 
 void try_parse(symbol& s, const char* input)
 {
     auto res = s.parse(input);
-    fmt::print("{} => {} {} [{}]\n", input, to_string(res.status), res.contents, res.symbol_name.length() > 0 ? res.symbol_name : "none");
+    // fmt::print("{} => {} {} [{}]\n", input, to_string(res.status), res.info.contents, res.info.symbol_name.length() > 0 ? res.info.symbol_name : "none");
+    fmt::print("Parsing {} :: [{}]\n", input, to_string(res.status));
+    print_parse_info(res.info);
 }
 
 int main() {
@@ -41,7 +58,7 @@ int main() {
 
     dec_digit <= cls({'0', '9'});
     hex_digit <= cls({{'0', '9'}, {'a', 'f'}, {'A', 'F'}});
-    hex_const <= sym(dec_digit) >> kst(sym(hex_digit));
+    hex_const <= sym(dec_digit) >> kst(sym(hex_digit)) >> ~any();
 
     try_parse(hex_const, "012345");
     try_parse(hex_const, "0ABCD1345");
