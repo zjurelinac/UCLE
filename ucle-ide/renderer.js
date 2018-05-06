@@ -39,7 +39,7 @@ loader().then((monaco) => {
 
 	ucleTabs.init(el, { tabOverlapDistance: 14, minWidth: 45, maxWidth: 243 });
 
-	quickTools = require("./scripts/quick_tools")(fileManager,ucleTabs, ucleServer);
+	quickTools = require("./scripts/quick_tools")(editor, fileManager,ucleTabs, ucleServer);
 
 	editor.onDidChangeModelContent(function(e) {
 		if(!initType && !ucleTabs.currentTab) {
@@ -93,11 +93,8 @@ loader().then((monaco) => {
 
 	ipcRenderer.on('sim-response', (e, data) => {
 		console.log(data);
+		document.getElementById("run-sim").className = "run-simulation";
 	});
-
-	/*document.getElementById("quick-tools").addEventListener("contextmenu", function(e) {
-		ctxMenu.popup(remote.getCurrentWindow(), { x: e.x, y: e.y})
-	});*/
 
 	editor.focus();
 });

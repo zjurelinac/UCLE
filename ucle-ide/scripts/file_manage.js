@@ -68,9 +68,14 @@ class FileManager {
 			let childListID = child.path + '-' + child.name;
 
 			if(child.type == 'directory') {
-				list.innerHTML += '<li id="' + child.path + '" title="' +  child.path + '" class="dir" style="width:100%;"><i class="dir-ico-closed" style="margin-left:10px; padding-right: 5px"></i>' + child.name + '</li><ul id="' + childListID + '"' + 'style="display:inherit; width:100%"></ul><br/>';
+				list.innerHTML += '<li id="' + child.path + '" title="' +  child.path +
+                               '" class="dir" style="width:100%;"><i class="dir-ico-closed" ' +
+                               'style="margin-left:10px; padding-right: 5px"></i>' + child.name + 
+                               '</li><ul id="' + childListID + '"style="display:inherit; width:100%"></ul><br/>';
 			} else {
-				list.innerHTML += '<li id="' + child.path + '" title="' +  child.path + '" class="file" style="width:100%;"><i class="file-ico" style="margin-left:10px; padding-right: 5px"></i>'+ child.name + '</li> <br/>';
+				list.innerHTML += '<li id="' + child.path + '" title="' +  child.path +
+                                '" class="file" style="width:100%;"><i class="file-ico" ' +
+                                'style="margin-left:10px; padding-right: 5px"></i>'+ child.name + '</li> <br/>';
 			}
 		}
 
@@ -112,7 +117,12 @@ class FileManager {
 
 		if(init) {
 			document.getElementById('openbtn').style.display = "none";
-			document.getElementById('listed-files').innerHTML += '<div id="div-' + filePath + '" style="width:100%"><div id="' + filePath + '" title="' + filePath + '" style:"width:100%; display:block;" class="dir"><i class="dir-ico-closed"></i>' + dirName + '</div><ul id="' + listID + '"' + 'style="display: none; width:100%"></ul></div>';
+			document.getElementById('workspace-text').style.display = "none";
+			document.getElementById('workspace').children[0].className = "explorer-ico-opened";
+			document.getElementById('listed-files').innerHTML += '<div id="div-' + filePath + '" style="width:100%"><div id="'
+                                                              + filePath + '" title="' + filePath + '" style:"width:100%; display:block;" ' +
+                                                              'class="dir"><i class="dir-ico-closed" style="margin-left:10px"></i>' + dirName + '</div><ul id="' + listID + 
+                                                              '"style="display: none; width:100%"></ul></div>';
 		}
 
 		this.walkThroughFiles(tree.children, listID);

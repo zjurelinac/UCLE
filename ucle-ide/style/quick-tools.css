@@ -60,6 +60,32 @@ i.dir-ico-closed {
 	height: 15px;
 }
 
+i.explorer-ico-closed {
+	background:url(../icons/explorer-closed.png);
+	background-repeat:no-repeat;
+	background-position: bottom; 
+	background-size: 100% 100%;
+	display: inline-block;
+	position: relative;
+	bottom: 0;
+	right: 0;	
+	width: 20px;
+	height: 15px;
+}
+
+i.explorer-ico-opened {
+	background:url(../icons/explorer-opened.png);
+	background-repeat:no-repeat;
+	background-position: bottom;
+	background-size: 100% 100%;	
+	display: inline-block;
+	position: relative;
+	bottom: 0;
+	right: 0;	
+	width: 20px;
+	height: 15px;
+}
+
 i {
 	padding: 0;
 	margin: 0;
@@ -72,9 +98,15 @@ i.file-ico {
 	background-size: 15px 15px;
 	bottom: 0;
 	right: 0;
+	left: 0;
 	display: inline-block;
 	width: 20px;
 	height: 20px;
+}
+
+#workspace-text {
+	display:inline-block;
+	left:0;
 }
 
 #quick-tools  {
@@ -82,8 +114,9 @@ i.file-ico {
 	top:0;
 	bottom:0;
 	right:0;
-	left:0;	
-	display: none;
+	left:0;
+	margin: 0;
+	display: inline-block;
 	width:20%;
 	height:100%;
 	overflow-y: auto;
@@ -92,7 +125,16 @@ i.file-ico {
 	transition: 0.5s;
 	position: relative;
 	font-size: 16px;
-	resize:horizontal;
+	border-top: solid 2px rgba(0, 0, 0, .5);
+	border-right: solid 2px rgba(0, 0, 0, .5);
+}
+
+.explorer {
+	width: 100%;
+	background-color: #d7d7d7;
+	font-size: 14px;
+	padding: 10px 10px 10px 0px;
+	margin-top: 5px;
 }
 
 .tools {
@@ -104,10 +146,7 @@ i.file-ico {
 }
 
 #listed-files {
-	border-top: solid 2px rgba(0, 0, 0, .5);
-	margin: 0;
-	padding: 0;
-	margin: 0;
+	margin-top: 10px;
 	left: 0;
 	width: 100%;
 	position: relative;
@@ -126,7 +165,7 @@ i.file-ico {
 	left:0;
 }
 
-#explorer {
+#file-explorer {
 	display: inline-block;
 	background:url(../icons/file-explorer-black.png);
 	background-repeat:no-repeat;
@@ -155,9 +194,23 @@ i.file-ico {
 	left:0;	
 }
 
-#run-sim {
+#run-sim.run-simulation {
 	display: inline-block;
 	background:url(../icons/run-simulation.png);	
+	background-repeat:no-repeat;
+	background-size: 100% 100%;
+	width:32px;
+	height:32px;
+	padding:0;
+	top:0;
+	bottom:0;
+	right:0;
+	left:0;	
+}
+
+#run-sim.stop-simulation {
+	display: inline-block;
+	background:url(../icons/stop-simulation.png);	
 	background-repeat:no-repeat;
 	background-size: 100% 100%;
 	width:32px;
@@ -185,10 +238,10 @@ i.file-ico {
 	background-color: #d7d7d7;
 }
 
-#search:hover, #explorer:hover, #refresh:hover, #run-sim:hover {
+#search:hover, #file-explorer:hover, #refresh:hover, #run-sim:hover, .explorer:hover {
 	cursor: pointer;
 }
 
-#search:active, #explorer:active, #refresh:active, #openbtn:active, #run-sim:active {
+#search:active, #file-explorer:active, #refresh:active, #openbtn:active, #run-sim:active {
 	transform: translateY(4px);
 }

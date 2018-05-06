@@ -11,14 +11,20 @@
 		<div id="tools-wrapper">
 			<ul class="tools">
 				<li class="tools" title="Search"><span id="search"></span></li>
-				<li class="tools" title="File explorer"><span id="explorer"></span></li>
+				<li class="tools" title="File explorer"><span id="file-explorer"></span></li>
 				<li class="tools" title="Refresh"><span id="refresh"></span></li>
-				<li class="tools" title="Run simulation (CTRL + R)"><span id="run-sim"></span></li>
+				<li class="tools" title="Run simulation (CTRL + R)"><span id="run-sim" class="run-simulation"></span></li>
 			</ul>
 		</div>
 
 		<div id="quick-tools">
-			<div id="listed-files"><button id="openbtn" type="button">Open folder</button></div>
+			<div id="explorer" class="explorer"><i class="explorer-ico-closed"></i>Opened files</div>
+			<div id="opened-files"></div>
+			<div id="workspace" class="explorer"><i class="explorer-ico-opened"></i>Workspace</div>
+			<div id="listed-files">
+				<span id="workspace-text">You haven't added any folders<br/> to the workspace.</span>
+				<button id="openbtn" type="button">Open folder</button>
+			</div>
 		</div>
 
 		<div id="container">
