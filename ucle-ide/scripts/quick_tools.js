@@ -3,7 +3,7 @@ const { remote, ipcRenderer } = require('electron');
 const Menu = remote.Menu;
 const MenuItem = remote.MenuItem;
 
-module.exports = (fileManager, ucleTabs, ucleServer) => {
+module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 	document.getElementById("listed-files").addEventListener("click", function(e) {
 		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir"))) {
@@ -31,6 +31,7 @@ module.exports = (fileManager, ucleTabs, ucleServer) => {
 				click() {
 					fileManager.removeFolder(e.target.id); 
 					if(!document.querySelector('[id^="div-"')) {
+						document.getElementById('workspace-text').style.display = "inline-block";
 						var button = document.getElementById("openbtn");
 						button.style.display = "block";
 						addButtonClick(button);
@@ -65,9 +66,10 @@ module.exports = (fileManager, ucleTabs, ucleServer) => {
 		}
 	});
 
-	document.getElementById("explorer").addEventListener("click", function(e) {
+	document.getElementById("file-explorer").addEventListener("click", function(e) {
 		var tools = document.getElementById("quick-tools");
 		var style = window.getComputedStyle(tools , null);
+		editor.focus();
 
 		if(style.display == "none") {
 			tools.style.display = "inline-block";
@@ -81,14 +83,51 @@ module.exports = (fileManager, ucleTabs, ucleServer) => {
 	});
 
 	document.getElementById("run-sim").addEventListener("click", function(e) {
-		var currTabValue = ucleTabs.currentTabValue;
-		if(currTabValue) {
-			ucleServer.runSim("1.p");
+		if(e.target.className == "run-simulation") {
+			var currTabValue = ucleTabs.currentTabValue;
+			if(currTabValue) {
+				e.target.className = "stop-simulation";
+				ucleServer.runSim("1.p");
+			} else {
+				var type = "warning";
+				var buttons = ['OK'];
+				var message = 'Cannot run simulation with an empty file!';
+				var defaultId = 0;
+				var response = remote.dialog.showMessageBox({message, type, buttons, defaultId});
+			}
+		} else {
+			e.target.className = "run-simulation";
+			//ucleServer.stopSim();
 		}
+		
 	});
 
 	ipcRenderer.on('open-dir', (e) => {
 		fileManager.openDirectory();
+	});
+
+	document.getElementById("workspace").addEventListener("click", function(e) {
+		var workspace = document.getElementById('workspace');
+		var listedFiles = document.getElementById('listed-files');
+		var style = window.getComputedStyle(listedFiles , null);
+
+		if(workspace.children[0].className == "explorer-ico-opened") {
+			workspace.children[0].className = "explorer-ico-closed";
+			listedFiles.style.display = "none";
+		} else {
+			workspace.children[0].className = "explorer-ico-opened";
+			listedFiles.style.display = "inherit";			
+		}
+	});
+
+	document.getElementById("explorer").addEventListener("click", function(e) {
+		var explorer = document.getElementById('explorer');
+
+		if(explorer.children[0].className == "explorer-ico-opened") {
+			explorer.children[0].className = "explorer-ico-closed";
+		} else {
+			explorer.children[0].className = "explorer-ico-opened";
+		}
 	});
 
 	addButtonClick(document.getElementById("openbtn"));
