@@ -75,6 +75,8 @@ namespace ucle::util {
         return input.length() > 0 && input[input.length() - 1] == x;
     }
 
+    // TODO: Add istarts_with & iends_with
+
     // Selectors
 
     auto take_while(std::string_view input, char_predicate p)

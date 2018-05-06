@@ -235,7 +235,24 @@ namespace ucle::parsley {
                 std::size_t lit_len_;
         };
 
-      class any_parser : public base_parser {
+        class iliteral_parser : public base_parser {
+            public:
+                iliteral_parser(const char* lit) : lit_ { lit }, lit_len_ { strlen(lit) } {}
+
+                parse_result parse(std::string_view input) override
+                {
+                    if (util::starts_with(input, lit_))
+                        return { parse_status::success, { input.substr(0, lit_len_) } };
+                    else
+                        return { parse_status::fail };
+                }
+
+            private:
+                const char* lit_;
+                std::size_t lit_len_;
+        };
+
+        class any_parser : public base_parser {
             parse_result parse(std::string_view input) override
             {
                 if (input.length() > 0)
@@ -314,6 +331,7 @@ namespace ucle::parsley {
         using symbol_ptr = std::shared_ptr<symbol>;
 
         auto lit(const char* literal)    { return std::make_shared<parsers::literal_parser>(literal); }
+        auto ilit(const char* literal)   { return std::make_shared<parsers::iliteral_parser>(literal); }
         auto seq(base_ptr_list items)    { return std::make_shared<parsers::sequence_parser>(items); }
         auto cho(base_ptr_list items)    { return std::make_shared<parsers::choice_parser>(items); }
         auto opt(base_ptr optional)      { return std::make_shared<parsers::optional_parser>(optional); }
