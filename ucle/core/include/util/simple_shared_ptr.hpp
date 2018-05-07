@@ -64,7 +64,7 @@ namespace ucle::util {
             explicit simple_shared_ptr(T* p) : pn_ {} { acquire_(p); }
             simple_shared_ptr(const simple_shared_ptr& ptr) noexcept : pn_ { ptr.pn_ } { acquire_(ptr.px_); }
 
-            template <typename U, typename = std::enable_if<std::is_convertible_v<U, T>>>
+            template <typename U, typename = std::enable_if<std::is_convertible_v<T, U> && !std::is_same_v<T, U>>>
             simple_shared_ptr(const simple_shared_ptr<U>& ptr) noexcept : pn_ { ptr.pn_ } { acquire_(static_cast<typename simple_shared_ptr<T>::element_type*>(ptr.px_)); }
 
             ~simple_shared_ptr() noexcept { release_(); }

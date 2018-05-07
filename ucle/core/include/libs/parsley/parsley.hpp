@@ -1,6 +1,7 @@
 #ifndef _UCLE_CORE_LIBS_PARSLEY_PARSLEY_HPP_
 #define _UCLE_CORE_LIBS_PARSLEY_PARSLEY_HPP_
 
+#include <util/simple_shared_ptr.hpp>
 #include <util/string_view.hpp>
 
 #include <any>
@@ -44,7 +45,7 @@ namespace ucle::parsley {
                 virtual parse_result parse(std::string_view) = 0;
         };
 
-        using base_ptr = std::shared_ptr<base_parser>;
+        using base_ptr = util::simple_shared_ptr<base_parser>;
         using base_ptr_list = std::initializer_list<base_ptr>;
 
         class sequence_parser : public base_parser {
@@ -211,12 +212,12 @@ namespace ucle::parsley {
                 base_ptr base_;
         };
 
-        using sequence_ptr = std::shared_ptr<sequence_parser>;
-        using choice_ptr   = std::shared_ptr<choice_parser>;
-        using kstar_ptr    = std::shared_ptr<kleene_star_parser>;
-        using kplus_ptr    = std::shared_ptr<kleene_plus_parser>;
-        using and_pred_ptr = std::shared_ptr<and_predicate_parser>;
-        using not_pred_ptr = std::shared_ptr<not_predicate_parser>;
+        using sequence_ptr = util::simple_shared_ptr<sequence_parser>;
+        using choice_ptr   = util::simple_shared_ptr<choice_parser>;
+        using kstar_ptr    = util::simple_shared_ptr<kleene_star_parser>;
+        using kplus_ptr    = util::simple_shared_ptr<kleene_plus_parser>;
+        using and_pred_ptr = util::simple_shared_ptr<and_predicate_parser>;
+        using not_pred_ptr = util::simple_shared_ptr<not_predicate_parser>;
 
         class literal_parser : public base_parser {
             public:
@@ -330,20 +331,20 @@ namespace ucle::parsley {
 
         using symbol_ptr = std::shared_ptr<symbol>;
 
-        auto lit(const char* literal)    { return std::make_shared<parsers::literal_parser>(literal); }
-        auto ilit(const char* literal)   { return std::make_shared<parsers::iliteral_parser>(literal); }
-        auto seq(base_ptr_list items)    { return std::make_shared<parsers::sequence_parser>(items); }
-        auto cho(base_ptr_list items)    { return std::make_shared<parsers::choice_parser>(items); }
-        auto opt(base_ptr optional)      { return std::make_shared<parsers::optional_parser>(optional); }
-        auto kst(base_ptr single)        { return std::make_shared<parsers::kleene_star_parser>(single); }
-        auto kpl(base_ptr single)        { return std::make_shared<parsers::kleene_plus_parser>(single); }
-        auto anp(base_ptr base)          { return std::make_shared<parsers::and_predicate_parser>(base); }
-        auto ntp(base_ptr base)          { return std::make_shared<parsers::not_predicate_parser>(base); }
-        auto any()                       { return std::make_shared<parsers::any_parser>(); }
-        auto cls(char_range range)       { return std::make_shared<parsers::class_parser>(range); }
-        auto cls(char_range_list ranges) { return std::make_shared<parsers::class_parser>(ranges); }
-        auto cls(std::string_view chars) { return std::make_shared<parsers::class_parser>(chars); }
-        auto sym(symbol s)               { return std::make_shared<parsers::symbol>(s); }
+        auto lit(const char* literal)    { return util::make_simple_shared<parsers::literal_parser>(literal); }
+        auto ilit(const char* literal)   { return util::make_simple_shared<parsers::iliteral_parser>(literal); }
+        auto seq(base_ptr_list items)    { return util::make_simple_shared<parsers::sequence_parser>(items); }
+        auto cho(base_ptr_list items)    { return util::make_simple_shared<parsers::choice_parser>(items); }
+        auto opt(base_ptr optional)      { return util::make_simple_shared<parsers::optional_parser>(optional); }
+        auto kst(base_ptr single)        { return util::make_simple_shared<parsers::kleene_star_parser>(single); }
+        auto kpl(base_ptr single)        { return util::make_simple_shared<parsers::kleene_plus_parser>(single); }
+        auto anp(base_ptr base)          { return util::make_simple_shared<parsers::and_predicate_parser>(base); }
+        auto ntp(base_ptr base)          { return util::make_simple_shared<parsers::not_predicate_parser>(base); }
+        auto any()                       { return util::make_simple_shared<parsers::any_parser>(); }
+        auto cls(char_range range)       { return util::make_simple_shared<parsers::class_parser>(range); }
+        auto cls(char_range_list ranges) { return util::make_simple_shared<parsers::class_parser>(ranges); }
+        auto cls(std::string_view chars) { return util::make_simple_shared<parsers::class_parser>(chars); }
+        auto sym(symbol s)               { return util::make_simple_shared<parsers::symbol>(s); }
 
         sequence_ptr operator>>(sequence_ptr s, base_ptr b) { s->add(std::move(b)); return s; }
         sequence_ptr operator>>(base_ptr b1, base_ptr b2) { return seq({ std::move(b1), std::move(b2) }); }

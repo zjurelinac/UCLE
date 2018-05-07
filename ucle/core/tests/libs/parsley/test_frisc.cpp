@@ -43,63 +43,69 @@ int main() {
     auto sep = comma / space;
     auto eol = ~any();
 
-    auto bin_digit = cls({'0', '1'});
-    auto oct_digit = cls({'0', '7'});
-    auto dec_digit = cls({'0', '9'});
-    auto hex_digit = cls({{'0', '9'}, {'A', 'F'}, {'a', 'f'}});
+    // auto bin_digit = cls({'0', '1'});
+    // auto oct_digit = cls({'0', '7'});
+    // auto dec_digit = cls({'0', '9'});
+    // auto hex_digit = cls({{'0', '9'}, {'A', 'F'}, {'a', 'f'}});
 
-    auto id_start = lit("_") / cls({{'A', 'Z'}, {'a', 'z'}});
-    auto id_cont  = lit("_") / cls({{'A', 'Z'}, {'a', 'z'}, {'0', '9'}});
-    auto id = id_start >> id_cont * N;
+    // auto id_start = lit("_") / cls({{'A', 'Z'}, {'a', 'z'}});
+    // auto id_cont  = lit("_") / cls({{'A', 'Z'}, {'a', 'z'}, {'0', '9'}});
+    // auto id = id_start >> id_cont * N;
 
-    auto bin_mod = percent >> cls("Bb");
-    auto oct_mod = percent >> cls("Oo");
-    auto dec_mod = percent >> cls("Dd");
-    auto hex_mod = percent >> cls("Hh");
+    // auto bin_mod = percent >> cls("Bb");
+    // auto oct_mod = percent >> cls("Oo");
+    // auto dec_mod = percent >> cls("Dd");
+    // auto hex_mod = percent >> cls("Hh");
 
-    symbol bin_num { "bin_num" }, oct_num { "oct_num" }, dec_num { "dec_num" }, hex_num { "hex_num" };
+    // auto cond_flag = lit("ULE") / lit("ULT") / lit("UGE") / lit("UGT") /
+    //                  lit("SLE") / lit("SLT") / lit("SGE") / lit("SGT") /
+    //                  lit("NC")  / lit("NV")  / lit("NN")  / lit("NZ")  /
+    //                  lit("C")   / lit("V")   / lit("N")   / lit("Z")   /
+    //                  lit("M")   / lit("P")   / lit("EQ")  / lit("NE");
 
-    bin_num <= bin_digit + N;
-    oct_num <= oct_digit + N;
-    dec_num <= dec_digit + N;
-    hex_num <= dec_digit >> hex_digit * N;
+    // symbol bin_num { "bin_num" }, oct_num { "oct_num" }, dec_num { "dec_num" }, hex_num { "hex_num" }, numeric_const { "numeric_const" },
+    //        label { "label" },           
+    //        gp_reg { "gp_reg" }, sr_reg { "sr_reg" }, any_reg { "register" },
+           
+    //        condition { "condition" }, jmp_target { "jmp_target" }, indirect_jmp_target { "indirect_jmp_target" },
 
-    symbol numeric_const { "numeric_const" }, label { "label" }, gp_reg { "gp_reg" }, sr_reg { "sr_reg" }, any_reg { "register" };
+    //        src1 { "src1" }, src2 { "src2" }, dest { "dest" },
 
-    numeric_const <= ((bin_mod >> spaces >> sym(bin_num)) / (oct_mod >> spaces >> sym(oct_num)) / (dec_mod >> spaces >> sym(dec_num)) / (opt(hex_mod >> spaces) >> sym(hex_num))) >> (&sep / eol);
-    label         <= id;
-    gp_reg        <= lit("R0") / lit("R1") / lit("R2") / lit("R3") / lit("R4") / lit("R5") / lit("R6") / lit("R7") / lit("SP");
-    sr_reg        <= lit("SR");
-    any_reg       <= sym(gp_reg) / sym(sr_reg);
+    //        alu_opcode { "alu_opcode" }, cmp_opcode { "cmp_opcode" }, mem_opcode { "mem_opcode" },
+    //        stk_opcode { "stk_opcode" }, jmp_opcode { "jmp_opcode" }, ret_opcode { "ret_opcode" },
+           
+    //        alu_instr { "alu_instr" }, cmp_instr { "cmp_instr" }, mem_instr { "mem_instr" },
+    //        stk_instr { "stk_instr" }, jmp_instr { "jmp_instr" }, ret_instr { "ret_instr" };
 
-    symbol jmp_target { "jmp_target" };
+    // bin_num <= bin_digit + N;
+    // oct_num <= oct_digit + N;
+    // dec_num <= dec_digit + N;
+    // hex_num <= dec_digit >> hex_digit * N;
 
-    jmp_target <= sym(numeric_const) / sym(label) / (lparens >> sym(gp_reg) >> rparens);
+    // numeric_const <= ((bin_mod >> spaces >> sym(bin_num)) / (oct_mod >> spaces >> sym(oct_num)) / (dec_mod >> spaces >> sym(dec_num)) / (opt(hex_mod >> spaces) >> sym(hex_num))) >> (&sep / eol);
+    // label         <= id;
+    // gp_reg        <= lit("R0") / lit("R1") / lit("R2") / lit("R3") / lit("R4") / lit("R5") / lit("R6") / lit("R7") / lit("SP");
+    // sr_reg        <= lit("SR");
+    // any_reg       <= sym(gp_reg) / sym(sr_reg);
 
-    auto cond_flag = lit("ULE") / lit("ULT") / lit("UGE") / lit("UGT") /
-                     lit("SLE") / lit("SLT") / lit("SGE") / lit("SGT") /
-                     lit("NC")  / lit("NV")  / lit("NN")  / lit("NZ")  /
-                     lit("C")   / lit("V")   / lit("N")   / lit("Z")   /
-                     lit("M")   / lit("P")   / lit("EQ")  / lit("NE");
+    // condition           <= opt(undersc >> cond_flag);
+    // indirect_jmp_target <= lparens >> sym(gp_reg) >> rparens;
+    // jmp_target          <= sym(numeric_const) / sym(label) / sym(indirect_jmp_target);
 
-    symbol condition { "condition" };
+    // src1 <= sym(gp_reg);
+    // src2 <= sym(gp_reg) / sym(numeric_const) / sym(label);
+    // dest <= sym(gp_reg);
 
-    condition <= opt(undersc >> cond_flag);
+    // alu_opcode <= lit("ADD") / lit("ADC") / lit("SUB") / lit("SBC") / lit("AND") / lit("OR")  / lit("XOR") /
+    //               lit("SHL") / lit("SHR") / lit("ASHR") / lit("ROTL") / lit("ROTR");
+    // cmp_opcode <= lit("CMP");
+    // mem_opcode <= lit("LOAD") / lit("LOADH") / lit("LOADB") / lit("STORE") / lit("STOREH") / lit("STOREB");
+    // stk_opcode <= lit("PUSH") / lit("POP");
+    // jmp_opcode <= lit("JP") / lit("JR") / lit("CALL");
+    // ret_opcode <= lit("RET") / lit("RETI") / lit("RETN") / lit("HALT");
 
-    symbol alu_opcode { "alu_opcode" }, cmp_opcode { "cmp_opcode" }, mem_opcode { "mem_opcode" }, stk_opcode { "stack_opcode" }, jmp_opcode { "jmp_opcode" }, ret_opcode { "ret_opcode" };
-
-    alu_opcode <= lit("ADD") / lit("ADC") / lit("SUB") / lit("SBC") / lit("AND") / lit("OR")  / lit("XOR") /
-                  lit("SHL") / lit("SHR") / lit("ASHR") / lit("ROTL") / lit("ROTR");
-    cmp_opcode <= lit("CMP");
-    mem_opcode <= lit("LOAD") / lit("LOADH") / lit("LOADB") / lit("STORE") / lit("STOREH") / lit("STOREB");
-    stk_opcode <= lit("PUSH") / lit("POP");
-    jmp_opcode <= lit("JP") / lit("JR") / lit("CALL");
-    ret_opcode <= lit("RET") / lit("RETI") / lit("RETN") / lit("HALT");
-
-    symbol alu_instr { "alu_instr" }, cmp_instr { "cmp_instr" }, mem_instr { "mem_instr" }, stk_instr { "stk_instr" }, jmp_instr { "jmp_instr" }, ret_instr { "ret_instr" };
-
-    ret_instr <= sym(ret_opcode) >> sym(condition);
-    jmp_instr <= sym(jmp_opcode) >> sym(condition) >> spaces >> sym(jmp_target);
+    // ret_instr <= sym(ret_opcode) >> sym(condition);
+    // jmp_instr <= sym(jmp_opcode) >> sym(condition) >> spaces >> sym(jmp_target);
 
     /*** Specific tests ***/
 
@@ -129,10 +135,10 @@ int main() {
     // try_parse(any_reg, "SR");
     // try_parse(any_reg, "PC");
 
-    try_parse(ret_instr, "RET");
-    try_parse(ret_instr, "RET_NZ");
+    // try_parse(ret_instr, "RET");
+    // try_parse(ret_instr, "RET_NZ");
 
-    try_parse(jmp_instr, "JP LOOP1");
-    try_parse(jmp_instr, "JP_NZ LOOP2");
-    try_parse(jmp_instr, "CALL (R0)");
+    // try_parse(jmp_instr, "JP LOOP1");
+    // try_parse(jmp_instr, "JP_NZ LOOP2");
+    // try_parse(jmp_instr, "CALL (R0)");
 }
