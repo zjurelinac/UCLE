@@ -1,7 +1,6 @@
 #ifndef _UCLE_CORE_LIBS_PARSLEY_PARSLEY_HPP_
 #define _UCLE_CORE_LIBS_PARSLEY_PARSLEY_HPP_
 
-#include <util/simple_shared_ptr.hpp>
 #include <util/string_view.hpp>
 
 #include <any>
@@ -45,7 +44,7 @@ namespace ucle::parsley {
                 virtual parse_result parse(std::string_view) = 0;
         };
 
-        using base_ptr = util::simple_shared_ptr<base_parser>;
+        using base_ptr = std::shared_ptr<base_parser>;
         using base_ptr_list = std::initializer_list<base_ptr>;
 
         class sequence_parser : public base_parser {
@@ -75,6 +74,7 @@ namespace ucle::parsley {
 
                     return { parse_status::success, { input.substr(0, pos), children } };
                 }
+
                 void add(base_ptr item) { items_.push_back(std::move(item)); }
 
             private:
@@ -123,6 +123,7 @@ namespace ucle::parsley {
                     else
                         return { parse_status::success };
                 }
+
             private:
                 base_ptr optional_;
         };
@@ -148,8 +149,8 @@ namespace ucle::parsley {
                     }
 
                     return { parse_status::success, { input.substr(0, pos), children } };
-
                 }
+
             private:
                 base_ptr single_;
         };
@@ -180,8 +181,8 @@ namespace ucle::parsley {
                         return { parse_status::fail };
                     else
                         return { parse_status::success, { input.substr(0, pos), children } };
-
                 }
+
             private:
                 base_ptr single_;
         };
@@ -212,12 +213,16 @@ namespace ucle::parsley {
                 base_ptr base_;
         };
 
-        using sequence_ptr = util::simple_shared_ptr<sequence_parser>;
-        using choice_ptr   = util::simple_shared_ptr<choice_parser>;
-        using kstar_ptr    = util::simple_shared_ptr<kleene_star_parser>;
-        using kplus_ptr    = util::simple_shared_ptr<kleene_plus_parser>;
-        using and_pred_ptr = util::simple_shared_ptr<and_predicate_parser>;
-        using not_pred_ptr = util::simple_shared_ptr<not_predicate_parser>;
+        using sequence_ptr = std::shared_ptr<sequence_parser>;
+        using choice_ptr   = std::shared_ptr<choice_parser>;
+        using kstar_ptr    = std::shared_ptr<kleene_star_parser>;
+        using kplus_ptr    = std::shared_ptr<kleene_plus_parser>;
+        using and_pred_ptr = std::shared_ptr<and_predicate_parser>;
+        using not_pred_ptr = std::shared_ptr<not_predicate_parser>;
+
+        class epsilon_parser : public base_parser {
+            parse_result parse(std::string_view) override { return { parse_status::success }; }
+        };
 
         class literal_parser : public base_parser {
             public:
@@ -306,13 +311,10 @@ namespace ucle::parsley {
                 std::vector<char_range> ranges_;
         };
 
-        class symbol : public base_parser {
+        class symbol_parser : public base_parser {
             public:
-                symbol() {}
-                symbol(std::string name) : name_ { name } {}
-                symbol(std::string name, base_ptr parser) : name_ { name }, parser_ { std::move(parser) } {}
-
-                symbol(const symbol&) = default;
+                symbol_parser() {}
+                symbol_parser(base_ptr parser, std::string_view name) : parser_ { std::move(parser) }, name_ { name } {}
 
                 parse_result parse(std::string_view input) override
                 {
@@ -322,34 +324,37 @@ namespace ucle::parsley {
                 }
 
                 void set_parser(base_ptr parser) { parser_ = std::move(parser); }
-                auto ptr() { return std::shared_ptr<symbol>(this); }
 
             private:
-                std::string name_;
                 base_ptr parser_;
+                std::string_view name_;
         };
 
-        using symbol_ptr = std::shared_ptr<symbol>;
+        using symbol_ptr = std::shared_ptr<symbol_parser>;
 
-        auto lit(const char* literal)    { return util::make_simple_shared<parsers::literal_parser>(literal); }
-        auto ilit(const char* literal)   { return util::make_simple_shared<parsers::iliteral_parser>(literal); }
-        auto seq(base_ptr_list items)    { return util::make_simple_shared<parsers::sequence_parser>(items); }
-        auto cho(base_ptr_list items)    { return util::make_simple_shared<parsers::choice_parser>(items); }
-        auto opt(base_ptr optional)      { return util::make_simple_shared<parsers::optional_parser>(optional); }
-        auto kst(base_ptr single)        { return util::make_simple_shared<parsers::kleene_star_parser>(single); }
-        auto kpl(base_ptr single)        { return util::make_simple_shared<parsers::kleene_plus_parser>(single); }
-        auto anp(base_ptr base)          { return util::make_simple_shared<parsers::and_predicate_parser>(base); }
-        auto ntp(base_ptr base)          { return util::make_simple_shared<parsers::not_predicate_parser>(base); }
-        auto any()                       { return util::make_simple_shared<parsers::any_parser>(); }
-        auto cls(char_range range)       { return util::make_simple_shared<parsers::class_parser>(range); }
-        auto cls(char_range_list ranges) { return util::make_simple_shared<parsers::class_parser>(ranges); }
-        auto cls(std::string_view chars) { return util::make_simple_shared<parsers::class_parser>(chars); }
-        auto sym(symbol s)               { return util::make_simple_shared<parsers::symbol>(s); }
+        auto eps()                       { return std::make_shared<parsers::epsilon_parser>(); }
+        auto lit(const char* literal)    { return std::make_shared<parsers::literal_parser>(literal); }
+        auto ilit(const char* literal)   { return std::make_shared<parsers::iliteral_parser>(literal); }
+        auto seq(base_ptr_list items)    { return std::make_shared<parsers::sequence_parser>(items); }
+        auto cho(base_ptr_list items)    { return std::make_shared<parsers::choice_parser>(items); }
+        auto opt(base_ptr optional)      { return std::make_shared<parsers::optional_parser>(optional); }
+        auto kst(base_ptr single)        { return std::make_shared<parsers::kleene_star_parser>(single); }
+        auto kpl(base_ptr single)        { return std::make_shared<parsers::kleene_plus_parser>(single); }
+        auto anp(base_ptr base)          { return std::make_shared<parsers::and_predicate_parser>(base); }
+        auto ntp(base_ptr base)          { return std::make_shared<parsers::not_predicate_parser>(base); }
+        auto any()                       { return std::make_shared<parsers::any_parser>(); }
+        auto cls(char_range range)       { return std::make_shared<parsers::class_parser>(range); }
+        auto cls(char_range_list ranges) { return std::make_shared<parsers::class_parser>(ranges); }
+        auto cls(std::string_view chars) { return std::make_shared<parsers::class_parser>(chars); }
+        auto sym(base_ptr base, std::string_view sym_name) { return std::make_shared<parsers::symbol_parser>(base, sym_name); }
 
-        sequence_ptr operator>>(sequence_ptr s, base_ptr b) { s->add(std::move(b)); return s; }
+        template <typename T>
+        auto cpy(T parser_ptr) { return std::make_shared<typename T::element_type>(*parser_ptr); }
+
+        sequence_ptr operator>>(sequence_ptr s, base_ptr b) { auto ns = cpy(s); ns->add(std::move(b)); return ns; }
         sequence_ptr operator>>(base_ptr b1, base_ptr b2) { return seq({ std::move(b1), std::move(b2) }); }
 
-        choice_ptr operator/(choice_ptr c, base_ptr b) { c->add(std::move(b)); return c; }
+        choice_ptr operator/(choice_ptr c, base_ptr b) { auto nc = cpy(c); nc->add(std::move(b)); return nc; }
         choice_ptr operator/(base_ptr b1, base_ptr b2) { return cho({ std::move(b1), std::move(b2) }); }
 
         class multiply_helper {};
@@ -360,10 +365,10 @@ namespace ucle::parsley {
         and_pred_ptr operator&(base_ptr b) { return anp(std::move(b)); }
         not_pred_ptr operator~(base_ptr b) { return ntp(std::move(b)); }
 
-        void operator<=(symbol& s, base_ptr b) { s.set_parser(b); }
-
+        symbol_ptr operator>=(base_ptr b, std::string_view sym_name) { return sym(b, sym_name); }
     }
 
+    using parsers::eps;
     using parsers::lit;
     using parsers::seq;
     using parsers::cho;
@@ -376,39 +381,7 @@ namespace ucle::parsley {
     using parsers::cls;
     using parsers::sym;
 
-    using parsers::symbol;
-
     static const parsers::multiply_helper N;
-
-    // namespace detail {
-
-    //     class quoted_parser : public base_parser {
-    //         public:
-    //             int consume(std::string_view input) override
-    //             {
-    //                 if (!is_quote_(input[0]))
-    //                     return 0;
-
-    //                 auto len = input.length();
-    //                 bool escaped = false;
-
-    //                 for (size_t i = 1; i < len; ++i) {
-    //                     if (escaped)
-    //                         escaped = false;
-    //                     else if (input[i] == '\\')
-    //                         escaped = true;
-    //                     else if (is_quote_(input[i]))
-    //                         return i + 1;
-    //                 }
-
-    //                 return 0;
-    //             }
-
-    //         private:
-    //             bool is_quote_(const char c) const { return c == '\'' || c == '\"'; }
-    //     };
-
-    // };
 
 };
 
