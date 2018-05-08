@@ -84,17 +84,5 @@ loader().then((monaco) => {
 		}
 	});
 
-	ipcRenderer.on('run-simulation', (e) => {
-		var currTabValue = ucleTabs.currentTabValue;
-		if(currTabValue) {
-			ucleServer.runSim("1.p");
-		}
-	});
-
-	ipcRenderer.on('sim-response', (e, data) => {
-		console.log(data);
-		document.getElementById("run-sim").className = "run-simulation";
-	});
-
 	editor.focus();
 });

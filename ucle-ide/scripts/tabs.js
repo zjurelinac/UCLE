@@ -75,6 +75,24 @@ class UCLETabs {
 		this.el.dispatchEvent(new CustomEvent(eventName, { detail: data }));
 	}
 
+	hideTabs() {
+		let tabs = this.tabEls;
+		tabs.forEach(function(tab) {
+			if(tab != this.currentTab) {
+				tab.style.display = "none";
+			}
+		}, this);
+	}
+
+	showAllTabs() {
+		let tabs = this.tabEls;
+		tabs.forEach(function(tab) {
+			if(tab != this.currentTab) {
+				tab.style.display = "inherit";
+			}
+		}, this);
+	}
+
 	changeEditorLanguage(tabEl, fileName) {
 		if(!tabEl || !idModels.get(tabId.get(tabEl))) return;
 		this.monaco.editor.setModelLanguage(idModels.get(tabId.get(tabEl)),mime.getExtension(mime.getType(fileName)));
@@ -144,6 +162,15 @@ class UCLETabs {
 			return idModels.get(tabId.get(currTab)).getValue();
 		} else {
 			return currTab;
+		}
+	}
+
+	get currentTabModel() {
+		var currTab = this.el.querySelector('.ucle-tab-current');
+		if(currTab && idModels.get(tabId.get(currTab))) {
+			return idModels.get(tabId.get(currTab));
+		} else {
+			return null;
 		}
 	}
 

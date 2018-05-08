@@ -86,7 +86,9 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		if(e.target.className == "run-simulation") {
 			var currTabValue = ucleTabs.currentTabValue;
 			if(currTabValue) {
+				ucleTabs.hideTabs();
 				e.target.className = "stop-simulation";
+				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 				ucleServer.runSim("1.p");
 			} else {
 				var type = "warning";
@@ -97,9 +99,8 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			}
 		} else {
 			e.target.className = "run-simulation";
-			//ucleServer.stopSim();
-		}
-		
+			ucleServer.stopSim(ucleTabs.currentTabModel);
+		}	
 	});
 
 	ipcRenderer.on('open-dir', (e) => {
@@ -128,6 +129,34 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		} else {
 			explorer.children[0].className = "explorer-ico-opened";
 		}
+	});
+
+	ipcRenderer.on('run-simulation', (e) => {
+		var sim = document.getElementById("run-sim");
+		if(sim.className == "run-simulation") {
+			var currTabValue = ucleTabs.currentTabValue;
+			if(currTabValue) {
+				ucleTabs.hideTabs();
+				sim.className = "stop-simulation";
+				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
+				ucleServer.runSim("1.p");
+			} else {
+				var type = "warning";
+				var buttons = ['OK'];
+				var message = 'Cannot run simulation with an empty file!';
+				var defaultId = 0;
+				var response = remote.dialog.showMessageBox({message, type, buttons, defaultId});
+			}
+		} else {
+			sim.className = "run-simulation";
+			ucleServer.stopSim(ucleTabs.currentTabModel);
+		}	
+	});
+
+	ipcRenderer.on('sim-response', (e, data) => {
+		console.log(data);
+		document.getElementById("run-sim").className = "run-simulation";
+		ucleTabs.showAllTabs();
 	});
 
 	addButtonClick(document.getElementById("openbtn"));

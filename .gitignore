@@ -39,3 +39,6 @@ build
 
 # Node modules
 node_modules
+
+# Test folder (temporary)
+test
