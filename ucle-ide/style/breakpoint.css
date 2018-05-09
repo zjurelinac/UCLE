@@ -1,4 +1,14 @@
 .breakpoint {
-	background: "*";
-	background-color: red;
+	background:url(../icons/breakpoint.png);
+	background-repeat:no-repeat;
+	background-position: center; 
+	background-size: 70% 70%;
+}
+
+.breakpoint-hover {
+	background:url(../icons/breakpoint.png);
+	background-repeat:no-repeat;
+	background-position: center; 
+	background-size: 70% 70%;
+	opacity:0.4;
 }

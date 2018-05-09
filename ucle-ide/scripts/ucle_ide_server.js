@@ -31,11 +31,14 @@ class UCLEServer {
 
 				var remove = dec.some(function(e, index) {
 					if(e.options.glyphMarginClassName == "breakpoint") {
-						model.deltaDecorations([e.id], []);
+						model.deltaDecorations([e.id], [{range: range, options: {glyphMarginClassName:"breakpoint-hover", stickiness: e.options.stickiness}}]);
 						decorations.splice(decorations.indexOf(e.id),1);
 						return true;
+					} else if(e.options.glyphMarginClassName == "breakpoint-hover") {
+						model.deltaDecorations([e.id], []);
+						return false;
 					}
-				})
+				});
 
 				if(remove) {
 					return;
@@ -58,8 +61,59 @@ class UCLEServer {
 				]);
 
 				decorations.push(newDecorations[0]);
+				console.log(model.getLineDecorations(line));
 			}
 		}, this);
+
+		this.editor.onMouseMove(function(e) {
+			if(e.target.type == 2) {
+
+				var model = this.editor.getModel();
+				if(model == null || model == undefined) return;
+
+				var line = e.target.position.lineNumber;
+				var	column = e.target.position.column;
+				var range = new this.monaco.Range(line, column, line, column);
+
+				var dec = model.getLineDecorations(line);
+
+				var allDec = model.getAllDecorations();
+
+				var del = allDec.some(function(e, index) {
+					if(e.options.glyphMarginClassName == "breakpoint-hover" && e.range.startLineNumber != line) {
+						model.deltaDecorations([e.id], []);
+					}
+				});
+
+				var remove = dec.some(function(e, index) {
+					if(e.options.glyphMarginClassName == "breakpoint") {
+						return true;
+					}
+				});
+
+				if(remove) {
+					return;
+				}
+
+				var stick = this.monaco.editor.TrackedRangeStickiness.GrowsOnlyWhenTypingBefore;
+
+				if(model.getLineContent(line) != "") {
+					stick = this.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges;
+				}
+
+				model.deltaDecorations([], [
+					{
+						range: range,
+						options: {
+							glyphMarginClassName: 'breakpoint-hover',
+							stickiness: stick
+						}
+					}
+				]);
+			}
+			
+		}, this);
+
 	}
 
 	registerBreakPoints() {
