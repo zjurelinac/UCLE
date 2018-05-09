@@ -194,6 +194,35 @@ i.file-ico {
 	left:0;	
 }
 
+#step.run-simulation {
+	display: inline-block;
+	background:url(../icons/step.png);	
+	background-repeat:no-repeat;
+	background-size: 100% 100%;
+	width:32px;
+	height:32px;
+	padding:0;
+	top:0;
+	bottom:0;
+	right:0;
+	left:0;	
+}
+
+#step.wait-simulation {
+	display: inline-block;
+	background:url(../icons/step.png);
+	opacity: 0.5;
+	background-repeat:no-repeat;
+	background-size: 100% 100%;
+	width:32px;
+	height:32px;
+	padding:0;
+	top:0;
+	bottom:0;
+	right:0;
+	left:0;	
+}
+
 #run-sim.run-simulation {
 	display: inline-block;
 	background:url(../icons/run-simulation.png);	
@@ -238,10 +267,10 @@ i.file-ico {
 	background-color: #d7d7d7;
 }
 
-#search:hover, #file-explorer:hover, #refresh:hover, #run-sim:hover, .explorer:hover {
+#search:hover, #file-explorer:hover, #refresh:hover, .run-simulation:hover, .explorer:hover {
 	cursor: pointer;
 }
 
-#search:active, #file-explorer:active, #refresh:active, #openbtn:active, #run-sim:active {
+#search:active, #file-explorer:active, #refresh:active, #openbtn:active, .run-simulation:active {
 	transform: translateY(4px);
 }

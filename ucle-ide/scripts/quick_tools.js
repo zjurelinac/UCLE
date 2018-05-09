@@ -23,6 +23,10 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		});
 	}
 
+	function stepSim() {
+		ucleServer.sendCommand("step",[]);
+	}
+
 	document.getElementById("listed-files").addEventListener("contextmenu", function(e) {
 		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir"))) {
 			var contextMenu = new Menu();
@@ -88,6 +92,8 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			if(currTabValue) {
 				ucleTabs.hideTabs();
 				e.target.className = "stop-simulation";
+				document.getElementById("step").className = "run-simulation";
+				document.getElementById("step").addEventListener("click", stepSim);
 				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 				ucleServer.runSim("1.p");
 			} else {
@@ -99,6 +105,8 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			}
 		} else {
 			e.target.className = "run-simulation";
+			document.getElementById("step").className = "wait-simulation";
+			document.getElementById("step").removeEventListener("click", stepSim);
 			ucleServer.stopSim(ucleTabs.currentTabModel);
 		}	
 	});
@@ -138,6 +146,8 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			if(currTabValue) {
 				ucleTabs.hideTabs();
 				sim.className = "stop-simulation";
+				document.getElementById("step").className = "run-simulation";
+				document.getElementById("step").addEventListener("click", stepSim);
 				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 				ucleServer.runSim("1.p");
 			} else {
@@ -149,14 +159,14 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			}
 		} else {
 			sim.className = "run-simulation";
+			document.getElementById("step").className = "wait-simulation";
+			document.getElementById("step").removeEventListener("click", stepSim);
 			ucleServer.stopSim(ucleTabs.currentTabModel);
 		}	
 	});
 
 	ipcRenderer.on('sim-response', (e, data) => {
 		console.log(data);
-		document.getElementById("run-sim").className = "run-simulation";
-		ucleTabs.showAllTabs();
 	});
 
 	addButtonClick(document.getElementById("openbtn"));

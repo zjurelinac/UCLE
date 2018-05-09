@@ -8,8 +8,6 @@ var quitCommand = {"command": "quit", "args": []};
 
 var infoCommand = {"command": "info", "args": []};
 
-var stepCommand = {"command": "step", "args": []};
-
 var startCommand = {"command": "start", "args":[]};
 
 var decorations = [];
@@ -35,7 +33,15 @@ class UCLEServer {
 
 				var remove = dec.some(function(e, index) {
 					if(e.options.glyphMarginClassName == "breakpoint") {
-						model.deltaDecorations([e.id], [{range: range, options: {glyphMarginClassName:"breakpoint-hover", stickiness: e.options.stickiness}}]);
+						model.deltaDecorations([e.id], [
+							{
+								range: range,
+								options: {
+									glyphMarginClassName:"breakpoint-hover",
+									stickiness: e.options.stickiness
+								}
+							}
+						]);
 						decorations.splice(decorations.indexOf(e.id),1);
 						return true;
 					} else if(e.options.glyphMarginClassName == "breakpoint-hover") {
@@ -140,27 +146,18 @@ class UCLEServer {
 	runSim(filePath) {
 		var file = path.resolve(__dirname, "../test/test.p");
 
-		console.log(file);
-
 		child = cp.execFile(proc, ['FRISC', file, '-j']);
-		let readData = "";
-		let finished = false;
 
 		child.stdout.on('data', function(data) {
-			readData += data.toString();
+			require('electron').remote.getCurrentWindow().webContents.send("sim-response", data.toString());
 		});
 
 		child.stdin.write(JSON.stringify(startCommand) + '\n');
+	}
 
-		child.stdin.write(JSON.stringify(stepCommand) + '\n');
-
-		child.stdin.write(JSON.stringify(stepCommand) + '\n');
-
-		child.stdin.write(JSON.stringify(infoCommand) + '\n');
-		
-		child.on('close', function() {
-			require('electron').remote.getCurrentWindow().webContents.send("sim-response", readData);
-		});
+	sendCommand(command, args) {
+		var JSONcommand = { "command": command, "args": args};
+		child.stdin.write(JSON.stringify(JSONcommand) + '\n');
 	}
 
 	stopSim() {
