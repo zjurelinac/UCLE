@@ -10,13 +10,17 @@ var infoCommand = {"command": "info", "args": []};
 
 var stepCommand = {"command": "step", "args": []};
 
+var startCommand = {"command": "start", "args":[]};
+
 var decorations = [];
 
 class UCLEServer {
 	constructor({ editor, monaco }) {
 		this.editor = editor;
 		this.monaco = monaco;
+	}
 
+	init() {
 		this.editor.onMouseDown(function(e) {
 			if(e.target.type == 2) {
 
@@ -68,7 +72,7 @@ class UCLEServer {
 		this.editor.onMouseMove(function(e) {
 			var model = this.editor.getModel();
 			if(model == null || model == undefined) return;
-			
+
 			if(e.target.type == 2) {
 				var line = e.target.position.lineNumber;
 				var	column = e.target.position.column;
@@ -146,7 +150,7 @@ class UCLEServer {
 			readData += data.toString();
 		});
 
-		child.stdin.write(JSON.stringify(stepCommand) + '\n');
+		child.stdin.write(JSON.stringify(startCommand) + '\n');
 
 		child.stdin.write(JSON.stringify(stepCommand) + '\n');
 

@@ -38,6 +38,7 @@ loader().then((monaco) => {
 	const ucleServer = new UCLEServer({ editor, monaco });
 
 	ucleTabs.init(el, { tabOverlapDistance: 14, minWidth: 45, maxWidth: 243 });
+	ucleServer.init();
 
 	quickTools = require("./scripts/quick_tools")(editor, fileManager,ucleTabs, ucleServer);
 
