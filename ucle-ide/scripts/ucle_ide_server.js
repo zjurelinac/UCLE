@@ -66,11 +66,10 @@ class UCLEServer {
 		}, this);
 
 		this.editor.onMouseMove(function(e) {
+			var model = this.editor.getModel();
+			if(model == null || model == undefined) return;
+			
 			if(e.target.type == 2) {
-
-				var model = this.editor.getModel();
-				if(model == null || model == undefined) return;
-
 				var line = e.target.position.lineNumber;
 				var	column = e.target.position.column;
 				var range = new this.monaco.Range(line, column, line, column);
@@ -79,11 +78,7 @@ class UCLEServer {
 
 				var allDec = model.getAllDecorations();
 
-				var del = allDec.some(function(e, index) {
-					if(e.options.glyphMarginClassName == "breakpoint-hover" && e.range.startLineNumber != line) {
-						model.deltaDecorations([e.id], []);
-					}
-				});
+				this.removeHoverBreakPoint(model);
 
 				var remove = dec.some(function(e, index) {
 					if(e.options.glyphMarginClassName == "breakpoint") {
@@ -110,10 +105,27 @@ class UCLEServer {
 						}
 					}
 				]);
+			} else {
+				this.removeHoverBreakPoint(model);
 			}
-			
+
 		}, this);
 
+		this.editor.onMouseLeave(function(e) {
+			var model = this.editor.getModel();
+			if(model == null || model == undefined) return;
+			this.removeHoverBreakPoint(model);
+		},this);
+	}
+
+	removeHoverBreakPoint(model) {
+		var allDec = model.getAllDecorations();
+
+		var del = allDec.some(function(e, index) {
+			if(e.options.glyphMarginClassName == "breakpoint-hover") {
+				model.deltaDecorations([e.id], []);
+			}
+		});
 	}
 
 	registerBreakPoints() {
