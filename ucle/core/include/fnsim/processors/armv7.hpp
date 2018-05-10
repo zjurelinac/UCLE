@@ -17,11 +17,15 @@ namespace ucle::fnsim::armv7 {
     struct status_reg : public flags_reg<32> {
         using flags_reg<32>::operator=;
 
-        // flag_reference GIE  = operator[](4);
-        // flag_reference Z    = operator[](3);
-        // flag_reference V    = operator[](2);
-        // flag_reference C    = operator[](1);
-        // flag_reference N    = operator[](0);
+        flag_reference N    = operator[](31);
+        flag_reference Z    = operator[](30);
+        flag_reference C    = operator[](29);
+        flag_reference V    = operator[](28);
+
+        flag_reference I    = operator[](7);
+        flag_reference F    = operator[](6);
+
+        byte_t mode() { return (*this)[{5, 0}]; }
     };
 
     struct arith_flags : public bitfield<4> {
@@ -29,7 +33,7 @@ namespace ucle::fnsim::armv7 {
 
         constexpr arith_flags() = default;
         constexpr arith_flags(bool c, bool v, bool n, bool z)
-            { set(0, n); set(1, c); set(2, v); set(3, z); }
+            { set(0, v); set(1, c); set(2, z); set(3, n); }
     };
 
     struct register_file : public base_register_file {
