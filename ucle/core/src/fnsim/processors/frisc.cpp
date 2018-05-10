@@ -100,10 +100,10 @@ fnsim::status frisc::frisc_simulator::execute_alu_(word_t opcode, bool fn, const
             return status::invalid_instruction;
     }
 
-    regs_.SR.Z = flags[3];
-    regs_.SR.V = flags[2];
-    regs_.SR.C = flags[1];
-    regs_.SR.N = flags[0];
+    regs_.SR.Z = flags.Z;
+    regs_.SR.V = flags.V;
+    regs_.SR.C = flags.C;
+    regs_.SR.N = flags.N;
 
     return status::ok;
 }

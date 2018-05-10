@@ -24,13 +24,15 @@ namespace ucle::fnsim::frisc {
         flag_reference N    = operator[](0);
     };
 
-    struct arith_flags : public bitfield<4> {
-        using bitfield<4>::bitfield;
+    // struct arith_flags : public bitfield<4> {
+    //     using bitfield<4>::bitfield;
 
-        constexpr arith_flags() = default;
-        constexpr arith_flags(bool c, bool v, bool n, bool z)
-            { set(0, n); set(1, c); set(2, v); set(3, z); }
-    };
+    //     constexpr arith_flags() = default;
+    //     constexpr arith_flags(bool c, bool v, bool n, bool z)
+    //         { set(0, n); set(1, c); set(2, v); set(3, z); }
+    // };
+
+    using arith_flags = util::basic_arith_flags;
 
     struct register_file : public base_register_file {
         std::array<reg<32>, 8> R;
