@@ -28,28 +28,50 @@ namespace ucle::fnsim::armv7 {
         byte_t mode() { return (*this)[{5, 0}]; }
     };
 
-    struct arith_flags : public bitfield<4> {
-        using bitfield<4>::bitfield;
-
-        constexpr arith_flags() = default;
-        constexpr arith_flags(bool c, bool v, bool n, bool z)
-            { set(0, v); set(1, c); set(2, z); set(3, n); }
-    };
+    using arith_flags = util::basic_arith_flags;
 
     struct register_file : public base_register_file {
-        std::array<reg<32>, 8> R;
-        reg<32>& SP = R[7];
-        reg<32> PC;
-        status_reg SR;
-        bool IIF = 0;
+        using reg_type = reg<32>;
+
+        reg_type CPSR;
+
+        auto& R(unsigned idx) 
+        {
+            if (idx < 13) return R[idx];
+            return usrR134[idx - 13];
+        }
+
+        auto& SPSR() {
+            return mSPSR_[0];
+        }
+
+        auto& PC() { return R(15); }
+        auto& LR() { return R(14); }
 
         void clear() override
         {
-            IIF = 0;
-            PC = 0; SR = 0;
-            for (auto i = 0u; i < R.size(); ++i)
-                R[i] = 0;
+            for (auto i = 0u; i < R_.size(); ++i)
+                R_[i] = 0;
+
+            for (auto i = 0u; i < R_.size(); ++i)
+                mSPSR_[i] = 0;
+
+            usrR134_[0] = usrR134_[1] = svcR134_[0] = svcR134_[1] =
+            abtR134_[0] = abtR134_[1] = udfR134_[0] = udfR134_[1] =
+            irqR134_[0] = irqR134_[1] = fiqR134_[0] = fiqR134_[1] = 0;
         }
+
+        private:
+            std::array<reg_type> R_[13];
+            
+            std::array<reg_type> usrR134_[2];
+            std::array<reg_type> svcR134_[2];
+            std::array<reg_type> abtR134_[2];
+            std::array<reg_type> udfR134_[2];
+            std::array<reg_type> irqR134_[2];
+            std::array<reg_type> fiqR134_[2];
+
+            std::array<reg_type> mSPSR_[6];
     };
 
     class armv7_simulator : public functional_processor_simulator_impl<32, byte_order::little_endian, mapped_device, address_space, memory, processor_config, false, frisc_max_int_prio> {
