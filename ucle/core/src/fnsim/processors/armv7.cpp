@@ -22,10 +22,10 @@ constexpr bool armv7::armv7_simulator::eval_cond_(word_t cond) const
         case 0b0111: return !CPSR.V;            // No overflow
         case 0b1000: return  CPSR.C && !CPSR.Z; // Unsigned higher
         case 0b1001: return !CPSR.C ||  CPSR.Z; // Unsigned lower or same
-        case 0b1010: return  CPSR.N ==  CSPR.V; // Signed greater than or equal
-        case 0b1011: return  CPSR.N !=  CSPR.V; // Signed less than
-        case 0b1100: return !CPSR.Z && (CPSR.N == CSPR.V); // Signed greater than
-        case 0b1101: return  CPSR.Z || (CPSR.N != CSPR.V); // Signed less than or equal
+        case 0b1010: return  CPSR.N ==  CPSR.V; // Signed greater than or equal
+        case 0b1011: return  CPSR.N !=  CPSR.V; // Signed less than
+        case 0b1100: return !CPSR.Z && (CPSR.N == CPSR.V); // Signed greater than
+        case 0b1101: return  CPSR.Z || (CPSR.N != CPSR.V); // Signed less than or equal
         case 0b1110: return true;               // Always (unconditional)
         case 0b1111: return true;               // Additional unconditional instructions
     }
