@@ -225,20 +225,29 @@ int main() {
 
     //// Whole file
 
-//     try_parse(file,
-// R"(
-//     ; a comment
-//     MOVE 1000, SP
-//     JP MAIN
+auto file_test = R"(
+    ; a comment
+    MOVE 1000, SP
+    JP MAIN
 
-// MAIN  ; a main program
-//     CALL F
+MAIN  ; a main program
+    CALL F
+)";
 
-// F   PUSH R0
-//     ADD R1, R2, R3
-//     POP R0
-//     RET
-// )"
-//     );
+/*
+F   PUSH R0
+    ADD R1, R2, R3
+    POP R0
+    RET
+*/
 
+    try_parse(file, file_test);
+
+    /// Visitors
+
+    visitor v;
+
+    v["line"] = [](auto& v) { fmt::print("A line!\n"); return nullptr; };
+
+    v.visit(file->parse(file_test));
 }
