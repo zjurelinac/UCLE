@@ -26,5 +26,11 @@ int main() {
     assert(util::ends_with("input", "rut") == false);
     assert(util::ends_with("input", 't') == true);
 
+    auto parts = util::split("hello, it is I,,and not you.", [](auto c){ return c == ','; });
+    assert(parts.size() == 3);
+    assert(parts[0] == "hello");
+    assert(parts[1] == " it is I");
+    assert(parts[2] == "and not you.");
+
     puts("All tests passed.");
 }
