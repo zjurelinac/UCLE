@@ -82,7 +82,7 @@ namespace ucle::util {
     auto take_while(std::string_view input, char_predicate p)
     {
         auto len = input.length();
-        int i;
+        unsigned i;
 
         for (i = 0; i < len && p(input[i]); ++i);
 
@@ -92,7 +92,7 @@ namespace ucle::util {
     auto take_while(std::string_view input, view_predicate p)
     {
         auto len = input.length();
-        int i;
+        unsigned i;
 
         for (i = 0; i < len && p(input.substr(i)); ++i);
 
@@ -102,7 +102,7 @@ namespace ucle::util {
     auto drop_while(std::string_view input, char_predicate p)
     {
         auto len = input.length();
-        int i;
+        unsigned i;
 
         for (i = 0; i < len && p(input[i]); ++i);
 
@@ -112,7 +112,7 @@ namespace ucle::util {
     auto drop_while(std::string_view input, view_predicate p)
     {
         auto len = input.length();
-        int i;
+        unsigned i;
 
         for (i = 0; i < len && p(input.substr(i)); ++i);
 
@@ -122,7 +122,7 @@ namespace ucle::util {
     auto take_while_r(std::string_view input, char_predicate p)
     {
         auto len = input.length();
-        int i;
+        unsigned i;
 
         for (i = len - 1; i >= 0 && p(input[i]); --i);
 
@@ -132,7 +132,7 @@ namespace ucle::util {
     auto take_while_r(std::string_view input, view_predicate p)
     {
         auto len = input.length();
-        int i;
+        unsigned i;
 
         for (i = len - 1; i >= 0 && p(input.substr(0, i + 1)); --i);
 
@@ -142,7 +142,7 @@ namespace ucle::util {
     auto drop_while_r(std::string_view input, char_predicate p)
     {
         auto len = input.length();
-        int i;
+        unsigned i;
 
         for (i = len - 1; i >= 0 && p(input[i]); --i);
 
@@ -152,7 +152,7 @@ namespace ucle::util {
     auto drop_while_r(std::string_view input, view_predicate p)
     {
         auto len = input.length();
-        int i;
+        unsigned i;
 
         for (i = len - 1; i >= 0 && p(input.substr(0, i + 1)); --i);
 
