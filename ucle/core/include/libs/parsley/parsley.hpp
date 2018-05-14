@@ -13,8 +13,6 @@
 #include <unordered_map>
 #include <vector>
 
-// TODO: Allow comments later
-
 namespace ucle::parsley {
     using size_t = std::string_view::size_type;
 
@@ -369,6 +367,8 @@ namespace ucle::parsley {
         symbol_ptr operator>=(base_ptr b, std::string_view sym_name) { return sym(b, sym_name); }
     }
 
+    using parser_ptr = parsers::base_ptr;
+
     using parsers::eps;
     using parsers::lit;
     using parsers::seq;
@@ -383,6 +383,45 @@ namespace ucle::parsley {
     using parsers::sym;
 
     static const parsers::multiply_helper N;
+
+    struct visit_result {
+        std::string_view symbol_name;
+        std::any data;
+    };
+
+    using visit_results = std::vector<visit_result>;
+
+    class visitor {
+        public:
+            using visitor_type = std::function<std::any(visit_results&)>;
+            using map_type = std::unordered_map<std::string_view, visitor_type>;
+
+            auto& operator[] (const std::string_view& symbol) { return visitors_[symbol]; };
+            
+            void visit(parse_result res)
+            {
+                if (res.status == parse_status::fail)
+                    return;
+                
+                visit_(res.info);
+            }
+
+        private:
+            visit_result visit_(const parse_info& pi)
+            {
+                visit_results results;
+
+                for (const auto& child : pi.children)
+                    results.push_back(visit_(child));
+
+                if (!pi.symbol_name.empty() && visitors_.count(pi.symbol_name) > 0)
+                    return { pi.symbol_name, visitors_[pi.symbol_name](results) };
+                
+                return { pi.symbol_name, results };
+            }
+
+            map_type visitors_;
+    };
 
 }
 
