@@ -30,14 +30,15 @@ namespace ucle::parsley {
         std::string_view symbol_name;
     };
 
-    bool keep_info(const parse_info& pi) { return pi.symbol_name.length() > 0 || pi.children.size() > 0; }
-
     struct parse_result {
         parse_status status;
         parse_info info;
     };
 
     namespace parsers {
+
+        bool keep_info(const parse_info& pi) { return pi.symbol_name.length() > 0 || pi.children.size() > 0; }
+
         class base_parser {
             public:
                 virtual ~base_parser() = default;
@@ -383,6 +384,6 @@ namespace ucle::parsley {
 
     static const parsers::multiply_helper N;
 
-};
+}
 
 #endif  /* _UCLE_CORE_LIBS_PARSLEY_PARSLEY_HPP_ */
