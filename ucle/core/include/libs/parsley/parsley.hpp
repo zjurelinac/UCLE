@@ -32,6 +32,13 @@ namespace ucle::parsley {
         std::vector<parse_info> children;
         std::string_view symbol_name;
 
+        bool operator==(const std::string_view& symbol_name) const { return this->symbol_name == symbol_name; }
+        bool operator!=(const std::string_view& symbol_name) const { return this->symbol_name != symbol_name; }
+
+        bool empty() const { return contents.empty(); }
+
+        const auto& operator[](size_t index) const { return children[index]; }
+
         const auto& operator[](std::string_view symbol_name) const
         {
             for (const auto& pi : children)
@@ -49,7 +56,6 @@ namespace ucle::parsley {
 
             return false;
         }
-
 
         size_t count(std::string_view symbol_name) const
         {
