@@ -1,10 +1,13 @@
 #ifndef _UCLE_CORE_LIBS_PARSLEY_PARSLEY_HPP_
 #define _UCLE_CORE_LIBS_PARSLEY_PARSLEY_HPP_
 
+#include <common/types.hpp>
+
 #include <util/string_view.hpp>
 
 #include <any>
 #include <cstring>
+#include <exception>
 #include <functional>
 #include <initializer_list>
 #include <memory>
@@ -22,10 +25,53 @@ namespace ucle::parsley {
 
     auto to_string(parse_status status) { return status == parse_status::success ? "success" : "fail"; }
 
+    class key_error : public base_exception { using base_exception::base_exception; };
+
     struct parse_info {
         std::string_view contents;
         std::vector<parse_info> children;
         std::string_view symbol_name;
+
+        const auto& operator[](std::string_view symbol_name) const
+        {
+            for (const auto& pi : children)
+                if (pi.symbol_name == symbol_name)
+                    return pi;
+
+            throw key_error("No child symbol with a given name exists.");
+        }
+
+        bool has(std::string_view symbol_name) const
+        {
+            for (const auto& pi : children)
+                if (pi.symbol_name == symbol_name)
+                    return true;
+            
+            return false;
+        }
+
+        
+        size_t count(std::string_view symbol_name) const
+        {
+            size_t cnt = 0;
+
+            for (const auto& pi : children)
+                if (pi.symbol_name == symbol_name)
+                    ++cnt;
+            
+            return cnt;
+        }
+
+        auto all(std::string_view symbol_name) const
+        {
+            std::vector<std::reference_wrapper<const parse_info>> childs;
+
+            for (const auto& pi : children)
+                if (pi.symbol_name == symbol_name)
+                    childs.emplace_back(pi);
+
+            return childs;
+        }
     };
 
     struct parse_result {

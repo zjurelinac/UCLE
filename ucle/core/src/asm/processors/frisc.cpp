@@ -12,24 +12,24 @@ namespace parsley = ucle::parsley;
 
 
 
-// namespace dbg {
-//     void indent(int level) { for (int i = 0; i < level; ++i) printf("  "); }
+namespace dbg {
+    void indent(int level) { for (int i = 0; i < level; ++i) printf("  "); }
 
-//     void print_parse_info(const parsley::parse_info& pi, unsigned depth = 1)
-//     {
-//         indent(depth);
-//         fmt::print("<{}> {}\n", pi.symbol_name.length() > 0 ? pi.symbol_name : "unnamed", pi.contents.length() > 0 ? pi.contents : "");
-//         for (const auto& child : pi.children)
-//             print_parse_info(child, depth + 1);
-//     }
+    void print_parse_info(const parsley::parse_info& pi, unsigned depth = 1)
+    {
+        indent(depth);
+        fmt::print("<{}> {}\n", pi.symbol_name.length() > 0 ? pi.symbol_name : "unnamed", pi.contents.length() > 0 ? pi.contents : "");
+        for (const auto& child : pi.children)
+            print_parse_info(child, depth + 1);
+    }
 
-//     void try_parse(const parsley::parsers::base_ptr& p, std::string_view input)
-//     {
-//         auto res = p->parse(input);
-//         fmt::print("Parsing {} :: [{}]\n", input, to_string(res.status));
-//         print_parse_info(res.info);
-//     }
-// }
+    void try_parse(const parsley::parsers::base_ptr& p, std::string_view input)
+    {
+        auto res = p->parse(input);
+        fmt::print("Parsing {} :: [{}]\n", input, to_string(res.status));
+        print_parse_info(res.info);
+    }
+}
 
 void asr::frisc_assembler::init_parser_()
 {
@@ -189,13 +189,15 @@ void asr::frisc_assembler::assemble(std::string filename)
 
     address32_t current_addr = 0;
 
-    // for (const auto& parsed_line : results) {
-    //     if (parsed_line.children[1].contents.length()) {
+    for (const auto& parsed_line : results) {
+        dbg::print_parse_info(parsed_line);
 
-    //     }
+        // if (parsed_line[""]) {
 
-    //     if (parsed_line.children[0].contents.length())
-    // }
+        // }
+
+        // if (parsed_line.children[0].contents.length())
+    }
 
     // dbg::try_parse(parser_, contents.c_str());
 }
