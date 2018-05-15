@@ -2,30 +2,124 @@
 
 #include <libs/fmt/format.h>
 
+#include <util/string.hpp>
 #include <util/string_view.hpp>
 
 #include <fstream>
 #include <iostream>
 
-namespace asr = ucle::asr;
-namespace parsley = ucle::parsley;
+using namespace ucle;
+using namespace ucle::parsley;
 
-namespace dbg {
-    void indent(int level) { for (int i = 0; i < level; ++i) printf("  "); }
+// namespace dbg {
+//     void indent(int level) { for (int i = 0; i < level; ++i) printf("  "); }
 
-    void print_parse_info(const parsley::parse_info& pi, unsigned depth = 1)
-    {
-        indent(depth);
-        fmt::print("<{}> {}\n", pi.symbol_name.length() > 0 ? pi.symbol_name : "unnamed", pi.contents.length() > 0 ? pi.contents : "");
-        for (const auto& child : pi.children)
-            print_parse_info(child, depth + 1);
+//     void print_parse_info(const parsley::parse_info& pi, unsigned depth = 1)
+//     {
+//         indent(depth);
+//         fmt::print("<{}> {}\n", pi.symbol_name.length() > 0 ? pi.symbol_name : "unnamed", pi.contents.length() > 0 ? pi.contents : "");
+//         for (const auto& child : pi.children)
+//             print_parse_info(child, depth + 1);
+//     }
+
+// }
+
+std::string asr::frisc_assembler::read_file_(std::string filename)
+{
+    std::ifstream ifs(filename.c_str());
+    std::string contents((std::istreambuf_iterator<char>(ifs)),
+                         (std::istreambuf_iterator<char>()));
+    return contents;
+}
+
+std::vector<parse_info> asr::frisc_assembler::parse_lines_(std::string_view contents)
+{
+    auto lines = util::split(contents, [](auto c){ return c == '\n'; });
+    std::vector<parse_info> results;
+
+    for (auto i = 0u; i < lines.size(); ++i) {
+        auto res = parser_->parse(lines[i]);
+
+        if (res.status == parse_status::fail)
+            throw parse_error(fmt::format("Parse error at line {} :: {}", i + 1, lines[i]));
+
+        results.push_back(res.info);
     }
 
-    void try_parse(const parsley::parsers::base_ptr& p, std::string_view input)
-    {
-        auto res = p->parse(input);
-        fmt::print("Parsing {} :: [{}]\n", input, to_string(res.status));
-        print_parse_info(res.info);
+    return results;
+}
+
+asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse_info>& parsed_lines)
+{
+    std::vector<asr::line_info<>> lines;
+    label_table labels;
+
+    address32_t current_addr = 0;
+
+    for (const auto& line : parsed_lines) {
+        auto line_instr = line["line_instr"];
+
+        // TODO: Unduplicate
+        if (line_instr.empty()) {
+            lines.push_back({ line, current_addr });
+
+            if (!line["line_label"].empty())
+                labels[line["line_label"].contents] = current_addr;
+
+            continue;
+        }
+
+        auto exact_instr = line_instr["any_instr"][0][0];
+
+        if (exact_instr == "org_instr") {
+            address32_t new_addr = parse_num_const_(exact_instr["num_const"]);
+
+            if (new_addr != cbu::address_rounded(new_addr, 4))
+                throw logical_error(fmt::format("Impossible origin (ORG {}), not rounded to a multiple of 4.", new_addr));
+
+            if (new_addr < current_addr)
+                throw logical_error(fmt::format("Impossible origin (ORG {}), lesser than current address (= {}).", new_addr, current_addr));
+
+            current_addr = new_addr;
+        }
+
+        lines.push_back({ line, current_addr });
+
+        if (!line["line_label"].empty())
+            labels[line["line_label"].contents] = current_addr;
+
+        if (line_instr["any_instr"][0] == "psd_instr") {
+
+            if (exact_instr == "dsp_instr") {
+                address32_t offset = parse_num_const_(exact_instr["num_const"]);
+                current_addr += offset;
+            } else if (exact_instr == "dat_instr") {
+                throw unimplemented_error("Data-def instructions not yet implemented.");
+            }
+        } else {
+            current_addr += 4;
+        }
+    }
+
+    return { lines, labels };
+}
+
+void asr::frisc_assembler::assemble(std::string filename)
+{
+    try {
+        auto contents = read_file_(filename);
+        auto parsed_lines = parse_lines_(contents);
+        auto [addressed_lines, labels] = first_pass_(parsed_lines);
+
+        for (const auto& al : addressed_lines)
+            fmt::print("@{} :: {}\n", al.address, al.parsed.contents);
+
+        for (const auto [label, addr] : labels)
+            fmt::print("* {} => {}\n", label, addr);
+
+        // Second pass - actual assembling
+    } catch (std::exception& e) {
+        fmt::print_colored(stderr, fmt::RED, "{}\n", e.what());
     }
 }
 
@@ -48,7 +142,6 @@ void asr::frisc_assembler::init_parser_()
     auto spaces  = space + N;
     auto spaces_ = space * N;
 
-    // auto sep    = comma / space;
     auto cm_sep = spaces_ >> comma >> spaces_;
     auto lp_sep = lparens >> spaces_;
     auto rp_sep = spaces_ >> rparens;
@@ -163,41 +256,25 @@ void asr::frisc_assembler::init_parser_()
     parser_ = line;
 }
 
-void asr::frisc_assembler::assemble(std::string filename)
+int asr::frisc_assembler::parse_num_const_(parse_info num_const)
 {
-    using namespace parsley;
+    if (num_const != "num_const")
+        throw parse_error("Cannot parse num_const - incorrect symbol type.");
 
-    std::ifstream ifs(filename.c_str());
-    std::string contents((std::istreambuf_iterator<char>(ifs)),
-                        (std::istreambuf_iterator<char>()));
+    int value = 0;
 
-    auto lines = util::split(contents, [](auto c){ return c == '\n'; });
-    std::vector<parse_info> results;
+    if (num_const[0] == "hex_const")
+        util::parse_int(std::string { num_const[0]["hex_num"].contents }, &value, 16);
+    else if (num_const[0] == "dec_const")
+        util::parse_int(std::string { num_const[0]["dec_num"].contents }, &value, 10);
+    else if (num_const[0] == "oct_const")
+        util::parse_int(std::string { num_const[0]["oct_num"].contents }, &value, 8);
+    else if (num_const[0] == "bin_const")
+        util::parse_int(std::string { num_const[0]["bin_num"].contents }, &value, 2);
+    else
+        fmt::print("Unknown :: {}\n", num_const[0].symbol_name);
 
-    for (auto i = 0u; i < lines.size(); ++i) {
-        auto res = parser_->parse(lines[i]);
-
-        if (res.status == parse_status::fail) {
-            fmt::print_colored(stderr, fmt::RED, "Parse error at line {} :: {}\n", i + 1, lines[i]);
-            return;
-        }
-
-        results.push_back(res.info);
-    }
-
-    address32_t current_addr = 0;
-
-    for (const auto& parsed_line : results) {
-        dbg::print_parse_info(parsed_line);
-
-        // if (parsed_line[""]) {
-
-        // }
-
-        // if (parsed_line.children[0].contents.length())
-    }
-
-    // dbg::try_parse(parser_, contents.c_str());
+    return value;
 }
 
 int main(int, char* argv[]) {
