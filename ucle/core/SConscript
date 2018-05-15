@@ -40,11 +40,20 @@ debug.Append(CPPDEFINES=['DEBUG'], CPPFLAGS=['-O3', '-march=native'])
 debug.VariantDir('debug', 'src', duplicate=0)
 debug.VariantDir('debug/tests', 'tests', duplicate=0)
 
-processors = ['debug/fnsim/processors/frisc.cpp']
+arch_simulators = ['debug/fnsim/processors/frisc.cpp']
+arch_assemblers = ['debug/asm/processors/frisc.cpp']
 
 debug.Program(
     'debug/fnsim-cli',
-    ['debug/fnsim/cli.cpp'] + processors,
+    ['debug/fnsim/cli.cpp'] + arch_simulators,
+    LIBS=['fmt'],
+    LIBPATH='.'
+)
+
+# TODO: Redesign to make a generic asm
+debug.Program(
+    'debug/frisc-asm',
+    [] + arch_assemblers,
     LIBS=['fmt'],
     LIBPATH='.'
 )

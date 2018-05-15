@@ -10,8 +10,6 @@
 namespace asr = ucle::asr;
 namespace parsley = ucle::parsley;
 
-
-
 namespace dbg {
     void indent(int level) { for (int i = 0; i < level; ++i) printf("  "); }
 
