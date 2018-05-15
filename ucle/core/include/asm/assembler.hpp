@@ -1,7 +1,19 @@
-#include <asm/base.hpp>
+#include <common/types.hpp>
+
+#include <libs/parsley/parsley.hpp>
+
+#include <string_view>
 
 namespace ucle::asr {
     
+    template <typename AddressType = address32_t>
+    struct line_info {
+        using address_type = AddressType;
+
+        std::string_view contents;
+        address_type address { 0 };
+    };
+
     // class assembler {
     //     public:
     //         void assemble(std::string filename);
