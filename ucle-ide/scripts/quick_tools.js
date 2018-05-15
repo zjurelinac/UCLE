@@ -2,6 +2,8 @@ const { remote, ipcRenderer } = require('electron');
 
 const Menu = remote.Menu;
 const MenuItem = remote.MenuItem;
+var simRunning = false;
+var line = 1;
 
 module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
@@ -23,8 +25,90 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		});
 	}
 
+	function calculateWidth(running) {
+		var tools = document.getElementById("quick-tools");
+		var style = window.getComputedStyle(tools , null);
+
+		if(style.display == "none") {
+			if(running) {
+				document.getElementById("show-sim").display = "inline-block";			
+				document.getElementById("show-sim").style.width = "21%";
+				document.getElementById("container").style.width = "78%";
+			} else {
+				document.getElementById("show-sim").display = "none";
+				document.getElementById("container").style.width = "100%";
+			}
+		} else {
+			if(running) {
+				document.getElementById("show-sim").display = "inline-block";
+				document.getElementById("show-sim").style.width = "18%";
+				document.getElementById("container").style.width = "60%";
+			} else {
+				document.getElementById("show-sim").display = "none";
+				document.getElementById("container").style.width = "78%";
+			}
+		}
+	}
+
+	function addSimEvents() {
+		document.getElementById("step").className = "run-simulation";
+		document.getElementById("continue").className = "run-simulation";
+		document.getElementById("rm-breakpoints").className = "run-simulation";
+
+		document.getElementById("step").addEventListener("click", stepSim);
+		document.getElementById("continue").addEventListener("click", continueSim);
+		document.getElementById("rm-breakpoints").addEventListener("click", function(e) { console.log ("rm")});
+	}
+
+	editor.onDidChangeModelDecorations(function(e) {
+		if(!simRunning) return;
+		var model = editor.getModel();
+	});
+
+	function removeSimEvents() {
+		document.getElementById("step").className = "wait-simulation";
+		document.getElementById("continue").className = "wait-simulation";
+		document.getElementById("rm-breakpoints").className = "wait-simulation";
+
+		document.getElementById("step").removeEventListener("click", stepSim);
+		document.getElementById("continue").removeEventListener("click", continueSim);
+		document.getElementById("rm-breakpoints").removeEventListener("click", function(e) { console.log ("rm")});
+	}
+
 	function stepSim() {
+		var model = ucleTabs.currentTabModel;
+		line = ucleServer.findFirstNonEmpty(model, line);
+		if(line == -1) {
+			ucleServer.removeHighLight(model);
+
+			document.getElementById("step").className = "wait-simulation";
+			document.getElementById("step").removeEventListener("click", stepSim);
+			document.getElementById("continue").className = "wait-simulation";
+			document.getElementById("continue").removeEventListener("click", continueSim);
+
+			return;
+		}
+		ucleServer.addHighLight(model, new monaco.Range(line,1,line,1));
 		ucleServer.sendCommand("step",[]);
+	}
+
+	function continueSim() {
+		var model = ucleTabs.currentTabModel;
+		line = ucleServer.findFirstBreakPoint(model, line);
+
+		if(line == -1) {
+			ucleServer.removeHighLight(model);
+
+			document.getElementById("step").className = "wait-simulation";
+			document.getElementById("step").removeEventListener("click", stepSim);
+			document.getElementById("continue").className = "wait-simulation";
+			document.getElementById("continue").removeEventListener("click", continueSim);
+
+			return;
+		}
+
+		ucleServer.addHighLight(model, new monaco.Range(line,1,line,1));
+		ucleServer.sendCommand("cont",[]);
 	}
 
 	document.getElementById("listed-files").addEventListener("contextmenu", function(e) {
@@ -73,17 +157,20 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	document.getElementById("file-explorer").addEventListener("click", function(e) {
 		var tools = document.getElementById("quick-tools");
 		var style = window.getComputedStyle(tools , null);
+		var sim = document.getElementById("show-sim");
+		console.log(sim.style.width);
+
 		editor.focus();
 
 		if(style.display == "none") {
 			tools.style.display = "inline-block";
-			document.getElementById("container").style.width = "78%";
 			tools.style.width = "20%";
 		} else {
 			tools.style.display = "none";
-			document.getElementById("container").style.width = "100%";
 			tools.style.width = "0%";
 		}
+
+		calculateWidth(simRunning);
 	});
 
 	document.getElementById("run-sim").addEventListener("click", function(e) {
@@ -92,10 +179,22 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			if(currTabValue) {
 				ucleTabs.hideTabs();
 				e.target.className = "stop-simulation";
-				document.getElementById("step").className = "run-simulation";
-				document.getElementById("step").addEventListener("click", stepSim);
+
+				addSimEvents();
+				calculateWidth(true);
+
+				simRunning = true;
+				ucleTabs.simRunning= true;
+				fileManager.simRunning = true;
+
 				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
-				ucleServer.runSim("1.p");
+				ucleServer.addHighLight(ucleTabs.currentTabModel, new monaco.Range(1,1,1,1));
+
+				var filePath = ucleTabs.currentTab.querySelector('.ucle-tab-file-path').textContent;
+
+				editor.setPosition(new monaco.Position(1,1));
+
+				var data = ucleServer.runSim(filePath);
 			} else {
 				var type = "warning";
 				var buttons = ['OK'];
@@ -105,9 +204,19 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			}
 		} else {
 			e.target.className = "run-simulation";
-			document.getElementById("step").className = "wait-simulation";
-			document.getElementById("step").removeEventListener("click", stepSim);
+			removeSimEvents();
+			calculateWidth(false);
+
+			simRunning = false;
+			ucleTabs.simRunning= false;
+			fileManager.simRunning = false;
+
+			line = 1;
+
 			ucleServer.stopSim(ucleTabs.currentTabModel);
+			ucleServer.removeHighLight(ucleTabs.currentTabModel);
+
+			ucleTabs.showAllTabs();
 		}	
 	});
 
@@ -145,11 +254,23 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			var currTabValue = ucleTabs.currentTabValue;
 			if(currTabValue) {
 				ucleTabs.hideTabs();
-				sim.className = "stop-simulation";
-				document.getElementById("step").className = "run-simulation";
-				document.getElementById("step").addEventListener("click", stepSim);
+				e.target.className = "stop-simulation";
+
+				addSimEvents();
+				calculateWidth(true);
+
+				simRunning = true;
+				ucleTabs.simRunning= true;
+				fileManager.simRunning = true;
+
 				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
-				ucleServer.runSim("1.p");
+				ucleServer.addHighLight(ucleTabs.currentTabModel, new monaco.Range(1,1,1,1));
+
+				var filePath = ucleTabs.currentTab.querySelector('.ucle-tab-file-path').textContent;
+
+				editor.setPosition(new monaco.Position(1,1));
+
+				var data = ucleServer.runSim(filePath);
 			} else {
 				var type = "warning";
 				var buttons = ['OK'];
@@ -158,15 +279,29 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				var response = remote.dialog.showMessageBox({message, type, buttons, defaultId});
 			}
 		} else {
-			sim.className = "run-simulation";
-			document.getElementById("step").className = "wait-simulation";
-			document.getElementById("step").removeEventListener("click", stepSim);
+			e.target.className = "run-simulation";
+			removeSimEvents();
+			calculateWidth(false);
+
+			simRunning = false;
+			ucleTabs.simRunning= false;
+			fileManager.simRunning = false;
+
+			line = 1;
+
 			ucleServer.stopSim(ucleTabs.currentTabModel);
+			ucleServer.removeHighLight(ucleTabs.currentTabModel);
+
+			ucleTabs.showAllTabs();
 		}	
 	});
 
 	ipcRenderer.on('sim-response', (e, data) => {
-		console.log(data);
+		var json = JSON.parse(data);
+
+		if(json.type == "register_info") {
+			document.getElementById("show-sim").innerHTML = JSON.stringify(json.registers);
+		}
 	});
 
 	addButtonClick(document.getElementById("openbtn"));

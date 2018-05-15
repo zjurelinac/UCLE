@@ -12,3 +12,7 @@
 	background-size: 70% 70%;
 	opacity:0.4;
 }
+
+.highlight {
+	background: lightblue;
+}

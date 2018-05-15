@@ -11,6 +11,7 @@ class FileManager {
 		this.editor = editor;
 		this.monaco = monaco;
 		this.startPath = './';
+		this.simRunning = false;
 
 		ipcRenderer.on('open-file', (e, file) => this.openFile(file));
 		ipcRenderer.on('save-as-file', (e) => this.saveAsFile());
@@ -25,6 +26,7 @@ class FileManager {
 	}
 
 	openFile(file) {
+		if(this.simRunning) return;
 		let data = fs.readFileSync(file, 'utf-8');
 		this.editor.setModel(this.monaco.editor.createModel(data));
 	}

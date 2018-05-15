@@ -10,12 +10,14 @@
 	</head>
 	<body>
 		<div id="tools-wrapper">
-			<ul class="tools">
+			<ul>
 				<li class="tools" title="Search"><span id="search"></span></li>
 				<li class="tools" title="File explorer"><span id="file-explorer"></span></li>
 				<li class="tools" title="Refresh"><span id="refresh"></span></li>
 				<li class="tools" title="Run simulation (CTRL + R)"><span id="run-sim" class="run-simulation"></span></li>
-				<li class="tools" title="Next step (CTRL + R + S)"><span id="step" class="wait-simulation"></span></li>				
+				<li class="tools" title="Next step (CTRL + R + S)"><span id="step" class="wait-simulation"></span></li>		
+				<li class="tools" title="Continue"><span id="continue" class="wait-simulation"></span></li>		
+				<li class="tools" title="Remove breakpoints"><span id="rm-breakpoints" class="wait-simulation"></span></li>
 			</ul>
 		</div>
 
@@ -38,8 +40,11 @@
 			<div id="line-tab"></div>
 		</div>
 
+		<div id="show-sim"></div>
+
 		<script>
 			require('./renderer');
+			require('./scripts/quick_tools');
 		</script>
 	</body>
 </html>

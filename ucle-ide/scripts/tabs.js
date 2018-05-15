@@ -41,6 +41,7 @@ class UCLETabs {
 	init(el, options) {
 		this.el = el;
 		this.options = options;
+		this.simRunning = false;
 
 		this.instanceId = instanceId;
 		this.el.setAttribute('data-ucle-tabs-instance-id', this.instanceId);
@@ -286,7 +287,7 @@ class UCLETabs {
 	}
 
 	addTab(tabProperties, start = false) {
-		if(this.checkIfAlreadyOpen(tabProperties)) return;
+		if(this.checkIfAlreadyOpen(tabProperties) || this.simRunning) return;
 
 		const tabEl = this.createNewTabEl();
 		var isBlankTab = !tabProperties;
