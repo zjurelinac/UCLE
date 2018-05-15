@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "format.h"
+#include <libs/fmt/format.h>
 
 #include <string.h>
 
@@ -456,6 +456,14 @@ FMT_FUNC void print_colored(Color c, CStringRef format, ArgList args) {
   std::fputs(escape, stdout);
   print(format, args);
   std::fputs(RESET_COLOR, stdout);
+}
+
+FMT_FUNC void print_colored(std::FILE* f, Color c, CStringRef format, ArgList args) {
+  char escape[] = "\x1b[30m";
+  escape[3] = static_cast<char>('0' + c);
+  std::fputs(escape, f);
+  print(f, format, args);
+  std::fputs(RESET_COLOR, f);
 }
 
 #ifndef FMT_HEADER_ONLY

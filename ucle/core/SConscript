@@ -1,7 +1,7 @@
 libraries 		= []
 library_paths 	= ''
 cpp_defines 	= {}
-cpp_paths       = ['include', 'include/libs/fmt']
+cpp_paths       = ['include']
 cpp_flags 		= ['-Wall', '-Wextra', '-pedantic-errors' ]
                 #    '-Wcast-align', '-Wcast-qual', '-Wfloat-equal', '-Wpointer-arith',
                 #    '-Wctor-dtor-privacy', '-Wredundant-decls',
