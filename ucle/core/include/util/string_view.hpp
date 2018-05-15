@@ -15,7 +15,7 @@ namespace ucle::util {
 
     // Predicates
 
-    bool starts_with(std::string_view input, std::string_view x)
+    bool starts_with(const std::string_view& input, const std::string_view& x)
     {
         auto len = input.length();
         auto xlen = x.length();
@@ -28,7 +28,7 @@ namespace ucle::util {
         return i == xlen;
     }
 
-    bool starts_with(std::string_view input, const char* x)
+    bool starts_with(const std::string_view& input, const char* x)
     {
         auto len = input.length();
         auto xlen = strlen(x);
@@ -41,12 +41,12 @@ namespace ucle::util {
         return i == xlen;
     }
 
-    bool starts_with(std::string_view input, char x)
+    bool starts_with(const std::string_view& input, char x)
     {
         return input.length() > 0 && input[0] == x;
     }
 
-    bool ends_with(std::string_view input, std::string_view x)
+    bool ends_with(const std::string_view& input, const std::string_view& x)
     {
         auto len = input.length();
         auto xlen = x.length();
@@ -59,7 +59,7 @@ namespace ucle::util {
         return i == xlen;
     }
 
-    bool ends_with(std::string_view input, const char* x)
+    bool ends_with(const std::string_view& input, const char* x)
     {
         auto len = input.length();
         auto xlen = strlen(x);
@@ -72,7 +72,7 @@ namespace ucle::util {
         return i == xlen;
     }
 
-    bool ends_with(std::string_view input, char x)
+    bool ends_with(const std::string_view& input, char x)
     {
         return input.length() > 0 && input[input.length() - 1] == x;
     }
@@ -81,7 +81,7 @@ namespace ucle::util {
 
     // Selectors
 
-    auto take_while(std::string_view input, char_predicate p)
+    auto take_while(const std::string_view& input, char_predicate p)
     {
         auto len = input.length();
         unsigned i;
@@ -91,7 +91,7 @@ namespace ucle::util {
         return input.substr(0, i);
     }
 
-    auto take_while(std::string_view input, view_predicate p)
+    auto take_while(const std::string_view& input, view_predicate p)
     {
         auto len = input.length();
         unsigned i;
@@ -101,7 +101,7 @@ namespace ucle::util {
         return input.substr(0, i);
     }
 
-    auto drop_while(std::string_view input, char_predicate p)
+    auto drop_while(const std::string_view& input, char_predicate p)
     {
         auto len = input.length();
         unsigned i;
@@ -111,7 +111,7 @@ namespace ucle::util {
         return input.substr(i);
     }
 
-    auto drop_while(std::string_view input, view_predicate p)
+    auto drop_while(const std::string_view& input, view_predicate p)
     {
         auto len = input.length();
         unsigned i;
@@ -121,7 +121,7 @@ namespace ucle::util {
         return input.substr(i);
     }
 
-    auto take_while_r(std::string_view input, char_predicate p)
+    auto take_while_r(const std::string_view& input, char_predicate p)
     {
         auto len = input.length();
         int i;
@@ -131,7 +131,7 @@ namespace ucle::util {
         return input.substr(i + 1);
     }
 
-    auto take_while_r(std::string_view input, view_predicate p)
+    auto take_while_r(const std::string_view& input, view_predicate p)
     {
         auto len = input.length();
         int i;
@@ -141,7 +141,7 @@ namespace ucle::util {
         return input.substr(i + 1);
     }
 
-    auto drop_while_r(std::string_view input, char_predicate p)
+    auto drop_while_r(const std::string_view& input, char_predicate p)
     {
         auto len = input.length();
         int i;
@@ -151,7 +151,7 @@ namespace ucle::util {
         return input.substr(0, i + 1);
     }
 
-    auto drop_while_r(std::string_view input, view_predicate p)
+    auto drop_while_r(const std::string_view& input, view_predicate p)
     {
         auto len = input.length();
         int i;
@@ -161,7 +161,7 @@ namespace ucle::util {
         return input.substr(0, i + 1);
     }
 
-    auto trim(std::string_view input)
+    auto trim(const std::string_view& input)
     {
         return drop_while_r(drop_while(input, isspace), isspace);
     }
