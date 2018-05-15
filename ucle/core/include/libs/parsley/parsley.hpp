@@ -46,11 +46,11 @@ namespace ucle::parsley {
             for (const auto& pi : children)
                 if (pi.symbol_name == symbol_name)
                     return true;
-            
+
             return false;
         }
 
-        
+
         size_t count(std::string_view symbol_name) const
         {
             size_t cnt = 0;
@@ -58,7 +58,7 @@ namespace ucle::parsley {
             for (const auto& pi : children)
                 if (pi.symbol_name == symbol_name)
                     ++cnt;
-            
+
             return cnt;
         }
 
@@ -113,11 +113,11 @@ namespace ucle::parsley {
                             if (keep_info(res.info))
                                 children.push_back(res.info);
                         } else {
-                            return { parse_status::fail };
+                            return { parse_status::fail, {} };
                         }
                     }
 
-                    return { parse_status::success, { input.substr(0, pos), children } };
+                    return { parse_status::success, { input.substr(0, pos), children, "" } };
                 }
 
                 void add(base_ptr item) { items_.push_back(std::move(item)); }
@@ -143,11 +143,11 @@ namespace ucle::parsley {
                             if (keep_info(res.info))
                                 children.push_back(res.info);
 
-                            return { parse_status::success, { res.info.contents, children } };
+                            return { parse_status::success, { res.info.contents, children, "" } };
                         }
                     }
 
-                    return { parse_status::fail };
+                    return { parse_status::fail, {} };
                 }
 
                 void add(base_ptr item) { items_.push_back(std::move(item)); }
@@ -166,7 +166,7 @@ namespace ucle::parsley {
                     if (res.status == parse_status::success)
                         return res;
                     else
-                        return { parse_status::success };
+                        return { parse_status::success, {} };
                 }
 
             private:
@@ -193,7 +193,7 @@ namespace ucle::parsley {
                         }
                     }
 
-                    return { parse_status::success, { input.substr(0, pos), children } };
+                    return { parse_status::success, { input.substr(0, pos), children, "" } };
                 }
 
             private:
@@ -223,9 +223,9 @@ namespace ucle::parsley {
                     }
 
                     if (nonce)
-                        return { parse_status::fail };
+                        return { parse_status::fail, {} };
                     else
-                        return { parse_status::success, { input.substr(0, pos), children } };
+                        return { parse_status::success, { input.substr(0, pos), children, "" } };
                 }
 
             private:
@@ -239,7 +239,7 @@ namespace ucle::parsley {
                 parse_result parse(std::string_view input) override
                 {
                     auto res = base_->parse(input);
-                    return { res.status };
+                    return { res.status, {} };
                 }
             private:
                 base_ptr base_;
@@ -252,7 +252,7 @@ namespace ucle::parsley {
                 parse_result parse(std::string_view input) override
                 {
                     auto res = base_->parse(input);
-                    return { !res.status };
+                    return { !res.status, {} };
                 }
             private:
                 base_ptr base_;
@@ -266,7 +266,7 @@ namespace ucle::parsley {
         using not_pred_ptr = std::shared_ptr<not_predicate_parser>;
 
         class epsilon_parser : public base_parser {
-            parse_result parse(std::string_view) override { return { parse_status::success }; }
+            parse_result parse(std::string_view) override { return { parse_status::success, {} }; }
         };
 
         class literal_parser : public base_parser {
@@ -276,9 +276,9 @@ namespace ucle::parsley {
                 parse_result parse(std::string_view input) override
                 {
                     if (util::starts_with(input, lit_))
-                        return { parse_status::success, { input.substr(0, lit_len_) } };
+                        return { parse_status::success, { input.substr(0, lit_len_), {}, "" } };
                     else
-                        return { parse_status::fail };
+                        return { parse_status::fail, {} };
                 }
 
             private:
@@ -293,9 +293,9 @@ namespace ucle::parsley {
                 parse_result parse(std::string_view input) override
                 {
                     if (util::starts_with(input, lit_))
-                        return { parse_status::success, { input.substr(0, lit_len_) } };
+                        return { parse_status::success, { input.substr(0, lit_len_), {}, "" } };
                     else
-                        return { parse_status::fail };
+                        return { parse_status::fail, {} };
                 }
 
             private:
@@ -307,9 +307,9 @@ namespace ucle::parsley {
             parse_result parse(std::string_view input) override
             {
                 if (input.length() > 0)
-                    return { parse_status::success, { input.substr(0, 1) } };
+                    return { parse_status::success, { input.substr(0, 1), {}, "" } };
                 else
-                    return { parse_status::fail, 0 };
+                    return { parse_status::fail, {} };
             }
         };
 
@@ -347,9 +347,9 @@ namespace ucle::parsley {
                     };
 
                     if (input.length() > 0 && pred(input[0]))
-                        return { parse_status::success, { input.substr(0, 1) } };
+                        return { parse_status::success, { input.substr(0, 1), {}, "" } };
                     else
-                        return { parse_status::fail };
+                        return { parse_status::fail, {} };
                 }
 
             private:
@@ -443,12 +443,12 @@ namespace ucle::parsley {
             using map_type = std::unordered_map<std::string_view, visitor_type>;
 
             auto& operator[] (const std::string_view& symbol) { return visitors_[symbol]; };
-            
+
             void visit(parse_result res)
             {
                 if (res.status == parse_status::fail)
                     return;
-                
+
                 visit_(res.info);
             }
 
@@ -462,7 +462,7 @@ namespace ucle::parsley {
 
                 if (!pi.symbol_name.empty() && visitors_.count(pi.symbol_name) > 0)
                     return { pi.symbol_name, visitors_[pi.symbol_name](results) };
-                
+
                 return { pi.symbol_name, results };
             }
 
