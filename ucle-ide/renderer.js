@@ -84,6 +84,6 @@ loader().then((monaco) => {
 			ucleTabs.updateTabContent(currTab);
 		}
 	});
-
+	
 	editor.focus();
 });

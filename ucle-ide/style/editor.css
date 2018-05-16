@@ -37,9 +37,35 @@
 	padding: 0;
 	top:0;
 	bottom:0;
-	right:0;
 	left:0;
 	margin: 0;
 	vertical-align:top;
 	display: inline-block;
+	transition:right 0.5s ease;
+}
+
+#show-sim.hide{
+	right:-300px;
+	visibility: hidden;
+}
+
+#registers {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#registers td, #registers th {
+    border: 1px solid black;
+    padding: 8px;
+}
+
+#registers tr:hover {background-color: #ddd;}
+
+#registers th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
 }

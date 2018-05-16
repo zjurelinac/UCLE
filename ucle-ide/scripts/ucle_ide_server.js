@@ -211,7 +211,7 @@ class UCLEServer {
 
 			if(bpFound) return i;
 		}		
-		return -1;
+		return lineCount;
 	}
 
 	getMachineCode(filePath) {

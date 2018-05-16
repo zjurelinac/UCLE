@@ -5,6 +5,8 @@ const MenuItem = remote.MenuItem;
 var simRunning = false;
 var line = 1;
 
+var registers = ["IIF","PC","R0","R1","R2","R3","R4","R5","R6","R7","SP","SR"];
+
 module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 	document.getElementById("listed-files").addEventListener("click", function(e) {
@@ -31,20 +33,20 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 		if(style.display == "none") {
 			if(running) {
-				document.getElementById("show-sim").display = "inline-block";			
+				document.getElementById("show-sim").classList.remove("hide");			
 				document.getElementById("show-sim").style.width = "21%";
 				document.getElementById("container").style.width = "78%";
 			} else {
-				document.getElementById("show-sim").display = "none";
+				document.getElementById("show-sim").className = "hide";			
 				document.getElementById("container").style.width = "100%";
 			}
 		} else {
 			if(running) {
-				document.getElementById("show-sim").display = "inline-block";
+				document.getElementById("show-sim").classList.remove("hide");			
 				document.getElementById("show-sim").style.width = "18%";
 				document.getElementById("container").style.width = "60%";
 			} else {
-				document.getElementById("show-sim").display = "none";
+				document.getElementById("show-sim").className = "hide";			
 				document.getElementById("container").style.width = "78%";
 			}
 		}
@@ -75,16 +77,31 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		document.getElementById("rm-breakpoints").removeEventListener("click", function(e) { console.log ("rm")});
 	}
 
+	function clearRegisterInfo() {
+		var registerTable = document.getElementById("registers").rows;
+		
+		for(var i = 1; i <= registers.length; i++) {
+			var row = registerTable[i];
+			var regName = row.cells[0];
+			var regValue = row.cells[1];
+			if(regName.innerHTML == "IIF") {
+				regValue.innerHTML = "false";
+			} else {
+				regValue.innerHTML = "0";
+			}
+		}
+	}
+
 	function stepSim() {
 		var model = ucleTabs.currentTabModel;
 		line = ucleServer.findFirstNonEmpty(model, line);
 		if(line == -1) {
 			ucleServer.removeHighLight(model);
-
 			document.getElementById("step").className = "wait-simulation";
 			document.getElementById("step").removeEventListener("click", stepSim);
-			document.getElementById("continue").className = "wait-simulation";
-			document.getElementById("continue").removeEventListener("click", continueSim);
+			ucleServer.sendCommand("step",[]);
+			//document.getElementById("continue").className = "wait-simulation";
+			//document.getElementById("continue").removeEventListener("click", continueSim);
 
 			return;
 		}
@@ -103,11 +120,10 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			document.getElementById("step").removeEventListener("click", stepSim);
 			document.getElementById("continue").className = "wait-simulation";
 			document.getElementById("continue").removeEventListener("click", continueSim);
-
-			return;
+		} else {
+			ucleServer.addHighLight(model, new monaco.Range(line,1,line,1));
 		}
 
-		ucleServer.addHighLight(model, new monaco.Range(line,1,line,1));
 		ucleServer.sendCommand("cont",[]);
 	}
 
@@ -213,6 +229,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 			line = 1;
 
+			clearRegisterInfo();
 			ucleServer.stopSim(ucleTabs.currentTabModel);
 			ucleServer.removeHighLight(ucleTabs.currentTabModel);
 
@@ -289,6 +306,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 			line = 1;
 
+			clearRegisterInfo();
 			ucleServer.stopSim(ucleTabs.currentTabModel);
 			ucleServer.removeHighLight(ucleTabs.currentTabModel);
 
@@ -300,9 +318,51 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		var json = JSON.parse(data);
 
 		if(json.type == "register_info") {
-			document.getElementById("show-sim").innerHTML = JSON.stringify(json.registers);
+			var registerJSON = Object.keys(json.registers).map(function(key) {
+				return [String(key), json.registers[key]];
+			});
+			var registerTable = document.getElementById("registers").rows;
+			
+			for(var i = 1; i <= registers.length; i++) {
+				var row = registerTable[i];
+				var regValue = row.cells[1];
+
+				var highlight = regValue.style.backgroundColor;
+
+				if(regValue.innerHTML != registerJSON[i-1][1].toString()) {
+					regValue.style.backgroundColor = "#bdbdbd";
+					regValue.innerHTML = registerJSON[i-1][1].toString();
+					setTimeout(function() {		
+						for(var i = 1; i <= registers.length; i++) {
+							var row = registerTable[i];
+							var regValue = row.cells[1];
+							if(regValue.style.backgroundColor == "rgb(189, 189, 189)") {
+								regValue.style.backgroundColor = "initial";
+							}
+						}
+					}, 1000);
+				}
+			}
 		}
 	});
 
 	addButtonClick(document.getElementById("openbtn"));
+	document.getElementById("show-sim").className = "hide";
+
+	var regTable = document.getElementById("registers");
+
+	for(var i = 1; i <= registers.length; i++) {
+		var row = regTable.insertRow(i);
+
+		var regName = row.insertCell(0);
+		var regValue = row.insertCell(1);
+
+		regName.innerHTML = registers[i-1];
+
+		if(registers[i-1] == "IIF") {
+			regValue.innerHTML = "false";
+		} else {
+			regValue.innerHTML = "0";
+		}
+	}
 };
