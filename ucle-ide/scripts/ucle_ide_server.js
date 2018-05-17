@@ -28,9 +28,13 @@ class UCLEServer {
 		this.editor.onMouseDown(function(e) {
 			if(e.target.type == 2) {
 				var model = this.editor.getModel();
+				console.log(model.getLineContent(e.target.position.lineNumber));
 				if(model == null || model == undefined) return;
 
 				var line = e.target.position.lineNumber;
+
+				if(!model.getLineContent(line).replace(/\s/g, '').length) return;
+
 				var	column = e.target.position.column;
 				var range = new this.monaco.Range(line, column, line, column);
 				var address = simFileModel.getLineContent(line).split(" ")[0];
@@ -91,14 +95,16 @@ class UCLEServer {
 
 			if(e.target.type == 2) {
 				var line = e.target.position.lineNumber;
+				if(!model.getLineContent(line).replace(/\s/g, '').length) {
+					this.removeHoverBreakPoint(model);
+					return;
+				}
 				var	column = e.target.position.column;
 				var range = new this.monaco.Range(line, column, line, column);
 
 				var dec = model.getLineDecorations(line);
 
 				var allDec = model.getAllDecorations();
-
-				this.removeHoverBreakPoint(model);
 
 				var remove = dec.some(function(e, index) {
 					if(e.options.glyphMarginClassName == "breakpoint") {
@@ -166,7 +172,7 @@ class UCLEServer {
 	removeHighLight(model) {
 		var allDec = model.getAllDecorations();
 
-		var del = allDec.some(function(e, index) {
+		allDec.some(function(e, index) {
 			if(e.options.className == "highlight") {
 				model.deltaDecorations([e.id], []);
 			}
@@ -175,6 +181,18 @@ class UCLEServer {
 
 	registerBreakPoints() {
 		this.editor.updateOptions({glyphMargin:true});
+	}
+
+	removeBreakPoints(model) {
+		var allDec = model.getAllDecorations();
+
+		allDec.forEach(function(e) {
+			if(e.options.glyphMarginClassName == "breakpoint") {
+				var address = simFileModel.getLineContent(e.range.startLineNumber).split(" ")[0];
+				this.sendCommand("break", ["del", parseInt(address)]);
+			}
+		}, this);
+		decorations = model.deltaDecorations(decorations, []);
 	}
 
 	findFirstNonEmpty(model, line) {
@@ -211,7 +229,7 @@ class UCLEServer {
 
 			if(bpFound) return i;
 		}		
-		return lineCount;
+		return -1;
 	}
 
 	getMachineCode(filePath) {
@@ -234,7 +252,7 @@ class UCLEServer {
 		child = cp.execFile(procSim, ['FRISC', simPath, '-j']);
 
 		child.stdout.on('data', function(data) {
-			require('electron').remote.getCurrentWindow().webContents.send("sim-response", data.toString());
+			require('electron').remote.getCurrentWindow().webContents.send("sim-response", data);
 		});
 
 		child.stdin.write(JSON.stringify(startCommand) + '\n');

@@ -56,10 +56,12 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		document.getElementById("step").className = "run-simulation";
 		document.getElementById("continue").className = "run-simulation";
 		document.getElementById("rm-breakpoints").className = "run-simulation";
+		document.getElementById("reset").className = "run-simulation";
 
 		document.getElementById("step").addEventListener("click", stepSim);
 		document.getElementById("continue").addEventListener("click", continueSim);
-		document.getElementById("rm-breakpoints").addEventListener("click", function(e) { console.log ("rm")});
+		document.getElementById("rm-breakpoints").addEventListener("click", removeBreakPoints);
+		document.getElementById("reset").addEventListener("click", resetProcessor);
 	}
 
 	editor.onDidChangeModelDecorations(function(e) {
@@ -71,10 +73,12 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		document.getElementById("step").className = "wait-simulation";
 		document.getElementById("continue").className = "wait-simulation";
 		document.getElementById("rm-breakpoints").className = "wait-simulation";
+		document.getElementById("reset").className = "wait-simulation";
 
 		document.getElementById("step").removeEventListener("click", stepSim);
 		document.getElementById("continue").removeEventListener("click", continueSim);
-		document.getElementById("rm-breakpoints").removeEventListener("click", function(e) { console.log ("rm")});
+		document.getElementById("rm-breakpoints").removeEventListener("click", removeBreakPoints);
+		document.getElementById("reset").addEventListener("click", resetProcessor);		
 	}
 
 	function clearRegisterInfo() {
@@ -113,6 +117,8 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		var model = ucleTabs.currentTabModel;
 		line = ucleServer.findFirstBreakPoint(model, line);
 
+		console.log(line);
+
 		if(line == -1) {
 			ucleServer.removeHighLight(model);
 
@@ -125,6 +131,23 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		}
 
 		ucleServer.sendCommand("cont",[]);
+	}
+
+	function removeBreakPoints() {
+		var model = ucleTabs.currentTabModel;
+		ucleServer.removeBreakPoints(model);
+	}
+
+	function resetProcessor() {
+		var model = ucleTabs.currentTabModel;
+
+		ucleServer.addHighLight(model, new monaco.Range(1,1,1,1));
+		ucleServer.sendCommand("reset",[]);
+		line = 1;
+		removeSimEvents();
+		addSimEvents();
+		ucleServer.sendCommand("start",[]);
+		editor.setPosition(new monaco.Position(1,1));
 	}
 
 	document.getElementById("listed-files").addEventListener("contextmenu", function(e) {
@@ -174,7 +197,6 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		var tools = document.getElementById("quick-tools");
 		var style = window.getComputedStyle(tools , null);
 		var sim = document.getElementById("show-sim");
-		console.log(sim.style.width);
 
 		editor.focus();
 
@@ -202,7 +224,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				simRunning = true;
 				ucleTabs.simRunning= true;
 				fileManager.simRunning = true;
-
+				editor.updateOptions({readOnly: true});
 				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 				ucleServer.addHighLight(ucleTabs.currentTabModel, new monaco.Range(1,1,1,1));
 
@@ -229,6 +251,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 			line = 1;
 
+			editor.updateOptions({readOnly: false});
 			clearRegisterInfo();
 			ucleServer.stopSim(ucleTabs.currentTabModel);
 			ucleServer.removeHighLight(ucleTabs.currentTabModel);
@@ -279,7 +302,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				simRunning = true;
 				ucleTabs.simRunning= true;
 				fileManager.simRunning = true;
-
+				editor.updateOptions({readOnly: true});
 				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 				ucleServer.addHighLight(ucleTabs.currentTabModel, new monaco.Range(1,1,1,1));
 
@@ -306,6 +329,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 			line = 1;
 
+			editor.updateOptions({readOnly: false});
 			clearRegisterInfo();
 			ucleServer.stopSim(ucleTabs.currentTabModel);
 			ucleServer.removeHighLight(ucleTabs.currentTabModel);
@@ -315,35 +339,41 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	});
 
 	ipcRenderer.on('sim-response', (e, data) => {
-		var json = JSON.parse(data);
+		var dataArray = data.split("\n");
 
-		if(json.type == "register_info") {
-			var registerJSON = Object.keys(json.registers).map(function(key) {
-				return [String(key), json.registers[key]];
-			});
-			var registerTable = document.getElementById("registers").rows;
-			
-			for(var i = 1; i <= registers.length; i++) {
-				var row = registerTable[i];
-				var regValue = row.cells[1];
+		dataArray.forEach(function(dataElem) {
+			if(dataElem == "") return;
+			var json = JSON.parse(dataElem);
 
-				var highlight = regValue.style.backgroundColor;
+			if(json.type == "register_info") {
+				var registerJSON = Object.keys(json.registers).map(function(key) {
+					return [String(key), json.registers[key]];
+				});
+				var registerTable = document.getElementById("registers").rows;
+				
+				for(var i = 1; i <= registers.length; i++) {
+					var row = registerTable[i];
+					var regValue = row.cells[1];
 
-				if(regValue.innerHTML != registerJSON[i-1][1].toString()) {
-					regValue.style.backgroundColor = "#bdbdbd";
-					regValue.innerHTML = registerJSON[i-1][1].toString();
-					setTimeout(function() {		
-						for(var i = 1; i <= registers.length; i++) {
-							var row = registerTable[i];
-							var regValue = row.cells[1];
-							if(regValue.style.backgroundColor == "rgb(189, 189, 189)") {
-								regValue.style.backgroundColor = "initial";
+					var highlight = regValue.style.backgroundColor;
+
+					if(regValue.innerHTML != registerJSON[i-1][1].toString()) {
+						regValue.style.backgroundColor = "#bdbdbd";
+						regValue.innerHTML = registerJSON[i-1][1].toString();
+						setTimeout(function() {		
+							for(var i = 1; i <= registers.length; i++) {
+								var row = registerTable[i];
+								var regValue = row.cells[1];
+								if(regValue.style.backgroundColor == "rgb(189, 189, 189)") {
+									regValue.style.backgroundColor = "initial";
+									return;
+								}
 							}
-						}
-					}, 1000);
+						}, 400);
+					}
 				}
 			}
-		}
+		})
 	});
 
 	addButtonClick(document.getElementById("openbtn"));
