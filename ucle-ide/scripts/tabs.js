@@ -22,14 +22,15 @@ const tabTemplate = `
 	</div>
 `;
 
-const defaultTapProperties = {
-	title: 'untitled',
-	favicon: '',
-	fullPath: ''
-};
-
 let instanceId = 0;
 let id = 0;
+let untitledCount = 1;
+
+var defaultTapProperties = {
+	title: 'untitled-'+untitledCount,
+	favicon: '',
+	fullPath: 'untitled-'+untitledCount
+};
 
 class UCLETabs {
 	constructor({ editor, monaco }) {
@@ -175,6 +176,21 @@ class UCLETabs {
 				return;
 			}
 		}, this);
+	}
+
+	get firstFreeUntitled() {
+		var allTabs = this.tabEls;
+		var currMax = 0;
+		for(var i = 0; i < allTabs.length; i++) {
+			var title = allTabs[i].querySelector('.ucle-tab-title').textContent;
+			if(title.includes("untitled-")) {
+				var untitledNumber = parseInt(title.replace("untitled-",""));
+				if((untitledNumber < untitledCount) && (currMax < untitledNumber)) {
+					currMax = untitledNumber;
+				}
+			}
+		}
+		return currMax+1;
 	}
 
 	get currentTabValue() {
@@ -330,6 +346,9 @@ class UCLETabs {
 				fileStartContent.set(idFile.get(tabId.get(tabEl)),this.editor.getModel().getValue());
 			}
 		} else {
+			untitledCount++;
+			defaultTapProperties.title = 'untitled-'+untitledCount;
+			defaultTapProperties.fullPath = defaultTapProperties.title;
 			idModels.set(id, this.monaco.editor.createModel(""));
 			fileStartContent.set(idFile.get(tabId.get(tabEl)), "");			
 		}
@@ -416,6 +435,11 @@ class UCLETabs {
 		id--;
 
 		tabEl.parentNode.removeChild(tabEl);
+
+		untitledCount = this.firstFreeUntitled;
+		defaultTapProperties.title = 'untitled-'+untitledCount;
+		defaultTapProperties.fullPath = defaultTapProperties.title;
+
 		this.emit('tabRemove', { tabEl });
 		this.layoutTabs();
 		this.fixZIndexes();
