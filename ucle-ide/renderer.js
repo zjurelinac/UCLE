@@ -63,6 +63,27 @@ loader().then((monaco) => {
 			initType = false;
 			editor.focus();
 		}
+		var explorer = document.getElementById('explorer');
+		var removedFilePath = e.detail.tabEl.querySelector('.ucle-tab-file-path').textContent;
+		var folder = document.getElementById("open-" + removedFilePath);
+
+		folder.parentNode.removeChild(folder);
+
+		if(!document.querySelector('[id^="open-"')) {
+			explorer.children[0].className = "explorer-ico-closed";
+		}
+	});
+
+	el.addEventListener('tabAdd', function(e) {
+		var addedFilePath = e.detail.tabEl.querySelector('.ucle-tab-file-path').textContent;
+		var addedFileName = e.detail.tabEl.querySelector('.ucle-tab-title').textContent;
+
+		var explorer = document.getElementById('explorer');
+		explorer.children[0].className = "explorer-ico-opened";
+
+		document.getElementById("opened-files").innerHTML += '<div id="open-' + addedFilePath + '" class="file" title="' + 
+		                                                     addedFilePath + '"><i class="file-ico" ' +
+                                                             'style="margin-left:10px; padding-right: 5px"></i>'+ addedFileName + '</div>';
 	});
 
 	el.addEventListener('tabClose', function(e) {

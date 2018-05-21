@@ -146,7 +146,7 @@ i.file-ico {
 	padding: 0;
 }
 
-#listed-files {
+#listed-files, #opened-files {
 	margin-top: 10px;
 	left: 0;
 	width: 100%;

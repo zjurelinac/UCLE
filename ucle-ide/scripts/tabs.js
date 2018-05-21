@@ -156,6 +156,26 @@ class UCLETabs {
 		return str.split('\\').pop().split('/').pop();
 	}
 
+	setCurrentTabByPath(path) {
+		var allTabs = this.tabEls;
+		allTabs.forEach(function(tab) {
+			if(tab.querySelector('.ucle-tab-file-path').textContent == path) {
+				this.setCurrentTab(tab);
+				return;
+			}
+		}, this);
+	}
+
+	closeTabByPath(path) {
+		var allTabs = this.tabEls;
+		allTabs.forEach(function(tab) {
+			if(tab.querySelector('.ucle-tab-file-path').textContent == path) {
+				var changed = this.checkIfValueChanged(tab);
+				this.closeTab(tab, changed);
+				return;
+			}
+		}, this);
+	}
 
 	get currentTabValue() {
 		var currTab = this.el.querySelector('.ucle-tab-current');
