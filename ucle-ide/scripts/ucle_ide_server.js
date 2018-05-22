@@ -61,7 +61,7 @@ class UCLEServer {
 				});
 
 				if(remove) {
-					this.sendCommand("break", ["del", parseInt(address)]);
+					this.sendCommand("break", ["del", parseInt(address, 16)]);
 					return;
 				}
 
@@ -83,7 +83,9 @@ class UCLEServer {
 
 				var address = simFileModel.getLineContent(line).split(" ")[0];
 
-				this.sendCommand("break", ["add", parseInt(address)]);
+				console.log(address);
+
+				this.sendCommand("break", ["add", parseInt(address, 16)]);
 
 				decorations.push(newDecorations[0]);
 			}
@@ -95,39 +97,24 @@ class UCLEServer {
 
 			if(e.target.type == 2) {
 				var line = e.target.position.lineNumber;
+				this.removeHoverBreakPoint(model);
+
 				if(!model.getLineContent(line).replace(/\s/g, '').length) {
-					this.removeHoverBreakPoint(model);
 					return;
 				}
+
 				var	column = e.target.position.column;
 				var range = new this.monaco.Range(line, column, line, column);
 
-				var dec = model.getLineDecorations(line);
-
-				var allDec = model.getAllDecorations();
-
-				var remove = dec.some(function(e, index) {
-					if(e.options.glyphMarginClassName == "breakpoint") {
-						return true;
-					}
-				});
-
-				if(remove) {
+				if(this.checkIfBreakPoint(model, line)) {
 					return;
-				}
-
-				var stick = this.monaco.editor.TrackedRangeStickiness.GrowsOnlyWhenTypingBefore;
-
-				if(model.getLineContent(line) != "") {
-					stick = this.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges;
 				}
 
 				model.deltaDecorations([], [
 					{
 						range: range,
 						options: {
-							glyphMarginClassName: 'breakpoint-hover',
-							stickiness: stick
+							glyphMarginClassName: 'breakpoint-hover'
 						}
 					}
 				]);
@@ -145,12 +132,23 @@ class UCLEServer {
 
 	}
 
+	checkIfBreakPoint(model,line) {
+		var dec = model.getLineDecorations(line);
+
+		return dec.some(function(e, index) {
+			if(e.options.glyphMarginClassName == "breakpoint") {
+				return true;
+			}
+		});
+	}
+
 	removeHoverBreakPoint(model) {
 		var allDec = model.getAllDecorations();
 
-		var del = allDec.some(function(e, index) {
+		allDec.forEach(function(e, index) {
 			if(e.options.glyphMarginClassName == "breakpoint-hover") {
 				model.deltaDecorations([e.id], []);
+				return;
 			}
 		});
 	}
@@ -179,8 +177,17 @@ class UCLEServer {
 		});
 	}
 
-	registerBreakPoints() {
+	registerBreakPoints(model) {
 		this.editor.updateOptions({glyphMargin:true});
+
+		var allDec = model.getAllDecorations();
+
+		allDec.forEach(function(e) {
+			if(e.options.glyphMarginClassName == "breakpoint") {
+				var address = simFileModel.getLineContent(e.range.startLineNumber).split(" ")[0];
+				this.sendCommand("break", ["add", parseInt(address,16)]);
+			}
+		}, this);
 	}
 
 	removeBreakPoints(model) {
@@ -189,13 +196,13 @@ class UCLEServer {
 		allDec.forEach(function(e) {
 			if(e.options.glyphMarginClassName == "breakpoint") {
 				var address = simFileModel.getLineContent(e.range.startLineNumber).split(" ")[0];
-				this.sendCommand("break", ["del", parseInt(address)]);
+				this.sendCommand("break", ["del", parseInt(address,16)]);
 			}
 		}, this);
 		decorations = model.deltaDecorations(decorations, []);
 	}
 
-	findFirstNonEmpty(model, line) {
+	findFirstNonEmpty(model, line, address) {
 		var nextLine = line + 1;
 		var lineCount = model.getLineCount();
 
@@ -204,30 +211,33 @@ class UCLEServer {
 		var content = model.getLineContent(nextLine);
 
 		if(!content.replace(/\s/g, '').length) {
-			for(var i = nextLine; i <= lineCount; i++) {
-				if(model.getLineContent(i).replace(/\s/g, '').length) return i;
+			for(var i = 1; i <= lineCount; i++) {
+				if(model.getLineContent(i).replace(/\s/g, '').length) {
+					var nextAddress = simFileModel.getLineContent(i).split(" ")[0];
+					if(parseInt(nextAddress,16) == address) {
+						return i;
+					}
+				}
 			}
-			return -1;
 		}
-		return nextLine;
+		return -1;
 	}
 
-	findFirstBreakPoint(model, line) {
+	findFirstBreakPoint(model, line, address) {
 		var nextLine = line + 1;
 		var lineCount = model.getLineCount();
 
 		if((nextLine > lineCount) || !nextLine) return -1;
 
-		for(var i = nextLine; i <= lineCount; i++) {
-			var dec = model.getLineDecorations(i);
-
-			var bpFound = dec.some(function(e, index) {
-				if(e.options.glyphMarginClassName == "breakpoint") {
-					return true;
+		for(var i = 1; i <= lineCount; i++) {
+			if(this.checkIfBreakPoint(model, i)) {
+				var nextAddress = simFileModel.getLineContent(i).split(" ")[0];
+				console.log(parseInt(nextAddress,16));
+				console.log(address);
+				if(parseInt(nextAddress,16) >= address) {
+					return i;
 				}
-			});
-
-			if(bpFound) return i;
+			}
 		}		
 		return -1;
 	}
@@ -262,7 +272,6 @@ class UCLEServer {
 		infoInterval = setInterval(function() {
 			sim.sendCommand("info",[]);
 		}, 500);
-
 	}
 
 	sendCommand(command, args) {

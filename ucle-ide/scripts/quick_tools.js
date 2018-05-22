@@ -4,6 +4,7 @@ const Menu = remote.Menu;
 const MenuItem = remote.MenuItem;
 var simRunning = false;
 var line = 1;
+var address = 0;
 
 var registers = ["IIF","PC","R0","R1","R2","R3","R4","R5","R6","R7","SP","SR"];
 
@@ -84,40 +85,38 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	}
 
 	function stepSim() {
-		var model = ucleTabs.currentTabModel;
-		line = ucleServer.findFirstNonEmpty(model, line);
-		if(line == -1) {
-			ucleServer.removeHighLight(model);
-			document.getElementById("step").className = "wait-simulation";
-			document.getElementById("step").removeEventListener("click", stepSim);
-			ucleServer.sendCommand("step",[]);
-			//document.getElementById("continue").className = "wait-simulation";
-			//document.getElementById("continue").removeEventListener("click", continueSim);
-
-			return;
-		}
-		ucleServer.addHighLight(model, new monaco.Range(line,1,line,1));
 		ucleServer.sendCommand("step",[]);
+		setTimeout(function() {
+			var model = ucleTabs.currentTabModel;
+			line = ucleServer.findFirstNonEmpty(model, line, address);
+			if(line == -1) {
+				ucleServer.removeHighLight(model);
+				document.getElementById("step").className = "wait-simulation";
+				document.getElementById("step").removeEventListener("click", stepSim);
+				document.getElementById("continue").className = "wait-simulation";
+				document.getElementById("continue").removeEventListener("click", continueSim);
+				return;
+			}
+			ucleServer.addHighLight(model, new monaco.Range(line,1,line,1));
+		}, 100);
 	}
 
 	function continueSim() {
-		var model = ucleTabs.currentTabModel;
-		line = ucleServer.findFirstBreakPoint(model, line);
-
-		console.log(line);
-
-		if(line == -1) {
-			ucleServer.removeHighLight(model);
-
-			document.getElementById("step").className = "wait-simulation";
-			document.getElementById("step").removeEventListener("click", stepSim);
-			document.getElementById("continue").className = "wait-simulation";
-			document.getElementById("continue").removeEventListener("click", continueSim);
-		} else {
-			ucleServer.addHighLight(model, new monaco.Range(line,1,line,1));
-		}
-
 		ucleServer.sendCommand("cont",[]);
+		setTimeout(function() {
+			var model = ucleTabs.currentTabModel;
+			line = ucleServer.findFirstBreakPoint(model, line, address);
+			if(line == -1) {
+				ucleServer.removeHighLight(model);
+
+				document.getElementById("step").className = "wait-simulation";
+				document.getElementById("step").removeEventListener("click", stepSim);
+				document.getElementById("continue").className = "wait-simulation";
+				document.getElementById("continue").removeEventListener("click", continueSim);
+			} else {
+				ucleServer.addHighLight(model, new monaco.Range(line,1,line,1));
+			}
+		}, 100);
 	}
 
 	function removeBreakPoints() {
@@ -131,6 +130,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		ucleServer.addHighLight(model, new monaco.Range(1,1,1,1));
 		ucleServer.sendCommand("reset",[]);
 		line = 1;
+		address = 0;
 		removeSimEvents();
 		addSimEvents();
 		ucleServer.sendCommand("start",[]);
@@ -309,7 +309,6 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				ucleTabs.simRunning= true;
 				fileManager.simRunning = true;
 				editor.updateOptions({readOnly: true});
-				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 				ucleServer.addHighLight(ucleTabs.currentTabModel, new monaco.Range(1,1,1,1));
 
 				var filePath = ucleTabs.currentTab.querySelector('.ucle-tab-file-path').textContent;
@@ -317,6 +316,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				editor.setPosition(new monaco.Position(1,1));
 
 				var data = ucleServer.runSim(filePath);
+				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 			} else {
 				var type = "warning";
 				var buttons = ['OK'];
@@ -334,6 +334,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			fileManager.simRunning = false;
 
 			line = 1;
+			address = 0;
 
 			editor.updateOptions({readOnly: false});
 			clearRegisterInfo();
@@ -367,6 +368,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				editor.setPosition(new monaco.Position(1,1));
 
 				var data = ucleServer.runSim(filePath);
+				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 			} else {
 				var type = "warning";
 				var buttons = ['OK'];
@@ -384,6 +386,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			fileManager.simRunning = false;
 
 			line = 1;
+			address = 0;
 
 			editor.updateOptions({readOnly: false});
 			clearRegisterInfo();
@@ -400,6 +403,13 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		dataArray.forEach(function(dataElem) {
 			if(dataElem == "") return;
 			var json = JSON.parse(dataElem);
+
+			if(json.location) {
+				address = json.location;
+				console.log(address);
+			}
+
+			//console.log(json);
 
 			if(json.type == "register_info") {
 				var registerJSON = Object.keys(json.registers).map(function(key) {
