@@ -53,56 +53,71 @@ namespace ucle::fnsim {
         invalid_instruction,
         invalid_program,
         invalid_argument,
+        invalid_memory_location,
         runtime_exception,
-        filesystem_error
+        filesystem_error,
+        generic_error
     };
 
     inline std::string to_string(status stat)
     {
         switch (stat) {
-            case status::ok:                    return "ok";
-            case status::invalid_state:         return "invalid state";
-            case status::invalid_address_range: return "invalid address range";
-            case status::invalid_identifier:    return "invalid identifier";
-            case status::invalid_instruction:   return "invalid instruction";
-            case status::invalid_program:       return "invalid program";
-            case status::invalid_argument:      return "invalid argument";
-            case status::runtime_exception:     return "runtime exception";
-            case status::filesystem_error:      return "filesystem error";
-            default:                            return "unknown";
+            case status::ok:                        return "ok";
+            case status::invalid_state:             return "invalid state";
+            case status::invalid_address_range:     return "invalid address range";
+            case status::invalid_identifier:        return "invalid identifier";
+            case status::invalid_instruction:       return "invalid instruction";
+            case status::invalid_program:           return "invalid program";
+            case status::invalid_argument:          return "invalid argument";
+            case status::invalid_memory_location:   return "invalid memory location";
+            case status::runtime_exception:         return "runtime exception";
+            case status::filesystem_error:          return "filesystem error";
+            case status::generic_error:             return "generic error";
+            default:                                return "unknown";
         }
     }
 
     constexpr bool is_success(status stat) { return stat == status::ok; }
     constexpr bool is_error(status stat) { return stat != status::ok; }
 
+    enum class device_status { idle, pending, interrupt };
+
+    inline std::string to_string(device_status stat)
+    {
+        switch (stat) {
+            case device_status::idle:           return "idle";
+            case device_status::pending:        return "pending";
+            case device_status::interrupt:      return "interrupt";
+            default:                            return "unknown";
+        }
+    }
+
     // Config structures
 
+    template <typename AddressType>
     struct device_config {
+        using address_type = AddressType;
+
+        address_type        start_address       = 0;
+        size_t              addr_space_size     = 0;
         device_class        dev_class           = device_class::addressable_device;
-        address_range<>     addr_range          = {0, 0};
-        bool                uses_interrupts     = false;
-        priority_t          interrupt_priority  = 0;
     };
 
     struct processor_config {
         size_t              mem_size;
-        address_range<>     mem_addr_range      = {0, 0xFFFFFFFF};
-        device_mapping      default_mapping     = device_mapping::memory;
-        address_range<>     dev_addr_range      = {0, 0};
-    };
-
-    struct simulation_config {
-        bool            count_exec_cycles   = false;
-        bool            measure_exec_time   = false;
-        detail_level    detailness          = detail_level::none;
+        address_range<>     mem_addr_range          = {0, 0xFFFFFFFF};
+        address_range<>     dev_addr_range          = {0, 0};
+        device_mapping      default_mapping         = device_mapping::memory;
     };
 
     // Utility structures
 
+    template <typename AddressType>
     struct state_info {
+        using address_type = AddressType;
+
         simulator_state state;
-        address_t       program_location;
+        address_type    program_location;
         std::string     asm_annotation;
     };
 

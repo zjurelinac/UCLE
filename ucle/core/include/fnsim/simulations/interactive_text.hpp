@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace ucle::fnsim {
+namespace ucle::fnsim::cli {
 
     template <typename FunctionalSimulation>
     class interactive_text_simulation : public interactive_simulation<FunctionalSimulation> {
@@ -65,8 +65,8 @@ namespace ucle::fnsim {
             void emph_(std::string msg)                 { fmt::print_colored(fmt::CYAN, msg); };
 
         private:
-            std::string location_action_(std::string msg, address_t location)                      { return fmt::format("{} @ 0x{:08X}", msg, location); }
-            std::string location_action_(std::string msg, address_t location, std::string extra)   { return fmt::format("{} @ 0x{:08X} ({})", msg, location, extra); }
+            std::string location_action_(std::string msg, address32_t location)                      { return fmt::format("{} @ 0x{:08X}", msg, location); }
+            std::string location_action_(std::string msg, address32_t location, std::string extra)   { return fmt::format("{} @ 0x{:08X} ({})", msg, location, extra); }
 
             void show_simulation_state_()
             {
@@ -127,10 +127,10 @@ namespace ucle::fnsim {
     template <typename FunctionalSimulation>
     inline void interactive_text_simulation<FunctionalSimulation>::do_start_(argument_list args)
     {
-        address_t start_location = 0;
+        address32_t start_location = 0;
 
         if (args.size() > 0) {
-            if (!util::parse_int<address_t>(std::any_cast<std::string>(args[0]), &start_location))
+            if (!util::parse_int<address32_t>(std::any_cast<std::string>(args[0]), &start_location))
                 throw malformed_argument(fmt::format("Cannot parse argument as an address (must be an integer >= 0)"));
         }
 
@@ -186,8 +186,8 @@ namespace ucle::fnsim {
         if (args.size() == 0)
             throw incorrect_call("until");
 
-        address_t end_location;
-        if (!util::parse_int<address_t>(std::any_cast<std::string>(args[0]), &end_location))
+        address32_t end_location;
+        if (!util::parse_int<address32_t>(std::any_cast<std::string>(args[0]), &end_location))
             throw malformed_argument(fmt::format("Cannot parse argument as an address (must be an integer >= 0)"));
 
         notify_(location_action_("Executing simulation until", end_location));
@@ -232,8 +232,8 @@ namespace ucle::fnsim {
             if (args.size() < 2)
                 throw incorrect_call("break");
 
-            address_t location;
-            if (!util::parse_int<address_t>(std::any_cast<std::string>(args[1]), &location))
+            address32_t location;
+            if (!util::parse_int<address32_t>(std::any_cast<std::string>(args[1]), &location))
                 throw malformed_argument(fmt::format("Cannot parse argument as an address (must be an integer >= 0)"));
 
             this->get_sim_().add_breakpoint(location);
@@ -243,8 +243,8 @@ namespace ucle::fnsim {
             if (args.size() < 2)
                 throw incorrect_call("break");
 
-            address_t location;
-            if (!util::parse_int<address_t>(std::any_cast<std::string>(args[1]), &location))
+            address32_t location;
+            if (!util::parse_int<address32_t>(std::any_cast<std::string>(args[1]), &location))
                 throw malformed_argument(fmt::format("Cannot parse argument as an address (must be an integer >= 0)"));
 
             this->get_sim_().remove_breakpoint(location);
@@ -272,7 +272,7 @@ namespace ucle::fnsim {
     }
 
     template <typename FunctionalSimulation>
-    void run_interactive_text_simulation(FunctionalSimulation& sim, cli_config& cfg)
+    void run_interactive_text_simulation(FunctionalSimulation& sim, config& cfg)
     {
         cfg.verbosity = 1;
         interactive_text_simulation<FunctionalSimulation> tsim {sim, cfg};

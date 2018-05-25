@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-namespace ucle::fnsim {
+namespace ucle::fnsim::cli {
 
     template <typename FunctionalSimulation>
     class interactive_simulation;
@@ -43,7 +43,7 @@ namespace ucle::fnsim {
             using descr_type = interactive_cmd_descr<simulation_type>;
 
             interactive_simulation() = delete;
-            interactive_simulation(simulation_type& sim, cli_config& cfg)
+            interactive_simulation(simulation_type& sim, config& cfg)
                 : sim_{sim}, cfg_{cfg} { init_descriptors_(); }
 
             void run();
@@ -88,7 +88,7 @@ namespace ucle::fnsim {
             }
 
             simulation_type& get_sim_() { return sim_; }
-            cli_config& get_cfg_() { return cfg_; }
+            config& get_cfg_() { return cfg_; }
 
         private:
             void init_descriptors_()
@@ -110,7 +110,7 @@ namespace ucle::fnsim {
             }
 
             simulation_type& sim_;
-            cli_config& cfg_;
+            config& cfg_;
             std::vector<descr_type> descrs_;
 
             bool running_ {true};

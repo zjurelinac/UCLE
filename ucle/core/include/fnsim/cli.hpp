@@ -14,16 +14,17 @@
 #include <unordered_map>
 #include <vector>
 
-namespace ucle::fnsim {
+namespace ucle::fnsim::cli {
 
-    using fnsim_factory = std::function<functional_processor_simulator_ptr(fnsim::processor_config)>;
+    template <unsigned N>
+    using fnsim_factory = std::function<functional_processor_simulator_ptr<N>(fnsim::processor_config)>;
 
     std::set<std::string> factory_options = {"frisc"};
-    std::unordered_map<std::string, fnsim_factory> factory = {
-        {"frisc", &make_frisc_simulator}
+    std::unordered_map<std::string, fnsim_factory<32>> factory_32 = {
+        {"frisc", &frisc::make_frisc_simulator}
     };
 
-    struct cli_config {
+    struct config {
         // Processor options
         std::string simulator_name;
         uint32_t fnsim_mem_size = 4096;

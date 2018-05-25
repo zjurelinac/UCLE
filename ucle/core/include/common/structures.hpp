@@ -12,6 +12,8 @@ namespace ucle {
 
     template <unsigned N>
     class bitfield {
+        using self_type = bitfield<N>;
+
         public:
             using value_type = meta::sized_uint_t<N>;
             using cbu = util::const_bin_util<value_type>;
@@ -54,14 +56,14 @@ namespace ucle {
 
             constexpr bitfield() noexcept {}
             constexpr bitfield(value_type value) noexcept : value_{value} {}
-            constexpr bitfield(const bitfield<N>& other) noexcept : value_{other.value_} {}
-            constexpr bitfield(bitfield<N>&& other) noexcept : value_{other.value_} {}
+            constexpr bitfield(const self_type& other) noexcept : value_{other.value_} {}
+            constexpr bitfield(self_type&& other) noexcept : value_{other.value_} {}
 
-            constexpr bitfield<N>& operator=(value_type value) noexcept
+            constexpr self_type& operator=(value_type value) noexcept
                 { value_ = value; return *this; }
-            constexpr bitfield<N>& operator=(const bitfield<N>& other) noexcept
+            constexpr self_type& operator=(const self_type& other) noexcept
                 { value_ = other.value_; return *this; }
-            constexpr bitfield<N>& operator=(bitfield<N>&& other) noexcept
+            constexpr self_type& operator=(self_type&& other) noexcept
                 { value_ = other.value_; return *this; }
 
             constexpr explicit operator value_type() const { return value_; }
@@ -69,20 +71,20 @@ namespace ucle {
             constexpr bool operator[](index_t idx) const { return cbu::nth_bit_of(value_, idx); }
             constexpr reference operator[](index_t idx) { return reference(value_, idx); }
 
-            constexpr bitfield<N>& operator&=(const bitfield<N>& other) noexcept
+            constexpr self_type& operator&=(const self_type& other) noexcept
                 { value_ &= other.value_; return *this; }
-            constexpr bitfield<N>& operator|=(const bitfield<N>& other) noexcept
+            constexpr self_type& operator|=(const self_type& other) noexcept
                 { value_ |= other.value_; return *this; }
-            constexpr bitfield<N>& operator^=(const bitfield<N>& other) noexcept
+            constexpr self_type& operator^=(const self_type& other) noexcept
                 { value_ ^= other.value_; return *this; }
 
-            constexpr bitfield<N> operator~() const noexcept { return { ~value_ }; }
+            constexpr self_type operator~() const noexcept { return { ~value_ }; }
 
-            constexpr bitfield<N> operator<<(size_t shift) const noexcept { return { value_ << shift }; }
-            constexpr bitfield<N> operator>>(size_t shift) const noexcept { return { value_ >> shift }; }
-            constexpr bitfield<N>& operator<<=(size_t shift) noexcept
+            constexpr self_type operator<<(size_t shift) const noexcept { return { value_ << shift }; }
+            constexpr self_type operator>>(size_t shift) const noexcept { return { value_ >> shift }; }
+            constexpr self_type& operator<<=(size_t shift) noexcept
                 { value_ <<= shift; return *this; }
-            constexpr bitfield<N>& operator>>=(size_t shift) noexcept
+            constexpr self_type& operator>>=(size_t shift) noexcept
                 { value_ >>= shift; return *this; }
 
             // size_t count() const noexcept { /* TODO */ }
@@ -94,29 +96,29 @@ namespace ucle {
             constexpr bool all() const noexcept { return cbu::all_bits_set(value_); }
             constexpr bool none() const noexcept { return value_ == 0; }
 
-            constexpr bitfield<N>& set() noexcept
+            constexpr self_type& set() noexcept
                 { value_ = -1; return *this; }
-            constexpr bitfield<N>& set (index_t idx, bool val = true)
+            constexpr self_type& set (index_t idx, bool val = true)
                 { (*this)[idx] = val; return *this; }
 
-            constexpr bitfield<N>& reset() noexcept
+            constexpr self_type& reset() noexcept
                 { value_ = 0; return *this; }
-            constexpr bitfield<N>& reset(index_t idx)
+            constexpr self_type& reset(index_t idx)
                 { value_ &= ~cbu::nth_bit(idx); return *this; }
 
-            constexpr bitfield<N>& flip() noexcept
+            constexpr self_type& flip() noexcept
                 { value_ = ~value_; return *this; }
-            constexpr bitfield<N>& flip(index_t idx)
+            constexpr self_type& flip(index_t idx)
                 { (*this)[idx].flip(); return *this; }
 
-            friend constexpr bool operator==(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ == rhs.value_; }
-            friend constexpr bool operator!=(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ != rhs.value_; }
+            friend constexpr bool operator==(const self_type& lhs, const self_type& rhs) noexcept { return lhs.value_ == rhs.value_; }
+            friend constexpr bool operator!=(const self_type& lhs, const self_type& rhs) noexcept { return lhs.value_ != rhs.value_; }
 
-            friend constexpr bitfield<N> operator&(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ & rhs.value_; }
-            friend constexpr bitfield<N> operator|(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ | rhs.value_; }
-            friend constexpr bitfield<N> operator^(const bitfield<N>& lhs, const bitfield<N>& rhs) noexcept { return lhs.value_ ^ rhs.value_; }
+            friend constexpr self_type operator&(const self_type& lhs, const self_type& rhs) noexcept { return lhs.value_ & rhs.value_; }
+            friend constexpr self_type operator|(const self_type& lhs, const self_type& rhs) noexcept { return lhs.value_ | rhs.value_; }
+            friend constexpr self_type operator^(const self_type& lhs, const self_type& rhs) noexcept { return lhs.value_ ^ rhs.value_; }
 
-            friend constexpr void swap(bitfield<N>& lhs, bitfield<N>& rhs) noexcept { std::swap(lhs.value_, rhs.value_); }
+            friend constexpr void swap(self_type& lhs, self_type& rhs) noexcept { std::swap(lhs.value_, rhs.value_); }
 
         public:
             value_type value_ = 0;
@@ -125,6 +127,8 @@ namespace ucle {
 
     template <typename T, size_t N = 8>
     class small_vector {
+        using self_type = small_vector<T, N>;
+
         public:
             using value_type = T;
             using size_type = size_t;
@@ -134,14 +138,14 @@ namespace ucle {
 
             constexpr small_vector() noexcept {}
             constexpr small_vector(size_t size) noexcept : tsize_{size} {}
-            constexpr small_vector(const small_vector<T, N>& other) noexcept
+            constexpr small_vector(const self_type& other) noexcept
                 : tsize_{other.tsize_}, data_{other.data_} {}
-            constexpr small_vector(small_vector<T, N>&& other) noexcept
+            constexpr small_vector(self_type&& other) noexcept
                 : tsize_{other.tsize_}, data_{std::move(other.data_)} {}
 
-            constexpr small_vector<T, N>& operator=(const small_vector<T, N>& other) noexcept
+            constexpr self_type& operator=(const self_type& other) noexcept
                 { if (*this != other) { tsize_ = other.tsize_; data_ = other.data_; } return *this; }
-            constexpr small_vector<T, N>& operator=(small_vector<T, N>&& other) noexcept
+            constexpr self_type& operator=(self_type&& other) noexcept
                 { if (*this != other) { tsize_ = other.tsize_; data_ = std::move(other.data_); } return *this; }
 
             constexpr reference at(index_t idx) { return data_[idx]; }
@@ -161,7 +165,7 @@ namespace ucle {
 
             // TODO: Implement iterators
 
-            friend constexpr void swap(small_vector<T, N>& lhs, small_vector<T, N>& rhs) noexcept { std::swap(lhs.data_, rhs.data_); }
+            friend constexpr void swap(self_type& lhs, self_type& rhs) noexcept { std::swap(lhs.data_, rhs.data_); }
 
         private:
             size_t tsize_ = 0;

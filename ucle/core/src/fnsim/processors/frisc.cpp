@@ -3,20 +3,25 @@
 #include <memory>
 
 namespace fnsim = ucle::fnsim;
+namespace frisc = ucle::fnsim::frisc;
 
-fnsim::status fnsim::frisc_simulator::execute_move_(word_t, bool fn, const reg<32>& IR)
+fnsim::status frisc::frisc_simulator::execute_move_(word_t, bool fn, const reg<32>& IR)
 {
     auto src = IR[21] ? word_t(regs_.SR) : (fn ? unop::sign_extend(IR[{19, 0}], 20) : word_t(regs_.R[IR[{19, 17}]]));
 
-    if (IR[20])
+    if (IR[20]) {
         regs_.SR = src;
-    else
+
+        if (regs_.SR.GIE)
+            enable_interrupt_(frisc_int);
+    } else {
         regs_.R[IR[{25, 23}]] = src;
+    }
 
     return status::ok;
 }
 
-fnsim::status fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, const reg<32>& IR)
+fnsim::status frisc::frisc_simulator::execute_alu_(word_t opcode, bool fn, const reg<32>& IR)
 {
     auto& dest = regs_.R[IR[{25, 23}]];
 
@@ -24,7 +29,7 @@ fnsim::status fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, const
     auto src2 = fn ? unop::sign_extend(IR[{19, 0}], 20) : word_t(regs_.R[IR[{19, 17}]]);
 
     bool C = regs_.SR.C;
-    frisc_arith_flags flags;
+    arith_flags flags;
 
     switch (opcode) {
         case 0b00001: {  /* OR */
@@ -95,27 +100,25 @@ fnsim::status fnsim::frisc_simulator::execute_alu_(word_t opcode, bool fn, const
             return status::invalid_instruction;
     }
 
-    regs_.SR.Z = flags[3];
-    regs_.SR.V = flags[2];
-    regs_.SR.C = flags[1];
-    regs_.SR.N = flags[0];
+    regs_.SR.Z = flags.Z;
+    regs_.SR.V = flags.V;
+    regs_.SR.C = flags.C;
+    regs_.SR.N = flags.N;
 
     return status::ok;
 }
 
-fnsim::status fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, const reg<32>& IR)
+fnsim::status frisc::frisc_simulator::execute_mem_(word_t opcode, bool fn, const reg<32>& IR)
 {
     auto& reg = regs_.R[IR[{25, 23}]];
     auto addr = unop::sign_extend(IR[{19, 0}], 20) + (fn ? word_t(regs_.R[IR[{22, 20}]]) : 0);
 
     switch (opcode) {
         case 0b10000: /* POP */
-            reg = read_<word_t>(regs_.SP);
-            regs_.SP += 4;
+            reg = pop_from_stack_();
             break;
         case 0b10001: /* PUSH */
-            regs_.SP -= 4;
-            write_<word_t>(regs_.SP, reg);
+            push_to_stack_(reg);
             break;
         case 0b10010: /* LOADB */
             reg = read_<byte_t>(addr);
@@ -142,7 +145,7 @@ fnsim::status fnsim::frisc_simulator::execute_mem_(word_t opcode, bool fn, const
     return status::ok;
 }
 
-fnsim::status fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, const reg<32>& IR)
+fnsim::status frisc::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, const reg<32>& IR)
 {
     if (!eval_cond_(IR[{25, 22}]))
         return status::ok;
@@ -154,8 +157,7 @@ fnsim::status fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, cons
             regs_.PC = addr;
             break;
         case 0b11001: /* CALL */
-            regs_.SP -= 4;
-            write_<word_t>(regs_.SP, regs_.PC);
+            push_to_stack_(regs_.PC);
             regs_.PC = addr;
             break;
         case 0b11010: /* JR */
@@ -163,12 +165,16 @@ fnsim::status fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, cons
             break;
         case 0b11011: { /* RETX */
             auto rtcode = IR[{1, 0}];
-            regs_.PC = read_<word_t>(regs_.SP);
-            regs_.SP += 4;
-            if (rtcode == 0b01)      /* RETI */
-                regs_.SR.GIE = 1;
-            else if (rtcode == 0b11) /* RETN */
-                regs_.IIF = 1;
+            regs_.PC = pop_from_stack_();
+
+            if (rtcode == 0b01) {   /* RETI */
+                regs_.SR.GIE = true;
+                enable_interrupt_(frisc_int);
+            } else if (rtcode == 0b11) { /* RETN */
+                regs_.IIF = true;
+                enable_interrupt_(frisc_nmi);
+            }
+
             break;
         }
         case 0b11111: /* HALT */
@@ -181,7 +187,7 @@ fnsim::status fnsim::frisc_simulator::execute_ctrl_(word_t opcode, bool fn, cons
     return status::ok;
 }
 
-constexpr bool fnsim::frisc_simulator::eval_cond_(word_t cond) const
+constexpr bool frisc::frisc_simulator::eval_cond_(word_t cond) const
 {
     auto& SR = regs_.SR;
     switch (cond) {
@@ -204,30 +210,53 @@ constexpr bool fnsim::frisc_simulator::eval_cond_(word_t cond) const
     }
 }
 
-fnsim::status fnsim::frisc_simulator::execute_single() {
-    reg<32> IR = read_<word_t>(address_t(regs_.PC));
+fnsim::status frisc::frisc_simulator::execute_single_() {
+    reg<32> IR {read_<word_t>(regs_.PC)};
     regs_.PC += 4;
 
     auto opcode = IR[{31, 27}];
     auto fn = IR[26];
 
     status stat;
-    if (opcode == 0b00000) {
+    if (opcode == 0b00000)
         stat = execute_move_(opcode, fn, IR);
-    } else if (opcode >> 4 == 0b0) {   // opcode = 0xxxx
+    else if (opcode >> 4 == 0b0)   // opcode = 0xxxx
         stat = execute_alu_(opcode, fn, IR);
-    } else if (opcode >> 3 == 0b10) {  // opcode = 10xxx
+    else if (opcode >> 3 == 0b10)  // opcode = 10xxx
         stat = execute_mem_(opcode, fn, IR);
-    } else if (opcode >> 3 == 0b11) {  // opcode = 11xxx
+    else if (opcode >> 3 == 0b11)  // opcode = 11xxx
         stat = execute_ctrl_(opcode, fn, IR);
-    } else {
+    else
         stat = status::invalid_instruction;
-    }
 
     return stat;
 }
 
-fnsim::register_info fnsim::frisc_simulator::get_reg_info()
+void frisc::frisc_simulator::process_interrupt_(priority_t int_prio)
+{
+    if (!regs_.IIF) return;
+
+    fmt::print_colored(fmt::YELLOW, "Processing interrupt: {}\n", int_prio);
+
+    if (int_prio == frisc_nmi) {
+        regs_.IIF = false;
+        disable_interrupt_(frisc_nmi);
+
+        push_to_stack_(regs_.PC);
+        regs_.PC = 0x0C;  // Address of NMI handler
+
+    } else {  // == frisc_int
+        if (!regs_.SR.GIE) return;
+
+        regs_.SR.GIE = false;
+        disable_interrupt_(frisc_int);
+
+        push_to_stack_(regs_.PC);
+        regs_.PC = read_<word_t>(0x08);  // Address vector of INT handler
+    }
+}
+
+fnsim::register_info frisc::frisc_simulator::get_reg_info()
 {
     return {
         {"R0", regs_.R[0]},
@@ -247,7 +276,7 @@ fnsim::register_info fnsim::frisc_simulator::get_reg_info()
     };
 }
 
-fnsim::functional_processor_simulator_ptr fnsim::make_frisc_simulator(fnsim::processor_config cfg)
+fnsim::functional_processor_simulator_ptr<32> frisc::make_frisc_simulator(fnsim::processor_config cfg)
 {
     return std::make_unique<frisc_simulator>(cfg);
 }

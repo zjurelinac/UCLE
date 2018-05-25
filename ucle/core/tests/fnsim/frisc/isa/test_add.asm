@@ -1,4 +1,4 @@
-        ORG 0
+        ORG     0
         MOVE    0, R0
         ADD     R0, 1, R0       ; assert R0 == 1
         MOVE    1, R1

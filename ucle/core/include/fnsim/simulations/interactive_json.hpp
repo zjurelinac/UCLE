@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-namespace ucle::fnsim {
+namespace ucle::fnsim::cli {
 
     template <typename FunctionalSimulation>
     class interactive_json_simulation : public interactive_simulation<FunctionalSimulation> {
@@ -97,7 +97,7 @@ namespace ucle::fnsim {
     template <typename FunctionalSimulation>
     void interactive_json_simulation<FunctionalSimulation>::do_run_(argument_list args)
     {
-        address_t start_location = 0;
+        address32_t start_location = 0;
 
         if (args.size() > 0)
             start_location = std::any_cast<int>(args[0]);
@@ -114,7 +114,7 @@ namespace ucle::fnsim {
     template <typename FunctionalSimulation>
     void interactive_json_simulation<FunctionalSimulation>::do_start_(argument_list args)
     {
-        address_t start_location = 0;
+        address32_t start_location = 0;
 
         if (args.size() > 0)
             start_location = std::any_cast<int>(args[0]);
@@ -163,7 +163,7 @@ namespace ucle::fnsim {
         if (args.size() == 0)
             throw incorrect_call("until");
 
-        address_t end_location = std::any_cast<int>(args[0]);
+        address32_t end_location = std::any_cast<int>(args[0]);
 
         if (auto stat = this->get_sim_().until(end_location); is_error(stat))
             throw runtime_error(to_string(stat));
@@ -201,7 +201,7 @@ namespace ucle::fnsim {
             if (args.size() < 2)
                 throw incorrect_call("break");
 
-            address_t location = std::any_cast<int>(args[1]);
+            address32_t location = std::any_cast<int>(args[1]);
 
             this->get_sim_().add_breakpoint(location);
             success_(fmt::format("Added breakpoint @ 0x{:08X}", location));
@@ -210,7 +210,7 @@ namespace ucle::fnsim {
             if (args.size() < 2)
                 throw incorrect_call("break");
 
-            address_t location = std::any_cast<int>(args[1]);
+            address32_t location = std::any_cast<int>(args[1]);
 
             this->get_sim_().remove_breakpoint(location);
             success_(fmt::format("Removed breakpoint @ 0x{:08X}", location));
@@ -237,7 +237,7 @@ namespace ucle::fnsim {
     }
 
     template <typename FunctionalSimulation>
-    void run_interactive_json_simulation(FunctionalSimulation& sim, cli_config& cfg)
+    void run_interactive_json_simulation(FunctionalSimulation& sim, config& cfg)
     {
         interactive_json_simulation<FunctionalSimulation> tsim {sim, cfg};
         tsim.run();

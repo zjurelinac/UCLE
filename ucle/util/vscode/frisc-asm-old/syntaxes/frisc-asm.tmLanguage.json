@@ -1,0 +1,72 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "FRISC Assembly (Old)",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#constants"
+		},
+		{
+			"include": "#modifiers"
+		},
+		{
+			"include": "#labels"
+		},
+		{
+			"include": "#comments"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.frisc-asm",
+					"match": "\\b(AND|OR|XOR|ADD|ADC|SUB|SBC|SH[LR]|ASHR|ROT[LR]|CMP|MOVE|LOAD|LOAD[BH]|STORE|STORE[BH]|PUSH|POP|(JP|JR|CALL|RET|RET[IN]|HALT)(_\\w+)?)\\b"
+				},
+				{
+					"name": "keyword.other.frisc-asm",
+					"match": "\\b(ORG|EQU|D[BHWS])\\b"
+				}
+			]
+		},
+		"constants": {
+			"patterns": [
+				{
+					"name": "constant.language.frisc-asm",
+					"match": "\\b(R[0-7]|SP|SR)\\b"
+				},
+				{
+					"name": "constant.numeric.frisc-asm",
+					"match": "\\b([0-9][0-9A-Fa-f]*)\\b"
+				}
+			]
+		},
+		"modifiers": {
+			"patterns": [
+				{
+					"name": "storage.modifier.frisc-asm",
+					"match": "\\s+(%B|%O|%D|%H)\\b"
+				}
+			]
+		},
+		"labels": {
+			"patterns": [
+				{
+					"name": "variable.other.frisc-asm",
+					"match": "\\b([A-Za-z_][A-Za-z_0-9]*)\\b"
+				}
+			]
+		},
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.frisc-asm",
+					"match": ";.*"
+				}
+			]
+		}
+	},
+	"scopeName": "source.frisc-asm"
+}

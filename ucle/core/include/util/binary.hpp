@@ -10,7 +10,7 @@
 
 namespace ucle::util {
 
-    struct arith_flags { bool C, V, N, Z; };
+    struct basic_arith_flags { bool C, V, N, Z; };
 
     template <typename ValueType>
     struct unop {
@@ -34,7 +34,7 @@ namespace ucle::util {
         }
     };
 
-    template <typename ValueType, typename ArithFlags = arith_flags>
+    template <typename ValueType, typename ArithFlags = basic_arith_flags>
     struct binop {
         using value_type = ValueType;
         using flag_type = ArithFlags;

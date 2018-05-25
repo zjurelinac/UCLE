@@ -1,10 +1,31 @@
 # UCLE
 ## _Ultimate Computer Learning Environment_
 
-Some short and catchy intro
+- Ever wanted to design **your own processor architecture**?
+- Or to **play around** with an **existing one**?
+- Ever wondered how the computer **really thinks** and **does** it's **job**?
+- Or wanted to make him **do some other job**?
+- Did you perhaps wish one day to make **your own operating system**?
+- Or a **programming language**?
+- Perhaps you once tried to understand how does the **compiler actually work**, but couldn't because it was too complex?
+
+*Look no further!* - **UCLE is meant to answer all of that.**
 
 ## Idea
-Say a few things about the idea
+The idea of **UCLE** is precisely this - to allow you, whoever you might be (a student, a programmer, a computer engineer, a professor, or just someone interested in computers), to **understand** and **experience first-hand** the depths of **how it all works together** inside of a computer:
+
+- the **processor**, **IO devices** and other **hardware components**
+- the **operating system** with all it's features and modules
+- **programming languages**, **algorithms** and **data structures**
+- the **compiler**, **assembler**, **linker** and **loader**
+- **communication protocols**
+- **disk filesystems**
+- **multimedia algorithms**
+
+and many, many more.
+
+It is meant to **show** you all these things **in action** and with lots of details, but also to allow you to **experiment** with them, to change and extend some/all of the components, or even **design whole new systems** in a way you see most appropriate for your purposes, be it **learning**, **teaching**, **prototyping**, or just plain old **fun**.
+
 
 ## Features
 List all the features you'd like to have one day

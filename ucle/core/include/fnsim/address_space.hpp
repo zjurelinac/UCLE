@@ -10,26 +10,28 @@
 
 namespace ucle::fnsim {
 
-    template <typename MappedDeviceType, typename AddressType = address_t>
+    template <unsigned N, typename MappedDeviceType>
     class address_space {
+        using self_type = address_space<N, MappedDeviceType>;
+
         public:
-            using address_type = AddressType;
+            using address_type = meta::arch_address_t<N>;
             using address_range_type = address_range<address_type>;
 
             using mapped_device_type = MappedDeviceType;
             using mapped_device_ptr = mapped_device_type*;
             using mapped_device_info = std::pair<address_range_type, mapped_device_ptr>;
 
-            address_space() = delete;
+            address_space()                              = delete;
             address_space(address_range_type total_range) : total_range_{total_range} {}
 
-            address_space(const address_space<MappedDeviceType, AddressType>&)              = delete;
-            address_space& operator=(const address_space<MappedDeviceType, AddressType>&)   = delete;
+            address_space(const self_type&)              = delete;
+            address_space& operator=(const self_type&)   = delete;
 
-            address_space(address_space<MappedDeviceType, AddressType>&&)                   = default;
-            address_space& operator=(address_space<MappedDeviceType, AddressType>&&)        = default;
+            address_space(self_type&&)                   = default;
+            address_space& operator=(self_type&&)        = default;
 
-            ~address_space() = default;
+            ~address_space()                             = default;
 
             void register_device(mapped_device_ptr dev_ptr, address_range_type range)
             {
@@ -61,6 +63,15 @@ namespace ucle::fnsim {
             {
                 auto [dev_range, dev_ptr] = find_device_(location);
                 return dev_ptr->template write<T>(location - dev_range.low_addr, value);
+            }
+
+            bool is_address_valid(address_type location)
+            {
+                for (const auto& dev : devices_)
+                    if (dev.first.contains(location))
+                        return true;
+
+                return false;
             }
 
         protected:

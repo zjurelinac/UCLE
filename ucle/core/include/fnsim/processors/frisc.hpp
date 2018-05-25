@@ -12,9 +12,9 @@
 
 #include <array>
 
-namespace ucle::fnsim {
+namespace ucle::fnsim::frisc {
 
-    struct frisc_status_reg : public flags_reg<32> {
+    struct status_reg : public flags_reg<32> {
         using flags_reg<32>::operator=;
 
         flag_reference GIE  = operator[](4);
@@ -24,19 +24,21 @@ namespace ucle::fnsim {
         flag_reference N    = operator[](0);
     };
 
-    struct frisc_arith_flags : public bitfield<4> {
-        using bitfield<4>::bitfield;
+    // struct arith_flags : public bitfield<4> {
+    //     using bitfield<4>::bitfield;
 
-        constexpr frisc_arith_flags() = default;
-        constexpr frisc_arith_flags(bool c, bool v, bool n, bool z)
-            { set(0, n); set(1, c); set(2, v); set(3, z); }
-    };
+    //     constexpr arith_flags() = default;
+    //     constexpr arith_flags(bool c, bool v, bool n, bool z)
+    //         { set(0, n); set(1, c); set(2, v); set(3, z); }
+    // };
 
-    struct frisc_register_file : public register_file {
+    using arith_flags = util::basic_arith_flags;
+
+    struct register_file : public base_register_file {
         std::array<reg<32>, 8> R;
         reg<32>& SP = R[7];
         reg<32> PC;
-        frisc_status_reg SR;
+        status_reg SR;
         bool IIF = 0;
 
         void clear() override
@@ -48,22 +50,46 @@ namespace ucle::fnsim {
         }
     };
 
-    class frisc_simulator : public functional_processor_simulator_impl<byte_order::little_endian, address_t, mapped_device, address_space, memory> {
+    enum interrupt_priorities {
+        frisc_int = 1,
+        frisc_nmi = 2,
+        frisc_max_int_prio = 2
+    };
+
+    class frisc_simulator : public functional_processor_simulator_impl<32, byte_order::little_endian, mapped_device, address_space, memory, processor_config, false, frisc_max_int_prio> {
         using cbu = util::const_bin_util<word_t>;
         using unop = util::unop<word_t>;
-        using binop = util::binop<word_t, frisc_arith_flags>;
-        using parent = functional_processor_simulator_impl<byte_order::little_endian, address_t, mapped_device, address_space, memory>;
+        using binop = util::binop<word_t, arith_flags>;
+        using parent = functional_processor_simulator_impl<32, byte_order::little_endian, mapped_device, address_space, memory, processor_config, false, frisc_max_int_prio>;
 
         public:
-            using parent::functional_processor_simulator_impl;
+            frisc_simulator(processor_config_type cfg) : parent::functional_processor_simulator_impl(cfg)
+            {
+                regs_.IIF = true;
+                enable_interrupt_(frisc_nmi);
+            }
 
-            address_t get_program_counter() const override { return regs_.PC; };
-            void set_program_counter(address_t location) override { regs_.PC = location; }
-            status execute_single() override;
+            address_type get_program_counter() const override { return regs_.PC; };
+            void set_program_counter(address_type location) override { regs_.PC = location; }
             register_info get_reg_info() override;
 
         protected:
+            status execute_single_() override;
+            void process_interrupt_(priority_t int_prio) override;
             void clear_internals_() override { regs_.clear(); }
+
+            void push_to_stack_(word_t value)
+            {
+                regs_.SP -= 4;
+                write_<word_t>(regs_.SP, value);
+            }
+
+            word_t pop_from_stack_()
+            {
+                auto value = read_<word_t>(regs_.SP);
+                regs_.SP += 4;
+                return value;
+            }
 
         private:
             status execute_move_(word_t opcode, bool fn, const reg<32>& IR);
@@ -73,10 +99,10 @@ namespace ucle::fnsim {
 
             constexpr bool eval_cond_(word_t cond) const;
 
-            frisc_register_file regs_;
+            register_file regs_;
     };
 
-    functional_processor_simulator_ptr make_frisc_simulator(processor_config cfg);
+    functional_processor_simulator_ptr<32> make_frisc_simulator(processor_config cfg);
 
 }
 

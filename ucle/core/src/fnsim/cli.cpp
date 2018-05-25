@@ -22,12 +22,13 @@
 */
 
 int main(int argc, char* argv[]) {
+    using namespace ucle;
     using namespace ucle::fnsim;
-    using namespace ucle::literals;
+    using namespace ucle::fnsim::cli;
 
     CLI::App app {"Functional simulator CLI"};
 
-    cli_config cfg {};
+    fnsim::cli::config cfg {};
 
     app.add_set_ignore_case("simulator", cfg.simulator_name, factory_options, "Processor simulator to use for simulation")->required();
     app.add_option("pfile", cfg.pfile, "A path to the machine-code .p file to be executed")->required()->check(CLI::ExistingFile);
@@ -47,16 +48,16 @@ int main(int argc, char* argv[]) {
 
     CLI11_PARSE(app, argc, argv);
 
-    processor_config sim_cfg {cfg.fnsim_mem_size};
+    processor_config proc_cfg {cfg.fnsim_mem_size};
 
     if (cfg.run_interactive) {
-        functional_simulation<> sim(factory[cfg.simulator_name](sim_cfg));
+        functional_simulation<> sim {factory_32[cfg.simulator_name](proc_cfg)};
         run_interactive_text_simulation(sim, cfg);
     } else if (cfg.run_json) {
-        functional_simulation<> sim(factory[cfg.simulator_name](sim_cfg));
+        functional_simulation<> sim {factory_32[cfg.simulator_name](proc_cfg)};
         run_interactive_json_simulation(sim, cfg);
     } else {
-        functional_simulation<false, false, false, true> sim(factory[cfg.simulator_name](sim_cfg));
+        functional_simulation<false, false, false, true> sim {factory_32[cfg.simulator_name](proc_cfg)};
         sim.load_pfile(cfg.pfile);
         sim.run();
 

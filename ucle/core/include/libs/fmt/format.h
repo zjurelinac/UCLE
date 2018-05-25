@@ -3424,12 +3424,13 @@ FMT_API void report_windows_error(int error_code,
 enum Color { BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE };
 
 /**
-  Formats a string and prints it to stdout using ANSI escape sequences
+  Formats a string and prints it to stdout (or `f`) using ANSI escape sequences
   to specify color (experimental).
   Example:
     print_colored(fmt::RED, "Elapsed time: {0:.2f} seconds", 1.23);
  */
 FMT_API void print_colored(Color c, CStringRef format, ArgList args);
+FMT_API void print_colored(FILE* f, Color c, CStringRef format, ArgList args);
 
 /**
   \rst
@@ -3745,6 +3746,7 @@ FMT_VARIADIC_W(std::wstring, format, WCStringRef)
 FMT_VARIADIC(void, print, CStringRef)
 FMT_VARIADIC(void, print, std::FILE *, CStringRef)
 FMT_VARIADIC(void, print_colored, Color, CStringRef)
+FMT_VARIADIC(void, print_colored, std::FILE *, Color, CStringRef)
 
 namespace internal {
 template <typename Char>

@@ -22,6 +22,13 @@ namespace ucle::meta {
                          /* else */                             sdword_t
                          >>>;
 
+    template <unsigned N>
+    using arch_address_t = typename std::conditional_t<(N <= 8),  address8_t,
+                           typename std::conditional_t<(N <= 16), address16_t,
+                           typename std::conditional_t<(N <= 32), address32_t,
+                           /* else */                             address64_t
+                           >>>;
+
     template <typename T>
     using is_storage_t = typename std::enable_if_t<std::is_same_v<T, byte_t> ||
                                                    std::is_same_v<T, half_t> ||

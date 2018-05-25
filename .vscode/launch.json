@@ -4,12 +4,24 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        {
+            "type": "extensionHost",
+            "request": "launch",
+            "name": "Launch Extension",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/ucle/util/vscode/frisc-asm-old"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/out/**/*.js"
+            ]
+        },
     {
         "name": "(gdb) FRISC-fnsim",
         "type": "cppdbg",
         "request": "launch",
-        "program": "${workspaceFolder}/ucle/build/core/debug/fnsim-cli",
-        "args": [],
+        "program": "${workspaceFolder}/ucle/build/test_dma",
+        "args": ["${workspaceFolder}/ucle/core/tests/fnsim/frisc/test_dma.p"],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}",
         "environment": [],
