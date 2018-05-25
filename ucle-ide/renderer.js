@@ -30,7 +30,8 @@ loader().then((monaco) => {
 				contextmenu: false,
 				quickSuggestions: false,
 				automaticLayout: true,
-				model : model
+				model : model,
+				fontSize: 14
 	});
 
 	const fileManager = new FileManager({ editor, monaco });

@@ -6,6 +6,9 @@ var simRunning = false;
 var line = 1;
 var address = 0;
 
+const minFontSize = 8;
+const maxFontSize = 32;
+
 var registers = ["IIF","PC","R0","R1","R2","R3","R4","R5","R6","R7","SP","SR"];
 
 module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
@@ -43,7 +46,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 	// ---------------------------------------------------------------------------------
 	// ---------------------- Handle simulation functions ------------------------------
-	// ---------------------------------------------------------------------------------	
+	// ---------------------------------------------------------------------------------
 
 	function addSimEvents() {
 		document.getElementById("step").className = "run-simulation";
@@ -138,8 +141,38 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	}
 
 	// ---------------------------------------------------------------------------------
+	// --------------------------- Handle font size  -----------------------------------
+	// ---------------------------------------------------------------------------------
+
+	document.getElementById("increase").addEventListener("click", function(e) {
+		var value = document.getElementById("font-size").value;
+		if(value == maxFontSize) return;
+		document.getElementById("font-size").value = parseInt(value) + 2;
+		editor.updateOptions({fontSize: document.getElementById("font-size").value});
+	});
+
+	document.getElementById("decrease").addEventListener("click", function(e) {
+		var value = document.getElementById("font-size").value;
+		if(value == minFontSize) return;
+		document.getElementById("font-size").value = parseInt(value) - 2;
+		editor.updateOptions({fontSize: document.getElementById("font-size").value});
+	});
+
+	document.getElementById("font-size").addEventListener("change", function(e) {
+		var value = document.getElementById("font-size").value;
+		if(value >= maxFontSize) {
+			value = maxFontSize;
+			document.getElementById("font-size").value = value;
+		} else if(value <= minFontSize) {
+			value = minFontSize;
+			document.getElementById("font-size").value = value;
+		}
+		editor.updateOptions({fontSize: value});
+	});
+
+	// ---------------------------------------------------------------------------------
 	// ------------------ Handle showing the files and sim divs ------------------------
-	// ---------------------------------------------------------------------------------	
+	// ---------------------------------------------------------------------------------
 
 	var listedFiles = document.getElementById("listed-files");
 	var openedFiles = document.getElementById("opened-files");

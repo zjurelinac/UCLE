@@ -10,10 +10,19 @@ html, body {
 	overflow: hidden;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
 #tools-wrapper {
 	width: 90%;
 	height: 32px;
 	padding-bottom: 10px;
+	margin: 0;
+	display: inline-block;
 }
 
 #tools {
@@ -40,7 +49,6 @@ html, body {
 	height:100%;
 	overflow-y: auto;
 	overflow-x: auto;
-	white-space: nowrap;
 	transition: 0.5s;
 	position: relative;
 	font-size: 16px;
@@ -79,6 +87,58 @@ i.dir-ico-closed {
 	right: 0;	
 	width: 20px;
 	height: 15px;
+}
+
+#font-wrapper {
+	display: block;
+	top:0;
+	bottom:0;
+	right:0;
+	left:0;	
+}
+
+#font-size {
+	float:left;
+	margin-right: 3px;
+	top: 10px;
+	display: inline-block;
+	position: relative;
+	text-align: center;
+	width:35px;
+}
+
+#button-wrapper {
+	float:left;
+	display:inline-block;
+	width:20px;
+}
+
+#increase {
+	display: inline-block;
+	background:url(../icons/increase.png);	
+	background-repeat:no-repeat;
+	background-size: 100% 100%;
+	width:16px;
+	height:16px;
+	padding:0;
+	top:0;
+	bottom:0;
+	right:0;
+	left:0;	
+}
+
+#decrease {
+	display: inline-block;
+	background:url(../icons/decrease.png);	
+	background-repeat:no-repeat;
+	background-size: 100% 100%;
+	width:16px;
+	height:16px;
+	padding:0;
+	top:0;
+	bottom:0;
+	right:0;
+	left:0;	
 }
 
 i.explorer-ico-closed {
@@ -126,13 +186,14 @@ i.file-ico {
 }
 
 #workspace-text {
-	display:inline-block;
-	left:0;
+	text-align: justify;
+	word-break: break-all;
 }
 
 .explorer {
 	width: 100%;
 	background-color: #d7d7d7;
+	text-align: left;
 	font-size: 14px;
 	padding: 10px 10px 10px 0px;
 	margin-top: 5px;
@@ -140,10 +201,8 @@ i.file-ico {
 
 .tools {
 	border-right: solid 2px rgba(0, 0, 0, .5);
-	left: 0;
-	top: 0;
-	margin: 0;
-	padding: 0;
+	border-collapse: collapse;
+	padding-left: 5px;
 }
 
 #listed-files, #opened-files {
@@ -356,10 +415,10 @@ i.file-ico {
 	background-color: #d7d7d7;
 }
 
-#search:hover, #file-explorer:hover, #refresh:hover, .run-simulation:hover, .stop-simulation:hover, .explorer:hover {
+#search:hover, #file-explorer:hover, #refresh:hover, #increase:hover, #decrease:hover, .run-simulation:hover, .stop-simulation:hover, .explorer:hover {
 	cursor: pointer;
 }
 
-#search:active, #file-explorer:active, #refresh:active, #openbtn:active, .run-simulation:active, .stop-simulation:active {
+#search:active, #file-explorer:active, #refresh:active, #increase:active, #decrease:active, #openbtn:active, .run-simulation:active, .stop-simulation:active {
 	transform: translateY(4px);
 }

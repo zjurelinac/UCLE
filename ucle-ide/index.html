@@ -10,16 +10,25 @@
 	</head>
 	<body>
 		<div id="tools-wrapper">
-			<ul>
-				<li class="tools" title="Search"><span id="search"></span></li>
-				<li class="tools" title="File explorer"><span id="file-explorer"></span></li>
-				<li class="tools" title="Refresh"><span id="refresh"></span></li>
-				<li class="tools" title="Run simulation (CTRL + R)"><span id="run-sim" class="run-simulation"></span></li>
-				<li class="tools" title="Next step (CTRL + R + S)"><span id="step" class="wait-simulation"></span></li>		
-				<li class="tools" title="Continue"><span id="continue" class="wait-simulation"></span></li>		
-				<li class="tools" title="Remove breakpoints"><span id="rm-breakpoints" class="wait-simulation"></span></li>
-				<li class="tools" title="Reset processor"><span id="reset" class="wait-simulation"></span></li>
-			</ul>
+			<table class="tools">
+				<tr class="tools">
+						<td class="tools" title="Search"><span id="search"></span></td>
+						<td class="tools" title="File explorer"><span id="file-explorer"></span></td>
+						<td class="tools" title="Refresh"><span id="refresh"></span></td>
+						<td class="tools" title="Run simulation (CTRL + R)"><span id="run-sim" class="run-simulation"></span></td>
+						<td class="tools" title="Next step (CTRL + R + S)"><span id="step" class="wait-simulation"></span></td>		
+						<td class="tools" title="Continue"><span id="continue" class="wait-simulation"></span></td>		
+						<td class="tools" title="Remove breakpoints"><span id="rm-breakpoints" class="wait-simulation"></span></td>
+						<td class="tools" title="Reset processor"><span id="reset" class="wait-simulation"></span></td>
+						<td class="tools" title="Font size"><div id="font-wrapper">
+		                                        <input type="number" id="font-size" value="14">
+		                                        <div id="button-wrapper"><div id="increase" title="Increase font size"></div>
+		                                                                 <div id="decrease" title="Decrease font size"></div>
+		                                        </div>
+		                                      </div>
+						</td>
+				</tr>
+			</table>
 		</div>
 
 		<div id="quick-tools">
@@ -27,7 +36,7 @@
 			<div id="opened-files"></div>
 			<div id="workspace" class="explorer"><i class="explorer-ico-opened"></i>Workspace</div>
 			<div id="listed-files">
-				<span id="workspace-text">You haven't added any folders<br/> to the workspace.</span>
+				<div id="workspace-text">You haven't added any folders to the workspace.</div>
 				<button id="openbtn" type="button">Open folder</button>
 			</div>
 		</div>

@@ -101,7 +101,14 @@ class UCLETabs {
 	}
 
 	closeTab(tabEl, changed = false) {
-		if(tabEl) {
+		if(this.simRunning) {
+			var type = "warning";
+			var buttons = ['OK'];
+			var message = 'Cannot close file while simulation is running!';
+			var defaultId = 0;
+			remote.dialog.showMessageBox({message, type, buttons, defaultId});
+			return;
+		} else if(tabEl) {
 			if(changed) {
 				var type = "warning";
 				var buttons = ['Cancel','Close file without saving','Save'];
@@ -120,6 +127,8 @@ class UCLETabs {
 	}
 
 	closeAllTabs() {
+		if(this.simRunning) return;
+
 		var allTabs = this.tabEls;
 		allTabs.forEach(function(tab) {
 			var changed = this.checkIfValueChanged(tab);
@@ -366,6 +375,8 @@ class UCLETabs {
 	}
 
 	setCurrentTab(tabEl) {
+		if(this.simRunning) return;
+		
 		const currentTab = this.currentTab;
 
 		if (currentTab) {
