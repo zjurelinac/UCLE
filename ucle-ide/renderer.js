@@ -83,8 +83,7 @@ loader().then((monaco) => {
 		explorer.children[0].className = "explorer-ico-opened";
 
 		document.getElementById("opened-files").innerHTML += '<div id="open-' + addedFilePath + '" class="file" title="' + 
-		                                                     addedFilePath + '"><i class="file-ico" ' +
-                                                             'style="margin-left:10px; padding-right: 5px"></i>'+ addedFileName + '</div>';
+		                                                     addedFilePath + '"><i class="file-ico"></i>'+ addedFileName + '</div>';
 	});
 
 	el.addEventListener('tabClose', function(e) {

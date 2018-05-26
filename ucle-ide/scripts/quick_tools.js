@@ -10,6 +10,7 @@ const minFontSize = 8;
 const maxFontSize = 32;
 
 var registers = ["IIF","PC","R0","R1","R2","R3","R4","R5","R6","R7","SP","SR"];
+var clickedElement = null;
 
 module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
@@ -160,13 +161,17 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 	document.getElementById("font-size").addEventListener("change", function(e) {
 		var value = document.getElementById("font-size").value;
+		if((value % 2)) {
+			value++;
+		}
+
 		if(value >= maxFontSize) {
 			value = maxFontSize;
-			document.getElementById("font-size").value = value;
 		} else if(value <= minFontSize) {
 			value = minFontSize;
-			document.getElementById("font-size").value = value;
 		}
+
+		document.getElementById("font-size").value = value;
 		editor.updateOptions({fontSize: value});
 	});
 
@@ -195,10 +200,21 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			}
 			fileManager.readFolder(e.target.id, false);
 		}
+
+		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir") || e.target.matches("li.file"))) {
+			if(!clickedElement || (clickedElement == e.target)) {
+				clickedElement = e.target;
+				document.getElementById(e.target.id).style.background = "#e6e6e6";
+			} else {
+				document.getElementById(clickedElement.id).style.background = "white";
+				clickedElement = e.target;
+				document.getElementById(e.target.id).style.background = "#e6e6e6";
+			}
+		}
 	});
 
 	listedFiles.addEventListener("contextmenu", function(e) {
-		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir"))) {
+		if (e.target && e.target.matches("div.dir")) {
 			var contextMenu = new Menu();
 
 			contextMenu.append(new MenuItem({
@@ -229,8 +245,11 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		e.preventDefault();
 		if(e.target && (e.target.matches("li.dir") ||
 		   e.target.matches("li.file") || e.target.matches("div.dir"))) {
+		   	var background = document.getElementById(e.target.id).style.background;
 			document.getElementById(e.target.id).style.cursor = "pointer";
-			document.getElementById(e.target.id).style.background = "#e9e9e9"
+			if(background != "rgb(230, 230, 230)") {
+				document.getElementById(e.target.id).style.background = "#d9d9d9"
+			}
 		}
 	});
 
@@ -238,22 +257,31 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		e.preventDefault();
 		if(e.target && (e.target.matches("li.dir") ||
 		   e.target.matches("li.file") || e.target.matches("div.dir"))) {
-			document.getElementById(e.target.id).style.background = "white";
+			var background = document.getElementById(e.target.id).style.background;		   	
+		   	if(background != "rgb(230, 230, 230)") {
+				document.getElementById(e.target.id).style.background = "white";
+			}
 		}
 	});
 
 	openedFiles.addEventListener("mouseover", function(e) {
 		e.preventDefault();
 		if(e.target.matches("div.file")) {
+		   	var background = document.getElementById(e.target.id).style.background;
 			document.getElementById(e.target.id).style.cursor = "pointer";
-			document.getElementById(e.target.id).style.background = "#e9e9e9"
+			if(background != "rgb(230, 230, 230)") {
+				document.getElementById(e.target.id).style.background = "#d9d9d9"
+			}
 		}
 	});
 
 	openedFiles.addEventListener("mouseout", function(e) {
 		e.preventDefault();
 		if(e.target.matches("div.file")) {
-			document.getElementById(e.target.id).style.background = "white";
+			var background = document.getElementById(e.target.id).style.background;		   	
+		   	if(background != "rgb(230, 230, 230)") {
+				document.getElementById(e.target.id).style.background = "white";
+			}
 		}
 	});
 

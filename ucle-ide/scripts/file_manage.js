@@ -70,14 +70,38 @@ class FileManager {
 			let childListID = child.path + '-' + child.name;
 
 			if(child.type == 'directory') {
-				list.innerHTML += '<li id="' + child.path + '" title="' +  child.path +
-                               '" class="dir" style="width:100%;"><i class="dir-ico-closed" ' +
-                               'style="margin-left:10px; padding-right: 5px"></i>' + child.name + 
-                               '</li><ul id="' + childListID + '"style="display:inherit; width:100%"></ul><br/>';
+				var dir = document.createElement("li");
+				dir.id = child.path;
+				dir.title = child.path;
+				dir.className = "dir";
+
+				var ico = document.createElement("i");
+				ico.className = "dir-ico-closed";
+
+				var dirName = document.createTextNode(child.name);
+
+				var fileList = document.createElement("ul");
+				fileList.id = childListID;
+
+				dir.appendChild(ico);
+				dir.appendChild(dirName);
+
+				list.appendChild(dir);
+				list.appendChild(fileList);
 			} else {
-				list.innerHTML += '<li id="' + child.path + '" title="' +  child.path +
-                                '" class="file" style="width:100%;"><i class="file-ico" ' +
-                                'style="margin-left:10px; padding-right: 5px"></i>'+ child.name + '</li> <br/>';
+				var file = document.createElement("li");
+				file.id = child.path;
+				file.title = child.path;
+				file.className = "file";
+
+				var ico = document.createElement("i");
+				ico.className = "file-ico";
+
+				var fileName = document.createTextNode(child.name);
+
+				file.appendChild(ico);
+				file.appendChild(fileName);
+				list.appendChild(file);
 			}
 		}
 
@@ -121,6 +145,7 @@ class FileManager {
 			document.getElementById('openbtn').style.display = "none";
 			document.getElementById('workspace-text').style.display = "none";
 			document.getElementById('workspace').children[0].className = "explorer-ico-opened";
+			//var folderWorkspace = document.createDocumentFragment();
 			document.getElementById('listed-files').innerHTML += '<div id="div-' + filePath + '" style="width:100%"><div id="'
                                                               + filePath + '" title="' + filePath + '" style:"width:100%; display:block;" ' +
                                                               'class="dir"><i class="dir-ico-closed" style="margin-left:10px"></i>' + dirName + '</div><ul id="' + listID + 
