@@ -208,18 +208,17 @@ class UCLEServer {
 
 		if((nextLine > lineCount) || !nextLine) return -1;
 
-		var content = model.getLineContent(nextLine);
-
-		if(!content.replace(/\s/g, '').length) {
-			for(var i = 1; i <= lineCount; i++) {
-				if(model.getLineContent(i).replace(/\s/g, '').length) {
-					var nextAddress = simFileModel.getLineContent(i).split(" ")[0];
-					if(parseInt(nextAddress,16) == address) {
-						return i;
-					}
+		for(var i = 1; i <= lineCount; i++) {
+			if(model.getLineContent(i).replace(/\s/g, '').length) {
+				var nextAddress = simFileModel.getLineContent(i).split(" ")[0];
+				console.log(parseInt(nextAddress,16) + " - " + address + " -> " + i);
+				if(parseInt(nextAddress,16) == address) {
+					console.log("line is " + i);
+					return i;
 				}
 			}
 		}
+		
 		return -1;
 	}
 
@@ -256,8 +255,16 @@ class UCLEServer {
 		return filePath;
 	}
 
-	runSim(filePath) {
+	resetPosition(model) {
+		var startingLine = this.findFirstNonEmpty(model, 1, 0);
+		this.addHighLight(model, new monaco.Range(startingLine,1,startingLine,1));
+		this.editor.setPosition(new this.monaco.Position(startingLine,1));
+	}
+
+	runSim(filePath, model) {
 		var simPath = this.getMachineCode(filePath);
+
+		this.resetPosition(model);
 
 		child = cp.execFile(procSim, ['FRISC', simPath, '-j']);
 

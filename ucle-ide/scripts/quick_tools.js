@@ -17,6 +17,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	function addButtonClick(button) {
 		button.addEventListener("click", function(e) {
 			fileManager.openDirectory();
+			document.getElementById("quick-tools").style.whiteSpace = "nowrap";
 		});
 	}
 
@@ -131,14 +132,13 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	function resetProcessor() {
 		var model = ucleTabs.currentTabModel;
 
-		ucleServer.addHighLight(model, new monaco.Range(1,1,1,1));
 		ucleServer.sendCommand("reset",[]);
 		line = 1;
 		address = 0;
 		removeSimEvents();
 		addSimEvents();
 		ucleServer.sendCommand("start",[]);
-		editor.setPosition(new monaco.Position(1,1));
+		ucleServer.resetPosition(model);
 	}
 
 	// ---------------------------------------------------------------------------------
@@ -190,6 +190,10 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		fileManager.openDirectory();
 	});
 
+	window.addEventListener("resize", function(e) {
+		console.log(e);
+	});
+
 	listedFiles.addEventListener("click", function(e) {
 		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir"))) {
 			var child = e.target.children[0]; 
@@ -223,6 +227,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 					if(!document.querySelector('[id^="div-"')) {
 						document.getElementById('workspace-text').style.display = "inline-block";
 						var button = document.getElementById("openbtn");
+						document.getElementById("quick-tools").style.whiteSpace = "initial";
 						button.style.display = "block";
 						addButtonClick(button);
 					}
@@ -370,13 +375,9 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				ucleTabs.simRunning= true;
 				fileManager.simRunning = true;
 				editor.updateOptions({readOnly: true});
-				ucleServer.addHighLight(ucleTabs.currentTabModel, new monaco.Range(1,1,1,1));
-
 				var filePath = ucleTabs.currentTab.querySelector('.ucle-tab-file-path').textContent;
 
-				editor.setPosition(new monaco.Position(1,1));
-
-				var data = ucleServer.runSim(filePath);
+				var data = ucleServer.runSim(filePath, ucleTabs.currentTabModel);
 				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 			} else {
 				var type = "warning";
@@ -428,7 +429,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 				editor.setPosition(new monaco.Position(1,1));
 
-				var data = ucleServer.runSim(filePath);
+				var data = ucleServer.runSim(filePath, ucleTabs.currentTabModel);
 				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 			} else {
 				var type = "warning";

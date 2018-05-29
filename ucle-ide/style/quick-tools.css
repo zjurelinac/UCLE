@@ -48,18 +48,22 @@ input::-webkit-inner-spin-button {
 	width:20%;
 	height:100%;
 	overflow-y: auto;
-	overflow-x: auto;
+	overflow-x: hidden;
+	white-space: normal;
+	text-overflow: ellipsis;
 	transition: 0.5s;
 	position: relative;
 	font-size: 16px;
 	border-top: solid 2px rgba(0, 0, 0, .5);
 	border-right: solid 2px rgba(0, 0, 0, .5);
+	resize:horizontal;
 }
 
 ul {
 	list-style-type: none;
 	padding: 0px;
 	margin: 0 auto;
+	width: 100%;
 }
 
 li.tools {

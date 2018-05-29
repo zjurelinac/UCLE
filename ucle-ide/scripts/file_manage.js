@@ -102,6 +102,7 @@ class FileManager {
 				file.appendChild(ico);
 				file.appendChild(fileName);
 				list.appendChild(file);
+				list.appendChild(document.createElement("br"));
 			}
 		}
 
