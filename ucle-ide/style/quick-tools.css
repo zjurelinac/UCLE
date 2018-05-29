@@ -66,6 +66,10 @@ ul {
 	width: 100%;
 }
 
+div.opened {
+	display: inline-block;
+}
+
 li.tools {
 	display: inline-block;
 }
@@ -420,24 +424,24 @@ i.file-ico {
 	border-radius: 15px;
 }
 
-div.dir, li.file {
-	font-size: 12px;
-	margin: 0 auto;
-	padding: 4px;
-}
-
-li.dir, li.file {
+li.dir, li.file, div.dir, div.file {
 	font-size: 12px;
 	width: 100%;
 	margin: 0 auto;
 	display: inline-block;
 	padding: 4px;
+	background-color: white;
 }
-
 
 #openbtn:hover {
 	cursor: pointer;
 	background-color: #d7d7d7;
+}
+
+#opened-files.hide, #listed-files.hide {
+	left:-5000px;
+	position: absolute;
+	visibility: hidden;
 }
 
 #search:hover, #file-explorer:hover, #refresh:hover, #increase:hover, #decrease:hover, .run-simulation:hover, .stop-simulation:hover, .explorer:hover {
@@ -446,4 +450,9 @@ li.dir, li.file {
 
 #search:active, #file-explorer:active, #refresh:active, #increase:active, #decrease:active, #openbtn:active, .run-simulation:active, .stop-simulation:active {
 	transform: translateY(4px);
+}
+
+li.dir:hover, div.dir:hover, li.file:hover, div.file:hover {
+	background-color: #d9d9d9!important;
+	cursor: pointer;
 }

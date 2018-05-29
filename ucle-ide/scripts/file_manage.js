@@ -33,8 +33,9 @@ class FileManager {
 
 	openDirectory() {
 		var filename = remote.dialog.showOpenDialog({ properties: ['openDirectory']});
-		if(!filename || document.getElementById("div-" + filename.toString())) return;
+		if(!filename || document.getElementById("div-" + filename.toString())) return false;
 		this.readFolder(filename.toString());
+		return true;
 	}
 
 	saveAsFile() {

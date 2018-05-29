@@ -16,8 +16,9 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 	function addButtonClick(button) {
 		button.addEventListener("click", function(e) {
-			fileManager.openDirectory();
-			document.getElementById("quick-tools").style.whiteSpace = "nowrap";
+			if(fileManager.openDirectory()) {
+				document.getElementById("quick-tools").style.whiteSpace = "nowrap";
+			}
 		});
 	}
 
@@ -208,11 +209,11 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir") || e.target.matches("li.file"))) {
 			if(!clickedElement || (clickedElement == e.target)) {
 				clickedElement = e.target;
-				document.getElementById(e.target.id).style.background = "#e6e6e6";
+				document.getElementById(e.target.id).style.backgroundColor = "#e6e6e6";
 			} else {
-				document.getElementById(clickedElement.id).style.background = "white";
+				document.getElementById(clickedElement.id).style.backgroundColor = "white";
 				clickedElement = e.target;
-				document.getElementById(e.target.id).style.background = "#e6e6e6";
+				document.getElementById(e.target.id).style.backgroundColor = "#e6e6e6";
 			}
 		}
 	});
@@ -242,51 +243,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	listedFiles.addEventListener("dblclick", function(e) {
 		if(e.target && e.target.matches("li.file")) {
 			fileManager.openFile(e.target.id);
-			ucleTabs.addTab({title: ucleTabs.getFileName(e.target.id), fullPath: e.target.id},true);
-		}
-	});
-
-	listedFiles.addEventListener("mouseover", function(e) {
-		e.preventDefault();
-		if(e.target && (e.target.matches("li.dir") ||
-		   e.target.matches("li.file") || e.target.matches("div.dir"))) {
-		   	var background = document.getElementById(e.target.id).style.background;
-			document.getElementById(e.target.id).style.cursor = "pointer";
-			if(background != "rgb(230, 230, 230)") {
-				document.getElementById(e.target.id).style.background = "#d9d9d9"
-			}
-		}
-	});
-
-	listedFiles.addEventListener("mouseout", function(e) {
-		e.preventDefault();
-		if(e.target && (e.target.matches("li.dir") ||
-		   e.target.matches("li.file") || e.target.matches("div.dir"))) {
-			var background = document.getElementById(e.target.id).style.background;		   	
-		   	if(background != "rgb(230, 230, 230)") {
-				document.getElementById(e.target.id).style.background = "white";
-			}
-		}
-	});
-
-	openedFiles.addEventListener("mouseover", function(e) {
-		e.preventDefault();
-		if(e.target.matches("div.file")) {
-		   	var background = document.getElementById(e.target.id).style.background;
-			document.getElementById(e.target.id).style.cursor = "pointer";
-			if(background != "rgb(230, 230, 230)") {
-				document.getElementById(e.target.id).style.background = "#d9d9d9"
-			}
-		}
-	});
-
-	openedFiles.addEventListener("mouseout", function(e) {
-		e.preventDefault();
-		if(e.target.matches("div.file")) {
-			var background = document.getElementById(e.target.id).style.background;		   	
-		   	if(background != "rgb(230, 230, 230)") {
-				document.getElementById(e.target.id).style.background = "white";
-			}
+			ucleTabs.addTab({title: ucleTabs.getFileName(e.target.id), fullPath: e.target.id},true);		
 		}
 	});
 
@@ -295,6 +252,8 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			ucleTabs.setCurrentTabByPath(e.target.title);
 		}
 	});
+
+
 
 	openedFiles.addEventListener("contextmenu", function(e) {
 		if (e.target.matches("div.file")) {
@@ -334,10 +293,10 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 		if(workspace.children[0].className == "explorer-ico-opened") {
 			workspace.children[0].className = "explorer-ico-closed";
-			listedFiles.style.display = "none";
+			listedFiles.className = "hide";
 		} else {
 			workspace.children[0].className = "explorer-ico-opened";
-			listedFiles.style.display = "inherit";
+			listedFiles.className = "";
 		}
 	});
 
@@ -350,10 +309,10 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 		if(explorer.children[0].className == "explorer-ico-opened") {
 			explorer.children[0].className = "explorer-ico-closed";
-			openedFiles.style.visibility = "hidden";
+			openedFiles.className = "hide";
 		} else {
 			explorer.children[0].className = "explorer-ico-opened";
-			openedFiles.style.visibility = "visible";
+			openedFiles.className = "";
 		}
 	});
 

@@ -44,7 +44,7 @@
 	transition:right 0.5s ease;
 }
 
-#show-sim.hide{
+#show-sim.hide, #workspace.hide {
 	right:-300px;
 	visibility: hidden;
 }
