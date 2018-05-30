@@ -9,7 +9,77 @@ var address = 0;
 const minFontSize = 8;
 const maxFontSize = 32;
 
-var registers = ["IIF","PC","R0","R1","R2","R3","R4","R5","R6","R7","SP","SR"];
+var registersFlags = [
+	{
+		name: "IIF",
+		title: "Interrupt flag"
+	},
+	{
+		name: "PC",
+		title: "Program Counter"
+	},
+	{
+		name: "R0",
+		title: ""
+	},
+	{
+		name: "R1",
+		title: ""
+	},
+	{
+		name: "R2",
+		title: ""
+	},
+	{
+		name: "R3",
+		title: ""
+	},
+	{
+		name: "R4",
+		title: ""
+	},
+	{
+		name: "R5",
+		title: ""
+	},
+	{
+		name: "R6",
+		title: ""
+	},
+	{
+		name: "R7",
+		title: ""
+	},
+	{
+		name: "SP",
+		title: "Stack Pointer"
+	},
+	{
+		name: "SR",
+		title: "Status Register"
+	},
+	{
+		name: "GIE",
+		title: "Global Interrupt Enable"
+	},
+	{
+		name: "Z",
+		title: "Zero flag"
+	},
+	{
+		name: "V",
+		title: "Overflow flag"
+	},
+	{
+		name: "C",
+		title: "Carry flag"
+	},
+	{
+		name: "N",
+		title: "Negative flag"
+	}
+];
+
 var clickedElement = null;
 
 module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
@@ -78,7 +148,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	function clearRegisterInfo() {
 		var registerTable = document.getElementById("registers").rows;
 		
-		for(var i = 1; i <= registers.length; i++) {
+		for(var i = 1; i <= registersFlags.length; i++) {
 			var row = registerTable[i];
 			var regName = row.cells[0];
 			var regValue = row.cells[1];
@@ -430,15 +500,15 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				console.log(address);
 			}
 
-			//console.log(json);
-
 			if(json.type == "register_info") {
 				var registerJSON = Object.keys(json.registers).map(function(key) {
 					return [String(key), json.registers[key]];
 				});
+				addFlagValue(registerJSON);
+
 				var registerTable = document.getElementById("registers").rows;
 				
-				for(var i = 1; i <= registers.length; i++) {
+				for(var i = 1; i <= registersFlags.length; i++) {
 					var row = registerTable[i];
 					var regValue = row.cells[1];
 
@@ -448,7 +518,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 						regValue.style.backgroundColor = "#bdbdbd";
 						regValue.innerHTML = registerJSON[i-1][1].toString();
 						setTimeout(function() {		
-							for(var i = 1; i <= registers.length; i++) {
+							for(var i = 1; i <= registersFlags.length; i++) {
 								var row = registerTable[i];
 								var regValue = row.cells[1];
 								if(regValue.style.backgroundColor == "rgb(189, 189, 189)") {
@@ -464,24 +534,50 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	});
 
 	// ---------------------------------------------------------------------------------
-	// ------------------------ Init the register state --------------------------------
+	// --------------- Init the register state and change flag value--------------------
 	// ---------------------------------------------------------------------------------
 
 
+	function addFlagValue(registerJSON) {
+		var srRegVal;
+		var length = registerJSON.length;
+
+		for(var i = 0; i < length; i++) {
+			if(registerJSON[i][0] == "SR") {
+				srRegVal = registerJSON[i][1];
+				break;
+			}
+		}
+		var binary = ("00000000" + srRegVal.toString(2)).substr(-8);
+
+		for (var i = 3; i < binary.length; i++) {
+			var flagName = registersFlags[registersFlags.length-binary.length+i].name;
+			registerJSON.push([flagName, binary.charAt(i)]);
+		}
+	}
+
 	var regTable = document.getElementById("registers");
 
-	for(var i = 1; i <= registers.length; i++) {
+	var i = 1;
+
+	var byteValue;
+
+	for(; i <= registersFlags.length; i++) {
 		var row = regTable.insertRow(i);
 
 		var regName = row.insertCell(0);
 		var regValue = row.insertCell(1);
 
-		regName.innerHTML = registers[i-1];
+		var regFlag = registersFlags[i-1];
+		regName.innerHTML = regFlag.name;
+		if(regFlag.title != "") {
+			regName.setAttribute("title", "Interrupt flag");
+		}
 
-		if(registers[i-1] == "IIF") {
+		if(regFlag.name == "IIF") {
 			regValue.innerHTML = "false";
 		} else {
-			regValue.innerHTML = "0";
+			regValue = "0";
 		}
 	}
 };

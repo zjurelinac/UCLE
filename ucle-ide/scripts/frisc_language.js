@@ -1,6 +1,6 @@
 module.exports = (monaco) => {
 
-	var keywords = [
+	const keywords = [
 			'ADD', 'ADC', 'SUB', 'SBC', 'CMP', 'AND', 'OR',
 			'XOR', 'SHL', 'SHR', 'ASHR', 'ROTL', 'ROTR', 'MOVE',
 			'LOAD', 'LOADB', 'LOADH', 'STORE', 'STOREB', 'STOREH',
@@ -39,18 +39,19 @@ module.exports = (monaco) => {
 			'HALT_SGT', 'HALT_SLT', 'HALT_SGE'
 	];
 
+	var folding = [            
+		{
+            start: 1,
+            end: 5,
+        }
+    ];
+
 	monaco.languages.register({
 		id: 's',
 		extensions: [
 			'.s',
 		]
 	});
-
-	function getFriscCompletionProvider() {
-		return {
-			
-		};
-	}
 
 	function getAreaInfo(text) {
 		var item = ';';
@@ -84,9 +85,8 @@ module.exports = (monaco) => {
 	monaco.languages.registerCompletionItemProvider('s', {
 		triggerCharacters:[' ', '_'],
 		provideCompletionItems: function (model, position) {
-				// get editor content before the pointer
 				let textUntilPosition = model.getValueInRange({startLineNumber: position.lineNumber, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
-				let info = getAreaInfo(textUntilPosition); // isCompletionAvailable, clearedText
+				let info = getAreaInfo(textUntilPosition);
 
 				if(!info.isCompletionAvailable || !checkIfWordBasedSuggestion(textUntilPosition)) {
 					return [];
@@ -397,10 +397,9 @@ module.exports = (monaco) => {
 			'SP', 'SR', 'PC'
 		],
 
-		// The main tokenizer for our language
 		tokenizer: {
 			root: [
-				[/[A-Z]*[a-z]_*/,'white'],
+				//[/[A-Z]*[a-z]_*/,'white'],
 				[/[A-Z]\w*/, { 
 					cases: { 
 						'@typeKeywords': 'keyword',
@@ -425,4 +424,21 @@ module.exports = (monaco) => {
 			]
 		}
 	});
+
+	function changeFolding() {
+		/*monaco.languages.registerFoldingRangeProvider("s", {
+			provideFoldingRanges: function(model, context, token) {
+				return folding;
+			}
+		});*/
+	}
+
+	function addFolding(fold) {
+		/*folding.push(fold);
+		changeFolding();*/
+	}
+
+	function removeFolding(fold) {
+
+	}
 }

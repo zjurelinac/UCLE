@@ -31,7 +31,8 @@ loader().then((monaco) => {
 				quickSuggestions: false,
 				automaticLayout: true,
 				model : model,
-				fontSize: 14
+				fontSize: 14,
+				folding: true
 	});
 
 	const fileManager = new FileManager({ editor, monaco });
