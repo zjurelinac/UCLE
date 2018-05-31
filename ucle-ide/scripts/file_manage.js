@@ -80,13 +80,12 @@ class FileManager {
 				ico.className = "dir-ico-closed";
 
 				var dirName = document.createTextNode(child.name);
-
 				var fileList = document.createElement("ul");
 				fileList.id = childListID;
+				fileList.className = "hide";
 
 				dir.appendChild(ico);
 				dir.appendChild(dirName);
-
 				list.appendChild(dir);
 				list.appendChild(fileList);
 			} else {
@@ -98,12 +97,12 @@ class FileManager {
 				var ico = document.createElement("i");
 				ico.className = "file-ico";
 
-				var fileName = document.createTextNode(child.name);
+				var fileName = document.createElement("span");
+				fileName.innerHTML = child.name;
 
 				file.appendChild(ico);
 				file.appendChild(fileName);
 				list.appendChild(file);
-				list.appendChild(document.createElement("br"));
 			}
 		}
 
@@ -133,28 +132,28 @@ class FileManager {
 
 		var list = document.getElementById(listID);
 
-		if(list != null && list.innerHTML != '') {
-			if(list.style.display == 'none') {
-				list.style.display = 'block';
+		if(list != null && !init) {
+			if(list.className == "") {
+				list.className = 'hide';
 			} else {
-				list.style.display = 'none';
+				list.className = '';
 			}
-			return;
 		}
-		const tree = dirTree(filePath);
 
 		if(init) {
 			document.getElementById('openbtn').style.display = "none";
 			document.getElementById('workspace-text').style.display = "none";
 			document.getElementById('workspace').children[0].className = "explorer-ico-opened";
-			//var folderWorkspace = document.createDocumentFragment();
-			document.getElementById('listed-files').innerHTML += '<div id="div-' + filePath + '" style="width:100%"><div id="'
-                                                              + filePath + '" title="' + filePath + '" style:"width:100%; display:block;" ' +
-                                                              'class="dir"><i class="dir-ico-closed" style="margin-left:10px"></i>' + dirName + '</div><ul id="' + listID + 
-                                                              '"style="display: none; width:100%"></ul></div>';
+			document.getElementById('listed-files').innerHTML += '<div id="div-' + filePath + '" class="file-wrapper" ><div id="'
+                                                              + filePath + '" title="' + filePath  +
+                                                              '" class="dir"><i class="dir-ico-closed" style="margin-left:10px"></i>' + dirName + '</div><ul id="' + listID + 
+                                                              '"style="width:100%" class="hide"></ul></div>';
 		}
 
-		this.walkThroughFiles(tree.children, listID);
+		if(list == null || list.innerHTML == "") {
+			const tree = dirTree(filePath);
+			this.walkThroughFiles(tree.children, listID);
+		}
 	}
 
 	removeFolder(filePath) {

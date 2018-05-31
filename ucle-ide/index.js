@@ -23,7 +23,7 @@ function createWindow () {
 
 	mainWindow.webContents.openDevTools();
 
-	template = require('./scripts/menus')(mainWindow);
+	template = require('./scripts/menus').contextMain(mainWindow);
 
 	const menu = Menu.buildFromTemplate(template);
 	Menu.setApplicationMenu(menu);

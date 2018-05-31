@@ -47,11 +47,7 @@ var registersFlags = [
 		title: ""
 	},
 	{
-		name: "R7",
-		title: ""
-	},
-	{
-		name: "SP",
+		name: "R7/SP",
 		title: "Stack Pointer"
 	},
 	{
@@ -99,8 +95,8 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		if(style.display == "none") {
 			if(running) {
 				document.getElementById("show-sim").classList.remove("hide");			
-				document.getElementById("show-sim").style.width = "21%";
-				document.getElementById("container").style.width = "78%";
+				document.getElementById("show-sim").style.width = "20%";
+				document.getElementById("container").style.width = "79%";
 			} else {
 				document.getElementById("show-sim").className = "hide";			
 				document.getElementById("container").style.width = "100%";
@@ -108,11 +104,11 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		} else {
 			if(running) {
 				document.getElementById("show-sim").classList.remove("hide");			
-				document.getElementById("show-sim").style.width = "18%";
+				document.getElementById("show-sim").style.width = "20%";
 				document.getElementById("container").style.width = "60%";
 			} else {
 				document.getElementById("show-sim").className = "hide";			
-				document.getElementById("container").style.width = "78%";
+				document.getElementById("container").style.width = "80%";
 			}
 		}
 	}
@@ -262,21 +258,29 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	});
 
 	window.addEventListener("resize", function(e) {
-		console.log(e);
+		listedFiles.style.height = listedFiles.style.height + (window.innerHeight - listedFiles.style.height);
 	});
 
 	listedFiles.addEventListener("click", function(e) {
 		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir"))) {
-			var child = e.target.children[0]; 
+			var child = e.target.children[0];
 			if(child.className == "dir-ico-opened") {
 				child.className = "dir-ico-closed";
 			} else {
 				child.className = "dir-ico-opened";
 			}
 			fileManager.readFolder(e.target.id, false);
+		} else if(e.target.matches("i") && e.target.parentNode.matches("li.dir")) {
+			if(e.target.className == "dir-ico-opened") {
+				e.target.className = "dir-ico-closed";
+			} else {
+				e.target.className = "dir-ico-opened";
+			}
+			fileManager.readFolder(e.target.parentNode.id, false);
 		}
 
-		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir") || e.target.matches("li.file"))) {
+		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir") 
+			|| e.target.matches("li.file"))) {
 			if(!clickedElement || (clickedElement == e.target)) {
 				clickedElement = e.target;
 				document.getElementById(e.target.id).style.backgroundColor = "#e6e6e6";
@@ -285,59 +289,48 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				clickedElement = e.target;
 				document.getElementById(e.target.id).style.backgroundColor = "#e6e6e6";
 			}
+		} else if((e.target.matches("i") || e.target.matches("span")) && 
+			(e.target.parentNode.matches("li.dir") || e.target.parentNode.matches("div.dir") 
+			|| e.target.parentNode.matches("li.file"))) {
+
+			if(!clickedElement || (clickedElement == e.target)) {
+				clickedElement = e.target.parentNode;
+				document.getElementById(e.target.parentNode.id).style.backgroundColor = "#e6e6e6";
+			} else {
+				document.getElementById(clickedElement.id).style.backgroundColor = "white";
+				clickedElement = e.target.parentNode;
+				document.getElementById(e.target.parentNode.id).style.backgroundColor = "#e6e6e6";
+			}
 		}
 	});
 
 	listedFiles.addEventListener("contextmenu", function(e) {
-		if (e.target && e.target.matches("div.dir")) {
-			var contextMenu = new Menu();
-
-			contextMenu.append(new MenuItem({
-				click() {
-					fileManager.removeFolder(e.target.id); 
-					if(!document.querySelector('[id^="div-"')) {
-						document.getElementById('workspace-text').style.display = "inline-block";
-						var button = document.getElementById("openbtn");
-						document.getElementById("quick-tools").style.whiteSpace = "initial";
-						button.style.display = "block";
-						addButtonClick(button);
-					}
-				},
-				label: "Remove folder from workspace"
-			}));
-
-			contextMenu.popup(remote.getCurrentWindow());
-		}
+		template = require('./menus').contextWorkspace(fileManager, e);
+		const menu = Menu.buildFromTemplate(template);
+		menu.popup(remote.getCurrentWindow());
+		clickedElement = null;
 	});
 
 	listedFiles.addEventListener("dblclick", function(e) {
 		if(e.target && e.target.matches("li.file")) {
 			fileManager.openFile(e.target.id);
 			ucleTabs.addTab({title: ucleTabs.getFileName(e.target.id), fullPath: e.target.id},true);		
+		} else if((e.target.matches("i") || e.target.matches("span")) && e.target.parentNode.matches("li.file")) {
+			fileManager.openFile(e.target.parentNode.id);
+			ucleTabs.addTab({title: ucleTabs.getFileName(e.target.parentNode.id), fullPath: e.target.parentNode.id},true);			
 		}
 	});
 
 	openedFiles.addEventListener("dblclick", function(e) {
-		if (e.target.matches("div.file")) {
+		if ((e.target.matches("div.file") || e.target.matches("span"))) {
 			ucleTabs.setCurrentTabByPath(e.target.title);
 		}
 	});
 
-
-
 	openedFiles.addEventListener("contextmenu", function(e) {
-		if (e.target.matches("div.file")) {
-			var contextMenu = new Menu();
-
-			contextMenu.append(new MenuItem({
-				click() {
-					ucleTabs.closeTabByPath(e.target.title);
-				},
-				label: "Close opened file"
-			}));
-
-			contextMenu.popup(remote.getCurrentWindow());
-		}
+		template = require('./menus').contextOpenedFiles(fileManager, ucleTabs, e);
+		const menu = Menu.buildFromTemplate(template);
+		menu.popup(remote.getCurrentWindow());
 	});
 
 	document.getElementById("file-explorer").addEventListener("click", function(e) {
@@ -349,7 +342,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 		if(style.display == "none") {
 			tools.style.display = "inline-block";
-			tools.style.width = "20%";
+			tools.style.width = "18%";
 		} else {
 			tools.style.display = "none";
 			tools.style.width = "0%";
@@ -403,7 +396,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				simRunning = true;
 				ucleTabs.simRunning= true;
 				fileManager.simRunning = true;
-				editor.updateOptions({readOnly: true});
+				editor.updateOptions({readOnly: true, selectionHighlight: false});
 				var filePath = ucleTabs.currentTab.querySelector('.ucle-tab-file-path').textContent;
 
 				var data = ucleServer.runSim(filePath, ucleTabs.currentTabModel);
@@ -427,7 +420,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			line = 1;
 			address = 0;
 
-			editor.updateOptions({readOnly: false});
+			editor.updateOptions({readOnly: false, selectionHighlight: true});
 			clearRegisterInfo();
 			ucleServer.stopSim(ucleTabs.currentTabModel);
 			ucleServer.removeHighLight(ucleTabs.currentTabModel);
@@ -497,7 +490,6 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 			if(json.location) {
 				address = json.location;
-				console.log(address);
 			}
 
 			if(json.type == "register_info") {
@@ -543,7 +535,9 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		var length = registerJSON.length;
 
 		for(var i = 0; i < length; i++) {
-			if(registerJSON[i][0] == "SR") {
+			if(registerJSON[i][0] == "R7") {
+				registerJSON.splice(i,1);
+			} else if(registerJSON[i][0] == "SR") {
 				srRegVal = registerJSON[i][1];
 				break;
 			}

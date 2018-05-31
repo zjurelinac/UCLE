@@ -14,17 +14,22 @@ loader().then((monaco) => {
 
 	friscAssembly = require("./scripts/frisc_language")(monaco);
 
-	monaco.editor.defineTheme('myTheme', {
+	monaco.editor.defineTheme('lightTheme', {
 		base: 'vs',
 		inherit: true,
 		rules: [{ background: 'EDF9FA' }],
 		colors: {
+			'editor.foreground': '#000000',
 			'editor.background': '#f2f2f2',
+			'editorCursor.foreground': '#8B0000',
+			'editor.lineHighLightBackground': '#0000FF20',
+			'editorLineNumber.foreground': '#008800',
+			'editor.selectrionBackground': '#88000030',
 			'editor.inactiveSelectionBackground': '#88000015'
 		}
 	});
 
-	monaco.editor.setTheme('myTheme');
+	monaco.editor.setTheme('lightTheme');
 
 	var editor = monaco.editor.create(document.getElementById('editor'), {
 				contextmenu: false,
@@ -68,6 +73,10 @@ loader().then((monaco) => {
 		var explorer = document.getElementById('explorer');
 		var removedFilePath = e.detail.tabEl.querySelector('.ucle-tab-file-path').textContent;
 		var folder = document.getElementById("open-" + removedFilePath);
+		
+		var listedFiles = document.getElementById("listed-files");
+		var styleAdded = window.getComputedStyle(folder , null);
+		listedFiles.style.height = parseInt(listedFiles.style.height, 10) + parseInt(styleAdded.height, 10) + 9 + "px";
 
 		folder.parentNode.removeChild(folder);
 
@@ -84,7 +93,13 @@ loader().then((monaco) => {
 		explorer.children[0].className = "explorer-ico-opened";
 
 		document.getElementById("opened-files").innerHTML += '<div id="open-' + addedFilePath + '" class="file" title="' + 
-		                                                     addedFilePath + '"><i class="file-ico"></i>'+ addedFileName + '</div>';
+		                                                     addedFilePath + '"><i class="file-ico"></i><span class="text-wrapper">'+ addedFileName + '</span></div>';
+
+		var listedFiles = document.getElementById("listed-files");
+		var addedFile = document.getElementById("open-" + addedFilePath);
+		var styleAdded = window.getComputedStyle(addedFile , null);
+
+		listedFiles.style.height = Math.ceil(parseInt(listedFiles.style.height, 10) - parseInt(styleAdded.height, 10) - 9) + "px";
 	});
 
 	el.addEventListener('tabClose', function(e) {

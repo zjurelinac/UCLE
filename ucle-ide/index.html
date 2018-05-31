@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>UCLE</title>
 		<link rel="stylesheet" href="./style/ucle-tabs.css">
 		<link rel="stylesheet" href="./style/quick-tools.css">
@@ -35,7 +36,7 @@
 			<div id="explorer" class="explorer"><i class="explorer-ico-closed"></i>Opened files</div>
 			<div id="opened-files"></div>
 			<div id="workspace" class="explorer"><i class="explorer-ico-opened"></i>Workspace</div>
-			<div id="listed-files">
+			<div id="listed-files" style="height:648px">
 				<div id="workspace-text">You haven't added any folders to the workspace.</div>
 				<button id="openbtn" type="button">Open folder</button>
 			</div>
@@ -47,17 +48,18 @@
 				<div class="ucle-tabs-bottom-bar"></div>
 			</div>
 			<div id="editor"></div>
-			<div id="line-tab"></div>
 		</div>
 
+		<div id="line-tab"></div>
+
 		<div id="show-sim">
-		<table id="registers">
-			<tr>
-				<th>Register/Flag name</th>
-				<th>Register/Flag value</th>
-			</tr>
-		</table>
-	</div>
+			<table id="registers">
+				<tr>
+					<th>Register/Flag name</th>
+					<th>Register/Flag value</th>
+				</tr>
+			</table>
+		</div>
 
 		<script>
 			require('./renderer');
