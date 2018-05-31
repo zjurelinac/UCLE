@@ -38,7 +38,6 @@ int main() {
     auto spaces  = space + N;
     auto spaces_ = space * N;
 
-    // auto sep    = comma / space;
     auto cm_sep = spaces_ >> comma >> spaces_;
     auto lp_sep = lparens >> spaces_;
     auto rp_sep = spaces_ >> rparens;
@@ -75,19 +74,21 @@ int main() {
     auto num_const        = bin_const / oct_const / dec_const / hex_const >= "num_const";
     auto signed_num_const = opt(sign) >> num_const                        >= "signed_num_const";
 
-    auto immediate = signed_num_const / label >= "immediate";
+    auto immediate = signed_num_const / label;
 
     auto gp_reg  = (ilit("R") >> cls({'0', '7'})) / ilit("SP") >= "gp_reg";
     auto sr_reg  = ilit("SR")                                  >= "sr_reg";
 
     auto reg_off = gp_reg >> spaces_ >> sign >> spaces_ >> immediate >= "reg_off";
 
-    auto alu_operand = gp_reg / immediate           >= "alu_operand";
-    auto mem_operand = reg_off / gp_reg / immediate >= "mem_operand";
-    auto mov_operand = gp_reg / sr_reg / immediate  >= "mov_operand";
+    auto alu_operand = gp_reg / immediate;
+    auto mem_operand = reg_off / gp_reg / immediate;
+    auto mov_operand = gp_reg / sr_reg / immediate;
 
-    auto ind_jmp_target = lp_sep >> gp_reg >> rp_sep                >= "ind_jmp_target";
-    auto jmp_target     = signed_num_const / label / ind_jmp_target >= "jmp_target";
+    auto ind_jmp_target = lp_sep >> gp_reg >> rp_sep;
+    auto jmp_target     = signed_num_const / label / ind_jmp_target;
+
+    auto addr = lp_sep >> mem_operand >> rp_sep;
 
     auto cond_flag = ilit("ULE") / ilit("ULT") / ilit("UGE") / ilit("UGT") /
                      ilit("SLE") / ilit("SLT") / ilit("SGE") / ilit("SGT") /
@@ -96,6 +97,9 @@ int main() {
                      ilit("M")   / ilit("P")   / ilit("EQ")  / ilit("NE");
 
     auto condition = opt(undersc >> cond_flag) >= "condition";
+
+    auto def_item = (num_const >> cm_sep) / num_const;
+    auto def_list = def_item + N >= "def_list";
 
     auto alu_opcode = ilit("ADD") / ilit("ADC") / ilit("SUB") / ilit("SBC") / ilit("AND") / ilit("OR")  / ilit("XOR") /
                       ilit("SHL") / ilit("SHR") / ilit("ASHR") / ilit("ROTL") / ilit("ROTR")                         >= "alu_opcode";
@@ -111,25 +115,13 @@ int main() {
     auto dsp_opcode = ilit("DS")                           >= "dsp_opcode";
     auto dat_opcode = ilit("DW") / ilit("DH") / ilit("DB") >= "dat_opcode";
 
-    auto src1 = gp_reg          >= "src1";
-    auto src2 = alu_operand     >= "src2";
-    auto dest = gp_reg          >= "dest";
-    auto msrc = mov_operand     >= "msrc";
-    auto mdst = gp_reg / sr_reg >= "mdst";
-
-    auto reg  = gp_reg                          >= "reg";
-    auto addr = lp_sep >> mem_operand >> rp_sep >= "addr";
-
-    auto def_item = (num_const >> cm_sep) / num_const;
-    auto def_list = def_item + N >= "def_list";
-
-    auto alu_instr = alu_opcode >> spaces >> src1 >> cm_sep >> src2 >> cm_sep >> dest   >= "alu_instr";
-    auto cmp_instr = cmp_opcode >> spaces >> src1 >> cm_sep >> src2                     >= "cmp_instr";
-    auto mov_instr = mov_opcode >> spaces >> msrc >> cm_sep >> mdst                     >= "mov_instr";
-    auto mem_instr = mem_opcode >> spaces >> reg  >> cm_sep >> addr                     >= "mem_instr";
-    auto stk_instr = stk_opcode >> spaces >> reg                                        >= "stk_instr";
-    auto jmp_instr = jmp_opcode >> condition >> spaces >> jmp_target                    >= "jmp_instr";
-    auto ret_instr = ret_opcode >> condition                                            >= "ret_instr";
+    auto alu_instr = alu_opcode >> spaces >> gp_reg >> cm_sep >> alu_operand >> cm_sep >> gp_reg >= "alu_instr";
+    auto cmp_instr = cmp_opcode >> spaces >> gp_reg >> cm_sep >> alu_operand                     >= "cmp_instr";
+    auto mov_instr = mov_opcode >> spaces >> mov_operand >> cm_sep >> (gp_reg / sr_reg)          >= "mov_instr";
+    auto mem_instr = mem_opcode >> spaces >> gp_reg >> cm_sep >> addr                            >= "mem_instr";
+    auto stk_instr = stk_opcode >> spaces >> gp_reg                                              >= "stk_instr";
+    auto jmp_instr = jmp_opcode >> condition >> spaces >> jmp_target                             >= "jmp_instr";
+    auto ret_instr = ret_opcode >> condition                                                     >= "ret_instr";
 
     auto equ_instr = equ_opcode >> spaces >> immediate >= "equ_instr";
     auto org_instr = org_opcode >> spaces >> immediate >= "org_instr";
@@ -226,12 +218,16 @@ int main() {
     //// Whole file
 
 auto file_test = R"(
-    ; a comment
     MOVE 1000, SP
-    JP MAIN
-
-MAIN  ; a main program
+    ADD R0, 0, R1
+    XOR R2, R2, R2
+    LOAD R3, (1000)
+    LOAD R4, (LABEL)
+    LOAD R5, (SP+4)
+    LOAD R6, (SP-8)
+    LOAD R7, (SP)
     CALL F
+    JP (R0)
 
     dw 20, 30, 40
 )";
