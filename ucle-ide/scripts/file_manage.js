@@ -145,9 +145,9 @@ class FileManager {
 			document.getElementById('workspace-text').style.display = "none";
 			document.getElementById('workspace').children[0].className = "explorer-ico-opened";
 			document.getElementById('listed-files').innerHTML += '<div id="div-' + filePath + '" class="file-wrapper" ><div id="'
-                                                              + filePath + '" title="' + filePath  +
-                                                              '" class="dir"><i class="dir-ico-closed" style="margin-left:10px"></i>' + dirName + '</div><ul id="' + listID + 
-                                                              '"style="width:100%" class="hide"></ul></div>';
+															  + filePath + '" title="' + filePath  +
+															  '" class="dir"><i class="dir-ico-closed" style="margin-left:10px"></i>' + dirName + '</div><ul id="' + listID + 
+															  '"style="width:100%" class="hide"></ul></div>';
 		}
 
 		if(list == null || list.innerHTML == "") {
@@ -159,6 +159,14 @@ class FileManager {
 	removeFolder(filePath) {
 		var folder = document.getElementById("div-" + filePath);
 		folder.parentNode.removeChild(folder);
+	}
+
+	renameFile(oldPath, newPath) {
+		fs.rename(oldPath, newPath, function(err) {
+			if(err) {
+				throw err
+			}
+		});
 	}
 }
 

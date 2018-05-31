@@ -305,7 +305,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	});
 
 	listedFiles.addEventListener("contextmenu", function(e) {
-		template = require('./menus').contextWorkspace(fileManager, e);
+		template = require('./menus').contextWorkspace(fileManager, ucleTabs, e);
 		const menu = Menu.buildFromTemplate(template);
 		menu.popup(remote.getCurrentWindow());
 		clickedElement = null;

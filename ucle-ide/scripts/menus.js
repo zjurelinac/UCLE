@@ -162,7 +162,45 @@ module.exports = {
 			];
 		},
 	contextWorkspace:
-		(fileManager, e) => {
+		(fileManager, ucleTabs, e) => {
+
+			function promptInputAndRename(parent, child) {
+				var input = document.createElement("input");
+				input.value = child.innerHTML;
+				parent.replaceChild(input, child);
+				input.addEventListener('focus',function(e){
+					var splitInput = input.value.split(".");
+					if(splitInput.length > 1 && splitInput[0] != "") {
+						this.setSelectionRange(0, splitInput[0].length);
+					} else {
+						this.select();
+					}
+				});
+				input.focus();
+				input.addEventListener('keyup',function(e){
+					if(e.which == 13) this.blur();
+				});
+				input.addEventListener("blur", function(e) {
+					var newName = input.value;
+					var oldPath = parent.id;
+					var newPath = parent.id.replace(/[^\/]*$/, '') + newName;
+					child.innerHTML = newName;
+					parent.id = newPath;
+					parent.title = newPath;
+					parent.replaceChild(child, input);
+					fileManager.renameFile(oldPath, newPath);
+					if(ucleTabs.currentTab && (ucleTabs.currentTab.querySelector('.ucle-tab-file-path').textContent == oldPath)) {
+						ucleTabs.updateTab(ucleTabs.currentTab, {title: newName, fullPath: newPath});
+						ucleTabs.updateTabContent(ucleTabs.currentTab);
+						var opened = document.getElementById("open-" + oldPath);
+						opened.id = "open-" + newPath;
+						opened.title = newPath;
+						opened.children[1].innerHTML = newName;
+					}
+				});
+			}
+
+
 			return [
 				{
 					click() {
@@ -190,24 +228,9 @@ module.exports = {
 				{
 					click() {
 						if(e.target.matches("li.file")) {
-							var input = document.createElement("input");
-							input.value = e.target.children[1].innerHTML;
-							var child = e.target.children[1];
-							var parent = e.target;
-							parent.replaceChild(input, child);
-							input.addEventListener('focus',function(e){
-								console.log("usao");
-								this.select();
-							});
-							input.focus();
-							input.addEventListener('keyup',function(e){
-								if(e.which == 13) this.blur();
-							});
-							input.addEventListener("blur", function(e) {
-								child.innerHTML = input.value;
-								parent.replaceChild(child, input);
-							});
+							promptInputAndRename(e.target, e.target.children[1], fileManager);
 						} else if((e.target.matches("i") || e.target.matches("span")) && e.target.parentNode.matches("li.file")) {
+							promptInputAndRename(e.target.parentNode, e.target.parentNode.children[1], ucleTabs);
 						}
 					},
 					label: "Rename file"
