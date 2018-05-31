@@ -305,10 +305,17 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	});
 
 	listedFiles.addEventListener("contextmenu", function(e) {
-		template = require('./menus').contextWorkspace(fileManager, ucleTabs, e);
-		const menu = Menu.buildFromTemplate(template);
-		menu.popup(remote.getCurrentWindow());
-		clickedElement = null;
+		if(e.target.matches("div.dir")) {
+			template = require('./menus').contextWorkspace(fileManager, e);
+			const menu = Menu.buildFromTemplate(template);
+			menu.popup(remote.getCurrentWindow());
+			clickedElement = null;
+		} else {
+			template = require('./menus').contextWorkspaceFiles(fileManager, ucleTabs, e);
+			const menu = Menu.buildFromTemplate(template);
+			menu.popup(remote.getCurrentWindow());
+			clickedElement = null;
+		}
 	});
 
 	listedFiles.addEventListener("dblclick", function(e) {

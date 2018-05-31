@@ -1,4 +1,5 @@
 const dialog = require('electron').dialog;
+const remote = require('electron').remote;
 
 module.exports = {
 	contextMain:
@@ -162,6 +163,40 @@ module.exports = {
 			];
 		},
 	contextWorkspace:
+		(fileManager, e) => {
+
+			function removeFolder(folder) {
+				console.log(folder);
+				fileManager.removeFolder(folder.id); 
+				if(!document.querySelector('[id^="div-"')) {
+					document.getElementById('workspace-text').style.display = "inline-block";
+					var button = document.getElementById("openbtn");
+					document.getElementById("quick-tools").style.whiteSpace = "initial";
+					button.style.display = "block";
+					button.addEventListener("click", function(e) {
+						if(fileManager.openDirectory()) {
+							document.getElementById("quick-tools").style.whiteSpace = "nowrap";
+						}
+					});
+				}
+			}
+
+			return [
+				{
+					click() {
+						removeFolder(e.target);
+					},
+					label: "Remove folder from workspace"
+				},
+				{
+					click() {
+						console.log("soadk");
+					},
+					label: "Add a new file"
+				},
+			];
+		},
+	contextWorkspaceFiles:
 		(fileManager, ucleTabs, e) => {
 
 			function promptInputAndRename(parent, child) {
@@ -182,16 +217,16 @@ module.exports = {
 				});
 				input.addEventListener("blur", function(e) {
 					var newName = input.value;
-					var oldPath = parent.id;
 					var newPath = parent.id.replace(/[^\/]*$/, '') + newName;
+					var oldPath = parent.id;
 					child.innerHTML = newName;
 					parent.id = newPath;
 					parent.title = newPath;
 					parent.replaceChild(child, input);
 					fileManager.renameFile(oldPath, newPath);
-					if(ucleTabs.currentTab && (ucleTabs.currentTab.querySelector('.ucle-tab-file-path').textContent == oldPath)) {
-						ucleTabs.updateTab(ucleTabs.currentTab, {title: newName, fullPath: newPath});
-						ucleTabs.updateTabContent(ucleTabs.currentTab);
+					if(ucleTabs.checkIfTabOpened(oldPath)) {
+						ucleTabs.updateTab(ucleTabs.getTabByPath(oldPath), {title: newName, fullPath: newPath});
+						ucleTabs.updateTabContent(ucleTabs.getTabByPath(oldPath));
 						var opened = document.getElementById("open-" + oldPath);
 						opened.id = "open-" + newPath;
 						opened.title = newPath;
@@ -200,40 +235,43 @@ module.exports = {
 				});
 			}
 
+			function deleteFile(file) {
+				var type = "question";
+				var buttons = ['No','Yes'];
+				var message = 'Are you sure you want to delete the file?\nUnsaved progress will be lost!';
+				var defaultId = 0;
+				var response = remote.dialog.showMessageBox({message, type, buttons, defaultId});
+
+				if(response) {
+					fileManager.deleteFile(file.id);
+					if(ucleTabs.checkIfTabOpened(file.id)) {
+						ucleTabs.removeTab(ucleTabs.getTabByPath(file.id));
+					}
+					file.parentNode.removeChild(file);
+				}
+			}
+
 
 			return [
 				{
-					click() {
-						fileManager.removeFolder(e.target.id); 
-						if(!document.querySelector('[id^="div-"')) {
-							document.getElementById('workspace-text').style.display = "inline-block";
-							var button = document.getElementById("openbtn");
-							document.getElementById("quick-tools").style.whiteSpace = "initial";
-							button.style.display = "block";
-							button.addEventListener("click", function(e) {
-								if(fileManager.openDirectory()) {
-									document.getElementById("quick-tools").style.whiteSpace = "nowrap";
-								}
-							});
-						}
-					},
-					label: "Remove folder from workspace"
-				},
-				{
-					click() {
-						console.log("soadk");
-					},
-					label: "Add a new file"
-				},
-				{
+					label: "Rename",
 					click() {
 						if(e.target.matches("li.file")) {
 							promptInputAndRename(e.target, e.target.children[1], fileManager);
 						} else if((e.target.matches("i") || e.target.matches("span")) && e.target.parentNode.matches("li.file")) {
 							promptInputAndRename(e.target.parentNode, e.target.parentNode.children[1], ucleTabs);
 						}
-					},
-					label: "Rename file"
+					}
+				},
+				{
+					label: "Delete",
+					click() {
+						if(e.target.matches("li.file")) {
+							deleteFile(e.target);
+						} else if((e.target.matches("i") || e.target.matches("span")) && e.target.parentNode.matches("li.file")) {
+							deleteFile(e.target.parentNode);
+						}
+					}
 				}
 			];
 		},

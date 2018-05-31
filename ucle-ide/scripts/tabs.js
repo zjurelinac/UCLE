@@ -330,6 +330,25 @@ class UCLETabs {
 		}
 		return true;
 	}
+	
+	checkIfTabOpened(path) {
+		return this.tabEls.some(function(tab) {
+			if(tab.querySelector('.ucle-tab-file-path').textContent == path) {
+				return true;
+			}
+		});
+	}
+
+	getTabByPath(path) {
+		var openedTab = null;
+		this.tabEls.forEach(function(tab) {
+			if(tab.querySelector('.ucle-tab-file-path').textContent == path) {
+				openedTab = tab;
+				return;
+			}
+		});
+		return openedTab;
+	}
 
 	addTab(tabProperties, start = false) {
 		if(this.checkIfAlreadyOpen(tabProperties) || this.simRunning) return;
