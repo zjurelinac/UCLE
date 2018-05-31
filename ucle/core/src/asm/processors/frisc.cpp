@@ -11,18 +11,17 @@
 using namespace ucle;
 using namespace ucle::parsley;
 
-// namespace dbg {
-//     void indent(int level) { for (int i = 0; i < level; ++i) printf("  "); }
+namespace dbg {
+    void indent(int level) { for (int i = 0; i < level; ++i) printf("  "); }
 
-//     void print_parse_info(const parsley::parse_info& pi, unsigned depth = 1)
-//     {
-//         indent(depth);
-//         fmt::print("<{}> {}\n", pi.symbol_name.length() > 0 ? pi.symbol_name : "unnamed", pi.contents.length() > 0 ? pi.contents : "");
-//         for (const auto& child : pi.children)
-//             print_parse_info(child, depth + 1);
-//     }
-
-// }
+    void print_parse_info(const parsley::parse_details& pi, unsigned depth = 1)
+    {
+        indent(depth);
+        fmt::print("<{}> {}\n", pi.symbol_name.length() > 0 ? pi.symbol_name : "unnamed", pi.contents.length() > 0 ? pi.contents : "");
+        for (const auto& child : pi.children)
+            print_parse_info(child, depth + 1);
+    }
+}
 
 std::string asr::frisc_assembler::read_file_(std::string filename)
 {
@@ -32,10 +31,10 @@ std::string asr::frisc_assembler::read_file_(std::string filename)
     return contents;
 }
 
-std::vector<parse_info> asr::frisc_assembler::parse_lines_(std::string_view contents)
+std::vector<parse_details> asr::frisc_assembler::parse_lines_(std::string_view contents)
 {
     auto lines = util::split(contents, [](auto c){ return c == '\n'; });
-    std::vector<parse_info> results;
+    std::vector<parse_details> results;
 
     for (auto i = 0u; i < lines.size(); ++i) {
         auto res = parser_->parse(lines[i]);
@@ -49,7 +48,7 @@ std::vector<parse_info> asr::frisc_assembler::parse_lines_(std::string_view cont
     return results;
 }
 
-asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse_info>& parsed_lines)
+asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse_details>& parsed_lines)
 {
     std::vector<asr::line_info<>> lines;
     label_table labels;
@@ -57,11 +56,11 @@ asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse
     address32_t current_addr = 0;
 
     for (const auto& line : parsed_lines) {
-        auto line_instr = line["line_instr"];
+        auto& line_instr = line["line_instr"];
 
         // TODO: Unduplicate
         if (line_instr.empty()) {
-            lines.push_back({ line, current_addr });
+            lines.push_back({ current_addr, line });
 
             if (!line["line_label"].empty())
                 labels[line["line_label"].contents] = current_addr;
@@ -69,10 +68,10 @@ asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse
             continue;
         }
 
-        auto exact_instr = line_instr["any_instr"][0][0];
+        auto& exact_instr = line_instr["any_instr"][0][0];
 
         if (exact_instr == "org_instr") {
-            address32_t new_addr = parse_num_const_(exact_instr["num_const"]);
+            address32_t new_addr = parse_num_const(exact_instr["num_const"]);
 
             if (new_addr != cbu::address_rounded(new_addr, 4))
                 throw logical_error(fmt::format("Impossible origin (ORG {}), not rounded to a multiple of 4.", new_addr));
@@ -83,7 +82,7 @@ asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse
             current_addr = new_addr;
         }
 
-        lines.push_back({ line, current_addr });
+        lines.push_back({ current_addr, line });
 
         if (!line["line_label"].empty())
             labels[line["line_label"].contents] = current_addr;
@@ -91,7 +90,7 @@ asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse
         if (line_instr["any_instr"][0] == "psd_instr") {
 
             if (exact_instr == "dsp_instr") {
-                address32_t offset = parse_num_const_(exact_instr["num_const"]);
+                address32_t offset = parse_num_const(exact_instr["num_const"]);
                 current_addr += offset;
             } else if (exact_instr == "dat_instr") {
                 throw unimplemented_error("Data-def instructions not yet implemented.");
@@ -104,12 +103,37 @@ asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse
     return { lines, labels };
 }
 
+asr::second_pass_result asr::frisc_assembler::second_pass_(const std::vector<asr::line_info<>>& lines, const label_table& labels)
+{
+    for (auto i = 0u; i < lines.size(); ++i) {
+        const auto [address, parsed] = lines[i];
+
+        if (parsed["line_instr"].empty())
+            continue;
+
+        const auto& instr_class = parsed["line_instr"]["any_instr"][0];
+
+        dbg::print_parse_info(instr_class);
+
+        if (instr_class == "psd_instr") {
+
+        }
+
+        // try {
+
+        // } catch () {
+
+        // }
+    }
+}
+
 void asr::frisc_assembler::assemble(std::string filename)
 {
     try {
         auto contents = read_file_(filename);
         auto parsed_lines = parse_lines_(contents);
         auto [addressed_lines, labels] = first_pass_(parsed_lines);
+        auto assemble_results = second_pass_(addressed_lines, labels);
 
         for (const auto& al : addressed_lines)
             fmt::print("@{} :: {}\n", al.address, al.parsed.contents);
@@ -118,6 +142,7 @@ void asr::frisc_assembler::assemble(std::string filename)
             fmt::print("* {} => {}\n", label, addr);
 
         // Second pass - actual assembling
+
     } catch (std::exception& e) {
         fmt::print_colored(stderr, fmt::RED, "{}\n", e.what());
     }
@@ -241,9 +266,9 @@ void asr::frisc_assembler::init_parser_()
     auto dsp_instr = dsp_opcode >> spaces >> num_const >= "dsp_instr";
     // auto dat_instr = dat_opcode >> spaces >>
 
-    auto ord_instr = alu_instr / mem_instr / mov_instr / stk_instr / jmp_instr / ret_instr >= "ord_instr";
+    auto reg_instr = alu_instr / mem_instr / mov_instr / stk_instr / jmp_instr / ret_instr >= "reg_instr";
     auto psd_instr = equ_instr / org_instr / dsp_instr                                     >= "psd_instr";
-    auto any_instr = psd_instr / ord_instr                                                 >= "any_instr";
+    auto any_instr = psd_instr / reg_instr                                                 >= "any_instr";
 
     auto line_label   = label / eps()                            >= "line_label";
     auto line_comment = (semicol >> (~eol >> any()) * N) / eps() >= "line_comment";
@@ -256,7 +281,7 @@ void asr::frisc_assembler::init_parser_()
     parser_ = line;
 }
 
-int asr::frisc_assembler::parse_num_const_(parse_info num_const)
+int asr::parse_num_const(parse_details num_const)
 {
     if (num_const != "num_const")
         throw parse_error("Cannot parse num_const - incorrect symbol type.");

@@ -12,16 +12,18 @@ namespace ucle::asr {
     struct line_info {
         using address_type = AddressType;
 
-        parsley::parse_info parsed;
-        address_type        address { 0 };
+        address_type address { 0 };
+        parsley::parse_details parsed;
     };
 
     using label_table = std::unordered_map<std::string_view, address32_t>;
 
     using first_pass_result = std::pair<std::vector<line_info<>>, label_table>;
+    using second_pass_result = std::vector<std::pair<address32_t, word_t>>;
 
     class parse_error : public base_exception { using base_exception::base_exception; };
     class logical_error : public base_exception { using base_exception::base_exception; };
+    class semantic_error : public base_exception { using base_exception::base_exception; };
     class unimplemented_error : public base_exception { using base_exception::base_exception; };
 
     // class assembler {

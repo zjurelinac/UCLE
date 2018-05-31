@@ -6,7 +6,7 @@ using namespace ucle::parsley;
 
 void indent(int level) { for (int i = 0; i < level; ++i) printf("  "); }
 
-void print_parse_info(const parse_info& pi, unsigned depth = 1)
+void print_parse_info(const parse_details& pi, unsigned depth = 1)
 {
     indent(depth);
     fmt::print("<{}> {}\n", pi.symbol_name.length() > 0 ? pi.symbol_name : "unnamed", pi.contents.length() > 0 ? pi.contents : "");
@@ -67,10 +67,10 @@ int main() {
 
     auto label = id >= "label";
 
-    auto bin_const = bin_mod >> spaces >> bin_num      >= "bin_const";
-    auto oct_const = oct_mod >> spaces >> oct_num      >= "oct_const";
-    auto dec_const = dec_mod >> spaces >> dec_num      >= "dec_const";
-    auto hex_const = opt(hex_mod >> spaces) >> hex_num >= "hex_const";
+    auto bin_const = bin_mod >> spaces >> bin_num;
+    auto oct_const = oct_mod >> spaces >> oct_num;
+    auto dec_const = dec_mod >> spaces >> dec_num;
+    auto hex_const = opt(hex_mod >> spaces) >> hex_num;
 
     auto num_const        = bin_const / oct_const / dec_const / hex_const >= "num_const";
     auto signed_num_const = opt(sign) >> num_const                        >= "signed_num_const";
@@ -120,8 +120,8 @@ int main() {
     auto reg  = gp_reg                          >= "reg";
     auto addr = lp_sep >> mem_operand >> rp_sep >= "addr";
 
-    // auto def_item =
-    // auto def_list =
+    auto def_item = (num_const >> cm_sep) / num_const;
+    auto def_list = def_item + N >= "def_list";
 
     auto alu_instr = alu_opcode >> spaces >> src1 >> cm_sep >> src2 >> cm_sep >> dest   >= "alu_instr";
     auto cmp_instr = cmp_opcode >> spaces >> src1 >> cm_sep >> src2                     >= "cmp_instr";
@@ -131,14 +131,14 @@ int main() {
     auto jmp_instr = jmp_opcode >> condition >> spaces >> jmp_target                    >= "jmp_instr";
     auto ret_instr = ret_opcode >> condition                                            >= "ret_instr";
 
-    // TODO: Pseudo instructions
-
     auto equ_instr = equ_opcode >> spaces >> immediate >= "equ_instr";
     auto org_instr = org_opcode >> spaces >> immediate >= "org_instr";
     auto dsp_instr = dsp_opcode >> spaces >> immediate >= "dsp_instr";
-    // auto dat_instr = dat_opcode >> spaces >>
+    auto dat_instr = dat_opcode >> spaces >> def_list  >= "dat_instr";
 
-    auto any_instr = alu_instr / mem_instr / mov_instr / stk_instr / jmp_instr / ret_instr >= "any_instr";
+    auto reg_instr = alu_instr / mem_instr / mov_instr / stk_instr / jmp_instr / ret_instr >= "reg_instr";
+    auto psd_instr = equ_instr / org_instr / dsp_instr / dat_instr                         >= "psd_instr";
+    auto any_instr = psd_instr / reg_instr;
 
     auto line_label   = label / eps()                            >= "line_label";
     auto line_comment = (semicol >> (~eol >> any()) * N) / eps() >= "line_comment";
@@ -232,6 +232,8 @@ auto file_test = R"(
 
 MAIN  ; a main program
     CALL F
+
+    DW 20, 30, 40
 )";
 
 /*
@@ -243,11 +245,11 @@ F   PUSH R0
 
     try_parse(file, file_test);
 
-    /// Visitors
+    // /// Visitors
 
-    visitor v;
+    // visitor v;
 
-    v["line"] = [](auto& v) { fmt::print("A line!\n"); return nullptr; };
+    // v["line"] = [](auto& v) { fmt::print("A line!\n"); return nullptr; };
 
-    v.visit(file->parse(file_test));
+    // v.visit(file->parse(file_test));
 }
