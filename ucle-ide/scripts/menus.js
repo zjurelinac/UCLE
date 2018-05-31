@@ -1,6 +1,58 @@
 const dialog = require('electron').dialog;
 const remote = require('electron').remote;
 
+
+function promptInputAndAdd(parent, fileManager, ucleTabs, index, path) {
+	var file = document.createElement("li");
+	file.className = "file";
+
+	var fileName = document.createElement("input");
+
+	var ico = document.createElement("i");
+	ico.className = "file-ico";
+
+	file.appendChild(ico);
+	file.appendChild(fileName);
+	file.appendChild(fileName);
+	parent.parentNode.children[index].appendChild(file);
+
+	let elements = parent.parentNode.children[index].getElementsByTagName("li");
+
+	var parentNode = parent.parentNode.children[index].parentNode.firstChild;
+
+	if(parentNode && parentNode.firstChild.style) {
+		for(var i = 0; i < elements.length; i++) {
+			elements[i].getElementsByTagName("i")[0].style.marginLeft = parseInt(parentNode.firstChild.style.marginLeft, 10) + 15 + "px";
+		}
+	}
+
+	fileName.focus();
+	fileName.addEventListener('keyup',function(e){
+		if(e.which == 13) this.blur();
+	});
+
+	fileName.addEventListener("blur", function(e) {
+		if(fileName.value == "") {
+			parent.parentNode.children[index].removeChild(file);
+			return;
+		}
+		var newFileName = fileName.value;
+		var newFilePath = path + '/' + newFileName;
+
+		file.id = newFilePath;
+		file.title = newFilePath;
+
+		var child = document.createElement("span");
+		child.innerHTML = newFileName;
+
+		file.replaceChild(child, fileName);
+
+		fileManager.saveFile(newFilePath);
+		ucleTabs.addTab({title: newFileName, fullPath: newFilePath});
+	});
+}
+
+
 module.exports = {
 	contextMain:
 		(mainWindow) => {
@@ -163,7 +215,7 @@ module.exports = {
 			];
 		},
 	contextWorkspace:
-		(fileManager, e) => {
+		(fileManager, ucleTabs, e) => {
 
 			function removeFolder(folder) {
 				console.log(folder);
@@ -184,16 +236,32 @@ module.exports = {
 			return [
 				{
 					click() {
-						removeFolder(e.target);
+						removeFolder(e.target, fileManager, ucleTabs);
 					},
 					label: "Remove folder from workspace"
 				},
 				{
 					click() {
-						console.log("soadk");
+						e.target.children[0].className = "dir-ico-opened";
+						e.target.parentNode.children[1].className = "";
+						promptInputAndAdd(e.target, fileManager, ucleTabs, 1, e.target.title);
 					},
 					label: "Add a new file"
-				},
+				}
+			];
+		},
+	contextWorkspaceDir:
+		(fileManager, ucleTabs, e) => {
+			return [
+				{
+					click() {
+						var index = Array.from(e.target.parentNode.children).indexOf(e.target);
+						e.target.children[0].className = "dir-ico-opened";
+						e.target.parentNode.children[index + 1].className = "";
+						promptInputAndAdd(e.target.parentNode.children[index + 1], fileManager, ucleTabs, index+1, e.target.title);
+					},
+					label: "Add a new file"
+				}
 			];
 		},
 	contextWorkspaceFiles:
@@ -250,7 +318,6 @@ module.exports = {
 					file.parentNode.removeChild(file);
 				}
 			}
-
 
 			return [
 				{
