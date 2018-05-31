@@ -12,8 +12,6 @@ namespace ucle::util {
     using char_predicate = std::function<bool(char)>;
     using view_predicate = std::function<bool(std::string_view)>;
 
-    auto neg(char_predicate p) { return [&p](char c){ return !p(c); }; }
-
     // Predicates
 
     bool starts_with(const std::string_view& input, const std::string_view& x)
@@ -232,7 +230,7 @@ namespace ucle::util {
         std::vector<std::string_view> parts;
 
         while (!input.empty()) {
-            auto part = take_while(input, neg(p));
+            auto part = take_while(input, std::not_fn(p));
             parts.push_back(part);
 
             input = drop_while(input.substr(part.length()), p);
