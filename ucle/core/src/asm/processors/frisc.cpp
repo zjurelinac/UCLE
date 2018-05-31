@@ -42,7 +42,7 @@ std::vector<parse_details> asr::frisc_assembler::parse_lines_(std::string_view c
         if (res.status == parse_status::fail)
             throw parse_error(fmt::format("Parse error at line {} :: {}", i + 1, lines[i]));
 
-        results.push_back(res.info);
+        results.push_back(res.details);
     }
 
     return results;

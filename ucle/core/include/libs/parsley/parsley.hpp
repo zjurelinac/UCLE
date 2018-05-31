@@ -82,7 +82,7 @@ namespace ucle::parsley {
 
     struct parse_info {
         parse_status status;
-        parse_details info;
+        parse_details details;
     };
 
     namespace parsers {
@@ -119,8 +119,8 @@ namespace ucle::parsley {
                     size_t pos = 0;
                     for (const auto& item : items_) {
                         if (auto res = item->parse(input.substr(pos)); res.status == parse_status::success) {
-                            pos += res.info.contents.length();
-                            append_child(children, res.info);
+                            pos += res.details.contents.length();
+                            append_child(children, res.details);
                         } else {
                             return { parse_status::fail, {} };
                         }
@@ -149,9 +149,9 @@ namespace ucle::parsley {
                     for (const auto& item : items_) {
                         if (auto res = item->parse(input); res.status == parse_status::success) {
                             std::vector<parse_details> children;
-                            append_child(children, res.info);
+                            append_child(children, res.details);
 
-                            return { parse_status::success, { res.info.contents, children, "" } };
+                            return { parse_status::success, { res.details.contents, children, "" } };
                         }
                     }
 
@@ -192,8 +192,8 @@ namespace ucle::parsley {
                     size_t pos = 0;
                     while (true) {
                         if (auto res = single_->parse(input.substr(pos)); res.status == parse_status::success) {
-                            pos += res.info.contents.length();
-                            append_child(children, res.info);
+                            pos += res.details.contents.length();
+                            append_child(children, res.details);
                         } else {
                             break;
                         }
@@ -219,8 +219,8 @@ namespace ucle::parsley {
                     while (true) {
                         if (auto res = single_->parse(input.substr(pos)); res.status == parse_status::success) {
                             nonce = false;
-                            pos += res.info.contents.length();
-                            append_child(children, res.info);
+                            pos += res.details.contents.length();
+                            append_child(children, res.details);
                         } else {
                             break;
                         }
@@ -368,7 +368,7 @@ namespace ucle::parsley {
                 parse_info parse(std::string_view input) override
                 {
                     auto res = parser_->parse(input);
-                    res.info.symbol_name = name_;
+                    res.details.symbol_name = name_;
                     return res;
                 }
 
@@ -453,7 +453,7 @@ namespace ucle::parsley {
     //             if (res.status == parse_status::fail)
     //                 return;
 
-    //             visit_(res.info);
+    //             visit_(res.details);
     //         }
 
     //     private:

@@ -18,7 +18,7 @@ void try_parse(const parsers::base_ptr& p, const char* input)
 {
     auto res = p->parse(input);
     fmt::print("Parsing {} :: [{}]\n", input, to_string(res.status));
-    print_parse_info(res.info);
+    print_parse_info(res.details);
 }
 
 int main() {
