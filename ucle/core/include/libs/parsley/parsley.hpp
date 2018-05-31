@@ -296,7 +296,7 @@ namespace ucle::parsley {
 
                 parse_info parse(std::string_view input) override
                 {
-                    if (util::starts_with(input, lit_))
+                    if (util::istarts_with(input, lit_))
                         return { parse_status::success, { input.substr(0, lit_len_), {}, "" } };
                     else
                         return { parse_status::fail, {} };
@@ -421,6 +421,7 @@ namespace ucle::parsley {
 
     using parsers::eps;
     using parsers::lit;
+    using parsers::ilit;
     using parsers::seq;
     using parsers::cho;
     using parsers::opt;

@@ -77,8 +77,8 @@ int main() {
 
     auto immediate = signed_num_const / label >= "immediate";
 
-    auto gp_reg  = (lit("R") >> cls({'0', '7'})) / lit("SP") >= "gp_reg";
-    auto sr_reg  = lit("SR")                                 >= "sr_reg";
+    auto gp_reg  = (ilit("R") >> cls({'0', '7'})) / ilit("SP") >= "gp_reg";
+    auto sr_reg  = ilit("SR")                                  >= "sr_reg";
 
     auto reg_off = gp_reg >> spaces_ >> sign >> spaces_ >> immediate >= "reg_off";
 
@@ -89,27 +89,27 @@ int main() {
     auto ind_jmp_target = lp_sep >> gp_reg >> rp_sep                >= "ind_jmp_target";
     auto jmp_target     = signed_num_const / label / ind_jmp_target >= "jmp_target";
 
-    auto cond_flag = lit("ULE") / lit("ULT") / lit("UGE") / lit("UGT") /
-                     lit("SLE") / lit("SLT") / lit("SGE") / lit("SGT") /
-                     lit("NC")  / lit("NV")  / lit("NN")  / lit("NZ")  /
-                     lit("C")   / lit("V")   / lit("N")   / lit("Z")   /
-                     lit("M")   / lit("P")   / lit("EQ")  / lit("NE");
+    auto cond_flag = ilit("ULE") / ilit("ULT") / ilit("UGE") / ilit("UGT") /
+                     ilit("SLE") / ilit("SLT") / ilit("SGE") / ilit("SGT") /
+                     ilit("NC")  / ilit("NV")  / ilit("NN")  / ilit("NZ")  /
+                     ilit("C")   / ilit("V")   / ilit("N")   / ilit("Z")   /
+                     ilit("M")   / ilit("P")   / ilit("EQ")  / ilit("NE");
 
     auto condition = opt(undersc >> cond_flag) >= "condition";
 
-    auto alu_opcode = lit("ADD") / lit("ADC") / lit("SUB") / lit("SBC") / lit("AND") / lit("OR")  / lit("XOR") /
-                      lit("SHL") / lit("SHR") / lit("ASHR") / lit("ROTL") / lit("ROTR")                        >= "alu_opcode";
-    auto cmp_opcode = lit("CMP")                                                                               >= "cmp_opcode";
-    auto mov_opcode = lit("MOVE")                                                                              >= "mov_opcode";
-    auto mem_opcode = lit("LOADH") / lit("LOADB") / lit("LOAD") / lit("STOREH") / lit("STOREB") / lit("STORE") >= "mem_opcode";
-    auto stk_opcode = lit("PUSH") / lit("POP")                                                                 >= "stk_opcode";
-    auto jmp_opcode = lit("JP") / lit("JR") / lit("CALL")                                                      >= "jmp_opcode";
-    auto ret_opcode = lit("RETI") / lit("RETN") / lit("RET") / lit("HALT")                                     >= "ret_opcode";
+    auto alu_opcode = ilit("ADD") / ilit("ADC") / ilit("SUB") / ilit("SBC") / ilit("AND") / ilit("OR")  / ilit("XOR") /
+                      ilit("SHL") / ilit("SHR") / ilit("ASHR") / ilit("ROTL") / ilit("ROTR")                         >= "alu_opcode";
+    auto cmp_opcode = ilit("CMP")                                                                                    >= "cmp_opcode";
+    auto mov_opcode = ilit("MOVE")                                                                                   >= "mov_opcode";
+    auto mem_opcode = ilit("LOADH") / ilit("LOADB") / ilit("LOAD") / ilit("STOREH") / ilit("STOREB") / ilit("STORE") >= "mem_opcode";
+    auto stk_opcode = ilit("PUSH") / ilit("POP")                                                                     >= "stk_opcode";
+    auto jmp_opcode = ilit("JP") / ilit("JR") / ilit("CALL")                                                         >= "jmp_opcode";
+    auto ret_opcode = ilit("RETI") / ilit("RETN") / ilit("RET") / ilit("HALT")                                       >= "ret_opcode";
 
-    auto org_opcode = lit("ORG")                        >= "org_opcode";
-    auto equ_opcode = lit("EQU")                        >= "equ_opcode";
-    auto dsp_opcode = lit("DS")                         >= "dsp_opcode";
-    auto dat_opcode = lit("DW") / lit("DH") / lit("DB") >= "dat_opcode";
+    auto org_opcode = ilit("ORG")                          >= "org_opcode";
+    auto equ_opcode = ilit("EQU")                          >= "equ_opcode";
+    auto dsp_opcode = ilit("DS")                           >= "dsp_opcode";
+    auto dat_opcode = ilit("DW") / ilit("DH") / ilit("DB") >= "dat_opcode";
 
     auto src1 = gp_reg          >= "src1";
     auto src2 = alu_operand     >= "src2";
@@ -233,7 +233,7 @@ auto file_test = R"(
 MAIN  ; a main program
     CALL F
 
-    DW 20, 30, 40
+    dw 20, 30, 40
 )";
 
 /*
