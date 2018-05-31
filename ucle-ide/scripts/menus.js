@@ -192,11 +192,22 @@ module.exports = {
 						if(e.target.matches("li.file")) {
 							var input = document.createElement("input");
 							input.value = e.target.children[1].innerHTML;
-							console.log(e.target.children[1]);
-							e.target.replaceChild(input, e.target.children[1]);
+							var child = e.target.children[1];
+							var parent = e.target;
+							parent.replaceChild(input, child);
+							input.addEventListener('focus',function(e){
+								console.log("usao");
+								this.select();
+							});
 							input.focus();
+							input.addEventListener('keyup',function(e){
+								if(e.which == 13) this.blur();
+							});
+							input.addEventListener("blur", function(e) {
+								child.innerHTML = input.value;
+								parent.replaceChild(child, input);
+							});
 						} else if((e.target.matches("i") || e.target.matches("span")) && e.target.parentNode.matches("li.file")) {
-							e.target.parentNode.children[1].setAttribute("contenteditable","true");
 						}
 					},
 					label: "Rename file"
