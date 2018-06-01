@@ -2,11 +2,21 @@ const dialog = require('electron').dialog;
 const remote = require('electron').remote;
 
 
-function promptInputAndAdd(parent, fileManager, ucleTabs, index, path) {
+function promptInputAndAdd(args) {
+	const parent = args[0];
+	const fileManager = args[1];
+	const ucleTabs = args[2];
+	const index = args[3];
+	const path = args[4];
+	const clickedElement = args[5];
+
+	parent.parentNode.style.opacity = "0.7";
+
 	var file = document.createElement("li");
 	file.className = "file";
 
 	var fileName = document.createElement("input");
+	fileName.className = "file-display";
 
 	var ico = document.createElement("i");
 	ico.className = "file-ico";
@@ -34,6 +44,7 @@ function promptInputAndAdd(parent, fileManager, ucleTabs, index, path) {
 	fileName.addEventListener("blur", function(e) {
 		if(fileName.value == "") {
 			parent.parentNode.children[index].removeChild(file);
+			parent.parentNode.style.opacity = "1";
 			return;
 		}
 		var newFileName = fileName.value;
@@ -49,6 +60,7 @@ function promptInputAndAdd(parent, fileManager, ucleTabs, index, path) {
 
 		fileManager.saveFile(newFilePath);
 		ucleTabs.addTab({title: newFileName, fullPath: newFilePath});
+		parent.parentNode.style.opacity = "1";	
 	});
 }
 
@@ -215,8 +227,7 @@ module.exports = {
 			];
 		},
 	contextWorkspace:
-		(fileManager, ucleTabs, e) => {
-
+		(fileManager, ucleTabs, e, clickedElement) => {
 			function removeFolder(folder) {
 				console.log(folder);
 				fileManager.removeFolder(folder.id); 
@@ -244,21 +255,35 @@ module.exports = {
 					click() {
 						e.target.children[0].className = "dir-ico-opened";
 						e.target.parentNode.children[1].className = "";
-						promptInputAndAdd(e.target, fileManager, ucleTabs, 1, e.target.title);
+						var args = [];
+						args.push(e.target);
+						args.push(fileManager);
+						args.push(ucleTabs);
+						args.push(1);
+						args.push(e.target.title);
+						args.push(clickedElement);
+						promptInputAndAdd(args);
 					},
 					label: "Add a new file"
 				}
 			];
 		},
 	contextWorkspaceDir:
-		(fileManager, ucleTabs, e) => {
+		(fileManager, ucleTabs, e, clickedElement) => {
 			return [
 				{
 					click() {
 						var index = Array.from(e.target.parentNode.children).indexOf(e.target);
 						e.target.children[0].className = "dir-ico-opened";
 						e.target.parentNode.children[index + 1].className = "";
-						promptInputAndAdd(e.target.parentNode.children[index + 1], fileManager, ucleTabs, index+1, e.target.title);
+						var args = [];
+						args.push(e.target.parentNode.children[index + 1]);
+						args.push(fileManager);
+						args.push(ucleTabs);
+						args.push(index+1);
+						args.push(e.target.title);
+						args.push(clickedElement);
+						promptInputAndAdd(args);
 					},
 					label: "Add a new file"
 				}
@@ -270,6 +295,7 @@ module.exports = {
 			function promptInputAndRename(parent, child) {
 				var input = document.createElement("input");
 				input.value = child.innerHTML;
+				input.className = "file-display";
 				parent.replaceChild(input, child);
 				input.addEventListener('focus',function(e){
 					var splitInput = input.value.split(".");
@@ -350,6 +376,17 @@ module.exports = {
 						ucleTabs.closeTabByPath(e.target.title);
 					},
 					label: "Close opened file"
+				}
+			];
+		},
+	contextListedFiles:
+		(fileManager) => {
+			return [
+				{
+					label: 'Add folder to workspace',
+					click () {
+						fileManager.openDirectory();
+					}
 				}
 			];
 		}

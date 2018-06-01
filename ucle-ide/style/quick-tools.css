@@ -11,10 +11,10 @@ html, body {
 	overflow: hidden;
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+#font-size::-webkit-outer-spin-button,
+#font-size::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
 }
 
 #tools-wrapper {
@@ -479,6 +479,36 @@ li.dir, li.file, div.dir, div.file {
 
 #search:active, #file-explorer:active, #refresh:active, #increase:active, #decrease:active, #openbtn:active, .run-simulation:active, .stop-simulation:active {
 	transform: translateY(4px);
+}
+
+input.file-display {
+	width: 100%;
+	padding: 5px;
+	margin: 0;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-o-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;    
+	border: none;
+	background-color: #DCDCDC;
+	color: black;
+}
+
+input.file-display:focus {
+	outline: 0;
+	outline-color: transparent;
+	outline-style: none;	
+}
+
+::selection {
+	background: black; /* WebKit/Blink Browsers */
+	color: white;
+}
+
+::-moz-selection {
+	background: black; /* Gecko Browsers */
+	color: white;
 }
 
 li.dir:hover, div.dir:hover, li.file:hover, div.file:hover {

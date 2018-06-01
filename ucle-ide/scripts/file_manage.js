@@ -68,7 +68,7 @@ class FileManager {
 
 		for (var i = 0, len = children.length; i < len; i++) {
 			var child = children[i];
-			let childListID = child.path + '-' + child.name;
+			let childListID = child.path + '-' + child.name + '-list-' + child.path;
 
 			if(child.type == 'directory') {
 				var dir = document.createElement("li");
@@ -117,7 +117,7 @@ class FileManager {
 		}
 	}
 
-	readFolder(filePath, init = true) {
+	readFolder(filePath, init = true, ele = null) {
 		if(filePath === null || filePath === undefined) { 
 			if(process.platform == "win32") {
 				filePath: "C:\\";
@@ -128,7 +128,15 @@ class FileManager {
 
 		var dirName = this.getDirName(filePath);
 
-		let listID = filePath + '-' + dirName;
+		let wrapperName = "div-" + filePath;
+		let parentName = "list-" + filePath;
+
+		let listID = filePath + '-' + dirName + '-' + wrapperName;
+
+		if(ele && (ele.parentNode.parentNode.children[0].matches("li.dir") ||
+		   ele.parentNode.parentNode.children[0].matches("div.dir"))) {
+			listID = filePath + '-' + dirName + '-' + parentName;
+		}
 
 		var list = document.getElementById(listID);
 
@@ -144,8 +152,8 @@ class FileManager {
 			document.getElementById('openbtn').style.display = "none";
 			document.getElementById('workspace-text').style.display = "none";
 			document.getElementById('workspace').children[0].className = "explorer-ico-opened";
-			document.getElementById('listed-files').innerHTML += '<div id="div-' + filePath + '" class="file-wrapper" ><div id="'
-															  + filePath + '" title="' + filePath  +
+			document.getElementById('listed-files').innerHTML += '<div id="' + wrapperName + '" class="file-wrapper" ><div id="'
+															  + parentName + '" title="' + filePath  +
 															  '" class="dir"><i class="dir-ico-closed" style="margin-left:10px"></i>' + dirName + '</div><ul id="' + listID + 
 															  '"style="width:100%" class="hide"></ul></div>';
 		}

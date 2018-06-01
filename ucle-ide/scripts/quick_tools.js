@@ -269,14 +269,14 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			} else {
 				child.className = "dir-ico-opened";
 			}
-			fileManager.readFolder(e.target.id, false);
-		} else if(e.target.matches("i") && e.target.parentNode.matches("li.dir")) {
+			fileManager.readFolder(e.target.title, false, e.target);
+		} else if(e.target.matches("i") && (e.target.parentNode.matches("li.dir") || e.target.parentNode.matches("div.dir"))) {
 			if(e.target.className == "dir-ico-opened") {
 				e.target.className = "dir-ico-closed";
 			} else {
 				e.target.className = "dir-ico-opened";
 			}
-			fileManager.readFolder(e.target.parentNode.id, false);
+			fileManager.readFolder(e.target.parentNode.title, false, e.target);
 		}
 
 		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir") 
@@ -292,7 +292,6 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		} else if((e.target.matches("i") || e.target.matches("span")) && 
 			(e.target.parentNode.matches("li.dir") || e.target.parentNode.matches("div.dir") 
 			|| e.target.parentNode.matches("li.file"))) {
-
 			if(!clickedElement || (clickedElement == e.target)) {
 				clickedElement = e.target.parentNode;
 				document.getElementById(e.target.parentNode.id).style.backgroundColor = "#e6e6e6";
@@ -307,15 +306,16 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	listedFiles.addEventListener("contextmenu", function(e) {
 		var template = null;
 		if(e.target.matches("div.dir")) {
-			template = require('./menus').contextWorkspace(fileManager, ucleTabs, e);
+			template = require('./menus').contextWorkspace(fileManager, ucleTabs, e, clickedElement);
 		} else if(e.target.matches("li.dir")) {
 			template = require('./menus').contextWorkspaceDir(fileManager, ucleTabs, e);
-		} else {
+		} else if(e.target.matches("li.file")) {
 			template = require('./menus').contextWorkspaceFiles(fileManager, ucleTabs, e);
+		} else {
+			template = require('./menus').contextListedFiles(fileManager);
 		}
 		const menu = Menu.buildFromTemplate(template);
 		menu.popup(remote.getCurrentWindow());
-		clickedElement = null;
 	});
 
 	listedFiles.addEventListener("dblclick", function(e) {
