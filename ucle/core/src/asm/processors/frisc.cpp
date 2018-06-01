@@ -354,8 +354,6 @@ second_pass_result frisc_assembler::second_pass_(const std::vector<instr_info<>>
     for (auto i = 0u; i < instrs.size(); ++i) {
         const auto [address, instr] = instrs[i];
 
-        dbg::print_parse_info(instr);
-
         try {
             if (instr == "dat_instr")
                 detail::parse_dat_instr(instr, address, mcode);
@@ -387,14 +385,14 @@ void frisc_assembler::assemble(std::string filename)
         auto contents = read_file_(filename);
         auto parsed_lines = parse_lines_(contents);
         auto [instr_lines, labels] = first_pass_(parsed_lines);
-
-        for (const auto [label, address] : labels)
-            fmt::print("{} => {:08x}\n", label, address);
-
         auto assemble_results = second_pass_(instr_lines, labels);
 
         for (const auto [address, mcode] : assemble_results)
-            fmt::print("@{} :: {:08X} == {:032b}\n", address, mcode, mcode);
+            fmt::print(
+                "{:08X}  {:02X} {:02X} {:02X} {:02X}  {}\n", address,
+                cbu::nth_byte_of(mcode, 0), cbu::nth_byte_of(mcode, 1), cbu::nth_byte_of(mcode, 2), cbu::nth_byte_of(mcode, 3),
+                "line_info"
+            );
 
     } catch (std::exception& e) {
         fmt::print_colored(stderr, fmt::RED, "{}\n", e.what());
