@@ -2,6 +2,7 @@
 
 #include <libs/parsley/parsley.hpp>
 
+#include <map>
 #include <string_view>
 #include <unordered_map>
 #include <utility>
@@ -19,7 +20,7 @@ namespace ucle::asr {
     using label_table = std::unordered_map<std::string_view, address32_t>;
 
     using first_pass_result = std::pair<std::vector<instr_info<>>, label_table>;
-    using second_pass_result = std::vector<std::pair<address32_t, word_t>>;
+    using second_pass_result = std::map<address32_t, word_t>;
 
     class parse_error : public base_exception { using base_exception::base_exception; };
     class logical_error : public base_exception { using base_exception::base_exception; };
