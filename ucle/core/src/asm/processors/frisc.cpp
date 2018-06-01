@@ -9,6 +9,7 @@
 #include <iostream>
 
 using namespace ucle;
+using namespace ucle::asr;
 using namespace ucle::parsley;
 
 namespace dbg {
@@ -23,15 +24,63 @@ namespace dbg {
     }
 }
 
-static int data_instr_size(std::string_view dat_opcode) {
-    if (util::iequals(dat_opcode, "DW")) return 4;
-    if (util::iequals(dat_opcode, "DH")) return 2;
-    if (util::iequals(dat_opcode, "DB")) return 1;
-    // Should be unreachable
-    return 0;
+namespace detail {
+    static int parse_num_const(const parse_details& num_const)
+    {
+        if (num_const == "signed_num_const") {
+            auto sign = num_const.has("sign") && num_const["sign"] == "-" ? -1 : 1;
+            return parse_num_const(num_const["num_const"]) * sign;
+        }
+
+        if (num_const != "num_const")
+            throw parse_error("Cannot parse num_const - incorrect symbol type.");
+
+        long long value = 0;
+
+        if (num_const[0] == "hex_num")
+            util::parse_int(std::string { num_const["hex_num"].contents }, &value, 16);
+        else if (num_const[0] == "dec_num")
+            util::parse_int(std::string { num_const["dec_num"].contents }, &value, 10);
+        else if (num_const[0] == "oct_num")
+            util::parse_int(std::string { num_const["oct_num"].contents }, &value, 8);
+        else if (num_const[0] == "bin_num")
+            util::parse_int(std::string { num_const["bin_num"].contents }, &value, 2);
+        else
+            fmt::print("Unknown :: {}\n", num_const[0].symbol_name);
+
+        return value;
+    }
+
+    static int data_instr_size(std::string_view dat_opcode)
+    {
+        if (util::iequals(dat_opcode, "DW")) return 4;
+        if (util::iequals(dat_opcode, "DH")) return 2;
+        if (util::iequals(dat_opcode, "DB")) return 1;
+        // Should be unreachable
+        return 0;
+    }
+
+    static word_t parse_alu_instr(const parse_details& instr, const label_table& labels)
+    {
+        return 0;
+    }
+
+    static word_t parse_cmp_instr(const parse_details& instr, const label_table& labels) { return 0; }
+
+    static word_t parse_mov_instr(const parse_details& instr, const label_table& labels) { return 0; }
+
+    static word_t parse_mem_instr(const parse_details& instr, const label_table& labels) { return 0; }
+
+    static word_t parse_stk_instr(const parse_details& instr, const label_table& labels) { return 0; }
+
+    static word_t parse_jmp_instr(const parse_details& instr, const label_table& labels) { return 0; }
+
+    static word_t parse_ret_instr(const parse_details& instr, const label_table& labels) { return 0; }
+
+    static void parse_dat_instr(const parse_details& instr, address32_t address, second_pass_result& mcode) {  }
 }
 
-std::string asr::frisc_assembler::read_file_(std::string filename)
+std::string frisc_assembler::read_file_(std::string filename)
 {
     std::ifstream ifs(filename.c_str());
     std::string contents((std::istreambuf_iterator<char>(ifs)),
@@ -39,7 +88,7 @@ std::string asr::frisc_assembler::read_file_(std::string filename)
     return contents;
 }
 
-std::vector<parse_details> asr::frisc_assembler::parse_lines_(std::string_view contents)
+std::vector<parse_details> frisc_assembler::parse_lines_(std::string_view contents)
 {
     auto lines = util::split(contents, [](auto c){ return c == '\n'; });
     std::vector<parse_details> results;
@@ -56,9 +105,9 @@ std::vector<parse_details> asr::frisc_assembler::parse_lines_(std::string_view c
     return results;
 }
 
-asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse_details>& parsed_lines)
+first_pass_result frisc_assembler::first_pass_(const std::vector<parse_details>& parsed_lines)
 {
-    std::vector<asr::instr_info<>> instrs;
+    std::vector<instr_info<>> instrs;
     label_table labels;
 
     address32_t current_addr = 0;
@@ -75,9 +124,9 @@ asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse
         auto& instr_class = line_instr[0];
 
         if (instr_class[0] == "equ_instr") {
-            labels[line["line_label"].contents] = parse_num_const(instr_class[0]["signed_num_const"]);
+            labels[line["line_label"].contents] = detail::parse_num_const(instr_class[0]["signed_num_const"]);
         } else if (instr_class[0] == "org_instr") {
-            address32_t new_addr = parse_num_const(instr_class[0]["signed_num_const"]);
+            address32_t new_addr = detail::parse_num_const(instr_class[0]["signed_num_const"]);
 
             if (new_addr != cbu::address_rounded(new_addr, 4))
                 throw logical_error(fmt::format("Impossible origin (ORG {}), not rounded to a multiple of 4.", new_addr));
@@ -93,14 +142,14 @@ asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse
             instrs.push_back({ current_addr, instr_class[0] });
             current_addr += 4;
         } else if (instr_class[0] == "dsp_instr") {
-            address32_t offset = parse_num_const(instr_class[0]["signed_num_const"]);
+            address32_t offset = detail::parse_num_const(instr_class[0]["signed_num_const"]);
             current_addr += offset;
         } else if (instr_class[0] == "dat_instr") {
             instrs.push_back({ current_addr, instr_class[0] });
 
             auto& dat_instr = instr_class[0];
             auto& def_list = dat_instr["def_list"];
-            auto data_size = data_instr_size(dat_instr["dat_opcode"].contents);
+            auto data_size = detail::data_instr_size(dat_instr["dat_opcode"].contents);
             auto data_count = def_list.children.size();
 
             current_addr += cbu::address_rounded(data_count * data_size + sizeof(word_t) - 1, sizeof(word_t));
@@ -110,22 +159,41 @@ asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse
     return { instrs, labels };
 }
 
-asr::second_pass_result asr::frisc_assembler::second_pass_(const std::vector<asr::instr_info<>>& instrs, const label_table& labels)
+second_pass_result frisc_assembler::second_pass_(const std::vector<instr_info<>>& instrs, const label_table& labels)
 {
+    second_pass_result mcode;
+
     for (auto i = 0u; i < instrs.size(); ++i) {
         const auto [address, instr] = instrs[i];
 
         dbg::print_parse_info(instr);
 
-        // try {
-
-        // } catch () {
-
-        // }
+        try {
+            if (instr == "dat_instr")
+                detail::parse_dat_instr(instr, address, mcode);
+            else if (instr == "alu_instr")
+                mcode[address] = detail::parse_alu_instr(instr, labels);
+            else if (instr == "cmp_instr")
+                mcode[address] = detail::parse_cmp_instr(instr, labels);
+            else if (instr == "mov_instr")
+                mcode[address] = detail::parse_mov_instr(instr, labels);
+            else if (instr == "mem_instr")
+                mcode[address] = detail::parse_mem_instr(instr, labels);
+            else if (instr == "stk_instr")
+                mcode[address] = detail::parse_stk_instr(instr, labels);
+            else if (instr == "jmp_instr")
+                mcode[address] = detail::parse_jmp_instr(instr, labels);
+            else if (instr == "ret_instr")
+                mcode[address] = detail::parse_ret_instr(instr, labels);
+        } catch (std::exception& e) {
+            fmt::print_colored(fmt::RED, "Error in second pass at line {} :: {}\n", address, e.what());
+        }
     }
+
+    return mcode;
 }
 
-void asr::frisc_assembler::assemble(std::string filename)
+void frisc_assembler::assemble(std::string filename)
 {
     try {
         auto contents = read_file_(filename);
@@ -133,11 +201,11 @@ void asr::frisc_assembler::assemble(std::string filename)
         auto [addressed_lines, labels] = first_pass_(parsed_lines);
         auto assemble_results = second_pass_(addressed_lines, labels);
 
-        for (const auto& al : addressed_lines)
-            fmt::print("@{} :: {}\n", al.address, al.instr.contents);
+        // for (const auto& al : addressed_lines)
+        //     fmt::print("@{} :: {}\n", al.address, al.instr.contents);
 
-        for (const auto [label, addr] : labels)
-            fmt::print("* {} => {}\n", label, addr);
+        // for (const auto [label, addr] : labels)
+        //     fmt::print("* {} => {}\n", label, addr);
 
         // Second pass - actual assembling
 
@@ -146,7 +214,7 @@ void asr::frisc_assembler::assemble(std::string filename)
     }
 }
 
-void asr::frisc_assembler::init_parser_()
+void frisc_assembler::init_parser_()
 {
     using namespace parsley;
 
@@ -268,34 +336,7 @@ void asr::frisc_assembler::init_parser_()
     parser_ = line;
 }
 
-
-int asr::parse_num_const(parse_details num_const)
-{
-    if (num_const == "signed_num_const") {
-        auto sign = num_const.has("sign") && num_const["sign"] == "-" ? -1 : 1;
-        return parse_num_const(num_const["num_const"]) * sign;
-    }
-
-    if (num_const != "num_const")
-        throw parse_error("Cannot parse num_const - incorrect symbol type.");
-
-    long long value = 0;
-
-    if (num_const[0] == "hex_num")
-        util::parse_int(std::string { num_const["hex_num"].contents }, &value, 16);
-    else if (num_const[0] == "dec_num")
-        util::parse_int(std::string { num_const["dec_num"].contents }, &value, 10);
-    else if (num_const[0] == "oct_num")
-        util::parse_int(std::string { num_const["oct_num"].contents }, &value, 8);
-    else if (num_const[0] == "bin_num")
-        util::parse_int(std::string { num_const["bin_num"].contents }, &value, 2);
-    else
-        fmt::print("Unknown :: {}\n", num_const[0].symbol_name);
-
-    return value;
-}
-
 int main(int, char* argv[]) {
-    asr::frisc_assembler fasm;
+    frisc_assembler fasm;
     fasm.assemble(argv[1]);
 }

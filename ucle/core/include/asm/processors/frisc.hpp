@@ -25,5 +25,4 @@ namespace ucle::asr {
             parsley::parser_ptr parser_ { nullptr };
     };
 
-    int parse_num_const(parsley::parse_details num_const);
 }
