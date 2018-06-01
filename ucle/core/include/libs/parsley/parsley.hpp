@@ -3,6 +3,8 @@
 
 #include <common/types.hpp>
 
+#include <libs/fmt/format.h>
+
 #include <util/string_view.hpp>
 
 #include <any>
@@ -45,7 +47,7 @@ namespace ucle::parsley {
                 if (pi.symbol_name == symbol_name)
                     return pi;
 
-            throw key_error("No child symbol with a given name exists.");
+            throw key_error(fmt::format("No child symbol with a given name exists ({}).", symbol_name));
         }
 
         bool has(std::string_view symbol_name) const
