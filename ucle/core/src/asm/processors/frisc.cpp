@@ -58,13 +58,12 @@ std::vector<parse_details> asr::frisc_assembler::parse_lines_(std::string_view c
 
 asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse_details>& parsed_lines)
 {
-    std::vector<asr::line_info<>> lines;
+    std::vector<asr::instr_info<>> instrs;
     label_table labels;
 
     address32_t current_addr = 0;
 
     for (const auto& line : parsed_lines) {
-        dbg::print_parse_info(line);
         auto& line_instr = line["line_instr"];
 
         if (line_instr.empty()) {
@@ -91,13 +90,13 @@ asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse
         }
 
         if (instr_class == "reg_instr") {
-            lines.push_back({ current_addr, line });
+            instrs.push_back({ current_addr, instr_class[0] });
             current_addr += 4;
         } else if (instr_class[0] == "dsp_instr") {
             address32_t offset = parse_num_const(instr_class[0]["signed_num_const"]);
             current_addr += offset;
         } else if (instr_class[0] == "dat_instr") {
-            lines.push_back({ current_addr, line });
+            instrs.push_back({ current_addr, instr_class[0] });
 
             auto& dat_instr = instr_class[0];
             auto& def_list = dat_instr["def_list"];
@@ -108,31 +107,22 @@ asr::first_pass_result asr::frisc_assembler::first_pass_(const std::vector<parse
         } // else do nothing
     }
 
-    return { lines, labels };
+    return { instrs, labels };
 }
 
-asr::second_pass_result asr::frisc_assembler::second_pass_(const std::vector<asr::line_info<>>& lines, const label_table& labels)
+asr::second_pass_result asr::frisc_assembler::second_pass_(const std::vector<asr::instr_info<>>& instrs, const label_table& labels)
 {
-    // for (auto i = 0u; i < lines.size(); ++i) {
-    //     const auto [address, parsed] = lines[i];
+    for (auto i = 0u; i < instrs.size(); ++i) {
+        const auto [address, instr] = instrs[i];
 
-    //     if (parsed["line_instr"].empty())
-    //         continue;
+        dbg::print_parse_info(instr);
 
-    //     const auto& instr_class = parsed["line_instr"]["any_instr"][0];
+        // try {
 
-    //     dbg::print_parse_info(instr_class);
+        // } catch () {
 
-    //     if (instr_class == "psd_instr") {
-
-    //     }
-
-    //     // try {
-
-    //     // } catch () {
-
-    //     // }
-    // }
+        // }
+    }
 }
 
 void asr::frisc_assembler::assemble(std::string filename)
@@ -141,10 +131,10 @@ void asr::frisc_assembler::assemble(std::string filename)
         auto contents = read_file_(filename);
         auto parsed_lines = parse_lines_(contents);
         auto [addressed_lines, labels] = first_pass_(parsed_lines);
-        // auto assemble_results = second_pass_(addressed_lines, labels);
+        auto assemble_results = second_pass_(addressed_lines, labels);
 
         for (const auto& al : addressed_lines)
-            fmt::print("@{} :: {}\n", al.address, al.parsed.contents);
+            fmt::print("@{} :: {}\n", al.address, al.instr.contents);
 
         for (const auto [label, addr] : labels)
             fmt::print("* {} => {}\n", label, addr);

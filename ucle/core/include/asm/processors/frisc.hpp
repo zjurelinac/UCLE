@@ -20,7 +20,7 @@ namespace ucle::asr {
             std::string read_file_(std::string filename);
             std::vector<parse_details> parse_lines_(const std::string_view contents);
             first_pass_result first_pass_(const std::vector<parse_details>& parsed_lines);
-            second_pass_result second_pass_(const std::vector<line_info<>>& lines, const label_table& labels);
+            second_pass_result second_pass_(const std::vector<instr_info<>>& instrs, const label_table& labels);
 
             parsley::parser_ptr parser_ { nullptr };
     };

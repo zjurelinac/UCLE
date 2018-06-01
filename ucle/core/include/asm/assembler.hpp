@@ -9,16 +9,16 @@
 namespace ucle::asr {
 
     template <typename AddressType = address32_t>
-    struct line_info {
+    struct instr_info {
         using address_type = AddressType;
 
         address_type address { 0 };
-        parsley::parse_details parsed;
+        parsley::parse_details instr;
     };
 
     using label_table = std::unordered_map<std::string_view, address32_t>;
 
-    using first_pass_result = std::pair<std::vector<line_info<>>, label_table>;
+    using first_pass_result = std::pair<std::vector<instr_info<>>, label_table>;
     using second_pass_result = std::vector<std::pair<address32_t, word_t>>;
 
     class parse_error : public base_exception { using base_exception::base_exception; };
