@@ -12,6 +12,30 @@ namespace ucle::util {
     using char_predicate = std::function<bool(char)>;
     using view_predicate = std::function<bool(std::string_view)>;
 
+    // Comparators
+
+    bool iequals(const std::string_view& x, const std::string_view& y) {
+        if (x.length() != y.length())
+            return false;
+
+        for (auto i = 0u; i < x.length(); ++i)
+            if (tolower(x[i]) != tolower(y[i]))
+                return false;
+
+        return true;
+    }
+
+    bool iequals(const std::string_view& x, const char* y) {
+        if (x.length() != strlen(y))
+            return false;
+
+        for (auto i = 0u; i < x.length(); ++i)
+            if (tolower(x[i]) != tolower(y[i]))
+                return false;
+
+        return true;
+    }
+
     // Predicates
 
     bool starts_with(const std::string_view& input, const std::string_view& x)
