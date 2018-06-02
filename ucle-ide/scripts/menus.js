@@ -9,17 +9,22 @@ function promptInputAndAdd(args) {
 	const index = args[3];
 	const path = args[4];
 	const clickedElement = args[5];
+	const type = args[6];
 
 	parent.parentNode.style.opacity = "0.7";
 
 	var file = document.createElement("li");
-	file.className = "file";
+	file.className = type;
 
 	var fileName = document.createElement("input");
 	fileName.className = "file-display";
 
 	var ico = document.createElement("i");
-	ico.className = "file-ico";
+	ico.className = type + '-ico';
+
+	if(type == "dir") {
+		ico.className = ico.className + '-closed';
+	}
 
 	file.appendChild(ico);
 	file.appendChild(fileName);
@@ -42,25 +47,44 @@ function promptInputAndAdd(args) {
 	});
 
 	fileName.addEventListener("blur", function(e) {
-		if(fileName.value == "") {
+		if(fileName.value != "") {
+			var newFileName = fileName.value;
+			var newFilePath = path + '/' + newFileName;
+
+			file.id = newFilePath;
+			file.title = newFilePath;
+
+			var child = document.createElement("span");
+			child.innerHTML = newFileName;
+
+			file.replaceChild(child, fileName);
+
+			if(type == "file") {
+				fileManager.saveFile(newFilePath);
+				ucleTabs.addTab({title: newFileName, fullPath: newFilePath});
+			} else {
+				var alreadyCreated = fileManager.createFolder(newFilePath);
+				if(!alreadyCreated) {
+					var type = "warning";
+					var buttons = ['OK'];
+					var message = 'That directory already exists!\nPlease choose a different name!';
+					var defaultId = 0;
+					remote.dialog.showMessageBox({message, type, buttons, defaultId});
+					fileName.value = "";
+					fileName.focus();
+					return;
+				} else {
+					let childListID = newFilePath + '-' + newFileName + '-list-' + newFilePath;
+					var fileList = document.createElement("ul");
+					fileList.id = childListID;
+					fileList.className = "hide";
+					parent.parentNode.children[index].appendChild(fileList);
+				}
+			}
+		} else {
 			parent.parentNode.children[index].removeChild(file);
-			parent.parentNode.style.opacity = "1";
-			return;
-		}
-		var newFileName = fileName.value;
-		var newFilePath = path + '/' + newFileName;
-
-		file.id = newFilePath;
-		file.title = newFilePath;
-
-		var child = document.createElement("span");
-		child.innerHTML = newFileName;
-
-		file.replaceChild(child, fileName);
-
-		fileManager.saveFile(newFilePath);
-		ucleTabs.addTab({title: newFileName, fullPath: newFilePath});
-		parent.parentNode.style.opacity = "1";	
+		} 
+		parent.parentNode.style.opacity = "1";
 	});
 }
 
@@ -70,8 +94,6 @@ module.exports = {
 		(mainWindow) => {
 		
 			const webContents = mainWindow.webContents;
-
-			var openedFile;
 
 			return [
 				{
@@ -91,7 +113,6 @@ module.exports = {
 							click () { 	
 								dialog.showOpenDialog({properties: ['openFile']}, function(filename) { 
 									if(filename !== undefined) webContents.send('open-file', filename.toString());
-									openedFile = filename;
 								}); 
 							}
 						},
@@ -105,7 +126,7 @@ module.exports = {
 							label: 'Save',
 							accelerator: 'CmdOrCtrl+S',
 							click () {
-								webContents.send('save-file', openedFile);
+								webContents.send('save-file');
 							}
 						},
 						{
@@ -252,6 +273,9 @@ module.exports = {
 					label: "Remove folder from workspace"
 				},
 				{
+					type: 'separator'					
+				},
+				{
 					click() {
 						e.target.children[0].className = "dir-ico-opened";
 						e.target.parentNode.children[1].className = "";
@@ -262,6 +286,26 @@ module.exports = {
 						args.push(1);
 						args.push(e.target.title);
 						args.push(clickedElement);
+						args.push("dir");
+						promptInputAndAdd(args);
+					},
+					label: "Add a new folder"
+				},
+				{
+					type: 'separator'
+				},				
+				{
+					click() {
+						e.target.children[0].className = "dir-ico-opened";
+						e.target.parentNode.children[1].className = "";
+						var args = [];
+						args.push(e.target);
+						args.push(fileManager);
+						args.push(ucleTabs);
+						args.push(1);
+						args.push(e.target.title);
+						args.push(clickedElement);
+						args.push("file");
 						promptInputAndAdd(args);
 					},
 					label: "Add a new file"
@@ -283,6 +327,27 @@ module.exports = {
 						args.push(index+1);
 						args.push(e.target.title);
 						args.push(clickedElement);
+						args.push("dir");
+						promptInputAndAdd(args);
+					},
+					label: "Add a new folder"
+				},
+				{
+					type: 'separator'
+				},				
+				{
+					click() {
+						var index = Array.from(e.target.parentNode.children).indexOf(e.target);
+						e.target.children[0].className = "dir-ico-opened";
+						e.target.parentNode.children[index + 1].className = "";
+						var args = [];
+						args.push(e.target.parentNode.children[index + 1]);
+						args.push(fileManager);
+						args.push(ucleTabs);
+						args.push(index+1);
+						args.push(e.target.title);
+						args.push(clickedElement);
+						args.push("file");
 						promptInputAndAdd(args);
 					},
 					label: "Add a new file"

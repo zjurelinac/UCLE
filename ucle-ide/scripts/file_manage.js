@@ -41,7 +41,9 @@ class FileManager {
 	saveAsFile() {
 		var filename = remote.dialog.showSaveDialog();
 
-		if(!filename) return;
+		if(!filename) {
+			return;
+		}
 
 		const model = this.editor.getModel();
 
@@ -162,6 +164,20 @@ class FileManager {
 			const tree = dirTree(filePath);
 			this.walkThroughFiles(tree.children, listID);
 		}
+	}
+
+	createFolder(filePath) {
+		if(fs.existsSync(filePath)) {
+			return false;
+		}
+
+		fs.mkdir(filePath, function(err) {
+			if(err) {
+				throw err
+			}
+		});
+
+		return true;
 	}
 
 	removeFolder(filePath) {

@@ -111,10 +111,16 @@ loader().then((monaco) => {
 		if(currTab) {
 			var currFileName = currTab.querySelector('.ucle-tab-title').textContent;
 			var currFilePath = currTab.querySelector('.ucle-tab-file-path').textContent;
-			if(currFileName == 'untitled') {
+			if(currFileName.substring(0,8) == 'untitled') {
 				var savedPath = fileManager.saveAsFile();
+				if(!savedPath) {
+					return;
+				}
 				ucleTabs.updateTab(currTab, {title: ucleTabs.getFileName(savedPath), fullPath: savedPath});
-				ucleTabs.changeEditorLanguage(currTab, ucleTabs.getFileName(savedPath));                
+				ucleTabs.changeEditorLanguage(currTab, ucleTabs.getFileName(savedPath));
+				var untitledFile = document.getElementById("open-" + currFileName);
+				untitledFile.id = "open-" + savedPath;
+				untitledFile.children[1].innerHTML = ucleTabs.getFileName(savedPath);
 			} else {
 				fileManager.saveFile(currFilePath);
 			}
