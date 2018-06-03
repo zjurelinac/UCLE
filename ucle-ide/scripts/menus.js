@@ -1,7 +1,6 @@
 const dialog = require('electron').dialog;
 const remote = require('electron').remote;
 
-
 function promptInputAndAdd(args) {
 	const parent = args[0];
 	const fileManager = args[1];
@@ -9,20 +8,23 @@ function promptInputAndAdd(args) {
 	const index = args[3];
 	const path = args[4];
 	const clickedElement = args[5];
-	const type = args[6];
+	var fileType = args[6];
 
-	parent.parentNode.style.opacity = "0.7";
+	console.log(parent);
+	console.log(fileType);
 
 	var file = document.createElement("li");
-	file.className = type;
+	file.className = fileType;
+
+	file.style.background = "#A9A9A9";
 
 	var fileName = document.createElement("input");
 	fileName.className = "file-display";
 
 	var ico = document.createElement("i");
-	ico.className = type + '-ico';
+	ico.className = fileType + '-ico';
 
-	if(type == "dir") {
+	if(fileType == "dir") {
 		ico.className = ico.className + '-closed';
 	}
 
@@ -43,8 +45,11 @@ function promptInputAndAdd(args) {
 
 	fileName.focus();
 	fileName.addEventListener('keyup',function(e){
+		alreadyCreated = false;
 		if(e.which == 13) this.blur();
 	});
+
+	var alreadyCreated = false;
 
 	fileName.addEventListener("blur", function(e) {
 		if(fileName.value != "") {
@@ -59,19 +64,30 @@ function promptInputAndAdd(args) {
 
 			file.replaceChild(child, fileName);
 
-			if(type == "file") {
-				fileManager.saveFile(newFilePath);
-				ucleTabs.addTab({title: newFileName, fullPath: newFilePath});
+			if(fileType == "file") {
+				var alreadyCreated = fileManager.saveFile(newFilePath);
+				if(alreadyCreated) {
+					var questionType = "warning";
+					var buttons = ['OK'];
+					var message = 'That file already exists!\nPlease choose a different name!';
+					var defaultId = 0;
+					remote.dialog.showMessageBox({message, questionType, buttons, defaultId});
+					file.replaceChild(fileName, child);
+					setTimeout(()=>{fileName.focus();},0);
+					return;
+				} else {
+					ucleTabs.addTab({title: newFileName, fullPath: newFilePath});
+				}
 			} else {
 				var alreadyCreated = fileManager.createFolder(newFilePath);
-				if(!alreadyCreated) {
-					var type = "warning";
+				if(alreadyCreated) {
+					var questionType = "warning";
 					var buttons = ['OK'];
 					var message = 'That directory already exists!\nPlease choose a different name!';
 					var defaultId = 0;
-					remote.dialog.showMessageBox({message, type, buttons, defaultId});
-					fileName.value = "";
-					fileName.focus();
+					remote.dialog.showMessageBox({message, questionType, buttons, defaultId});
+					file.replaceChild(fileName, child);
+					setTimeout(()=>{fileName.focus();},0);
 					return;
 				} else {
 					let childListID = newFilePath + '-' + newFileName + '-list-' + newFilePath;
@@ -79,13 +95,36 @@ function promptInputAndAdd(args) {
 					fileList.id = childListID;
 					fileList.className = "hide";
 					parent.parentNode.children[index].appendChild(fileList);
+					file.style.background = "white";
 				}
 			}
 		} else {
 			parent.parentNode.children[index].removeChild(file);
-		} 
-		parent.parentNode.style.opacity = "1";
+		}
+		file.style.background = "white";
 	});
+}
+
+function deleteFile(file, ucleTabs, fileManager, type) {
+	var questionType = "question";
+	var buttons = ['No','Yes'];
+	var message = "Are you sure you want to delete '" + ucleTabs.getFileName(file.id) + "'?";
+	var defaultId = 0;
+	var response = remote.dialog.showMessageBox({message, questionType, buttons, defaultId});
+
+	if(response) {
+		if(type == "file") {
+			fileManager.deleteFile(file.id);
+			if(ucleTabs.checkIfTabOpened(file.id)) {
+				ucleTabs.removeTab(ucleTabs.getTabByPath(file.id));
+			}
+		} else {
+			fileManager.deleteFolder(file.title);
+			var index = Array.from(file.parentNode.children).indexOf(file);
+			file.parentNode.removeChild(file.parentNode.children[index+1]);
+		}
+		file.parentNode.removeChild(file);
+	}
 }
 
 
@@ -250,8 +289,7 @@ module.exports = {
 	contextWorkspace:
 		(fileManager, ucleTabs, e, clickedElement) => {
 			function removeFolder(folder) {
-				console.log(folder);
-				fileManager.removeFolder(folder.id); 
+				fileManager.removeFolder(folder.title); 
 				if(!document.querySelector('[id^="div-"')) {
 					document.getElementById('workspace-text').style.display = "inline-block";
 					var button = document.getElementById("openbtn");
@@ -268,7 +306,7 @@ module.exports = {
 			return [
 				{
 					click() {
-						removeFolder(e.target, fileManager, ucleTabs);
+						removeFolder(e, fileManager, ucleTabs);
 					},
 					label: "Remove folder from workspace"
 				},
@@ -277,14 +315,14 @@ module.exports = {
 				},
 				{
 					click() {
-						e.target.children[0].className = "dir-ico-opened";
-						e.target.parentNode.children[1].className = "";
+						e.children[0].className = "dir-ico-opened";
+						e.parentNode.children[1].className = "";
 						var args = [];
-						args.push(e.target);
+						args.push(e);
 						args.push(fileManager);
 						args.push(ucleTabs);
 						args.push(1);
-						args.push(e.target.title);
+						args.push(e.title);
 						args.push(clickedElement);
 						args.push("dir");
 						promptInputAndAdd(args);
@@ -293,23 +331,23 @@ module.exports = {
 				},
 				{
 					type: 'separator'
-				},				
+				},
 				{
 					click() {
-						e.target.children[0].className = "dir-ico-opened";
-						e.target.parentNode.children[1].className = "";
+						e.children[0].className = "dir-ico-opened";
+						e.parentNode.children[1].className = "";
 						var args = [];
-						args.push(e.target);
+						args.push(e);
 						args.push(fileManager);
 						args.push(ucleTabs);
 						args.push(1);
-						args.push(e.target.title);
+						args.push(e.title);
 						args.push(clickedElement);
 						args.push("file");
 						promptInputAndAdd(args);
 					},
 					label: "Add a new file"
-				}
+				},
 			];
 		},
 	contextWorkspaceDir:
@@ -317,15 +355,15 @@ module.exports = {
 			return [
 				{
 					click() {
-						var index = Array.from(e.target.parentNode.children).indexOf(e.target);
-						e.target.children[0].className = "dir-ico-opened";
-						e.target.parentNode.children[index + 1].className = "";
+						var index = Array.from(e.parentNode.children).indexOf(e);
+						e.children[0].className = "dir-ico-opened";
+						e.parentNode.children[index + 1].className = "";
 						var args = [];
-						args.push(e.target.parentNode.children[index + 1]);
+						args.push(e.parentNode.children[index + 1]);
 						args.push(fileManager);
 						args.push(ucleTabs);
 						args.push(index+1);
-						args.push(e.target.title);
+						args.push(e.title);
 						args.push(clickedElement);
 						args.push("dir");
 						promptInputAndAdd(args);
@@ -337,21 +375,30 @@ module.exports = {
 				},				
 				{
 					click() {
-						var index = Array.from(e.target.parentNode.children).indexOf(e.target);
-						e.target.children[0].className = "dir-ico-opened";
-						e.target.parentNode.children[index + 1].className = "";
+						var index = Array.from(e.parentNode.children).indexOf(e);
+						e.children[0].className = "dir-ico-opened";
+						e.parentNode.children[index + 1].className = "";
 						var args = [];
-						args.push(e.target.parentNode.children[index + 1]);
+						args.push(e.parentNode.children[index + 1]);
 						args.push(fileManager);
 						args.push(ucleTabs);
 						args.push(index+1);
-						args.push(e.target.title);
+						args.push(e.title);
 						args.push(clickedElement);
 						args.push("file");
 						promptInputAndAdd(args);
 					},
 					label: "Add a new file"
-				}
+				},
+				{
+					type: 'separator'
+				},
+				{
+					label: "Delete folder",
+					click() {
+						deleteFile(e, ucleTabs, fileManager, "dir");
+					}
+				}				
 			];
 		},
 	contextWorkspaceFiles:
@@ -394,41 +441,17 @@ module.exports = {
 				});
 			}
 
-			function deleteFile(file) {
-				var type = "question";
-				var buttons = ['No','Yes'];
-				var message = 'Are you sure you want to delete the file?\nUnsaved progress will be lost!';
-				var defaultId = 0;
-				var response = remote.dialog.showMessageBox({message, type, buttons, defaultId});
-
-				if(response) {
-					fileManager.deleteFile(file.id);
-					if(ucleTabs.checkIfTabOpened(file.id)) {
-						ucleTabs.removeTab(ucleTabs.getTabByPath(file.id));
-					}
-					file.parentNode.removeChild(file);
-				}
-			}
-
 			return [
 				{
 					label: "Rename",
 					click() {
-						if(e.target.matches("li.file")) {
-							promptInputAndRename(e.target, e.target.children[1], fileManager);
-						} else if((e.target.matches("i") || e.target.matches("span")) && e.target.parentNode.matches("li.file")) {
-							promptInputAndRename(e.target.parentNode, e.target.parentNode.children[1], ucleTabs);
-						}
+						promptInputAndRename(e, e.children[1], fileManager);
 					}
 				},
 				{
 					label: "Delete",
 					click() {
-						if(e.target.matches("li.file")) {
-							deleteFile(e.target);
-						} else if((e.target.matches("i") || e.target.matches("span")) && e.target.parentNode.matches("li.file")) {
-							deleteFile(e.target.parentNode);
-						}
+						deleteFile(e, ucleTabs, fileManager, "file");
 					}
 				}
 			];
@@ -438,7 +461,7 @@ module.exports = {
 			return [
 				{
 					click() {
-						ucleTabs.closeTabByPath(e.target.title);
+						ucleTabs.closeTabByPath(e.title);
 					},
 					label: "Close opened file"
 				}

@@ -1,6 +1,7 @@
 const remote = require('electron').remote;
 const ipcRenderer = require('electron').ipcRenderer;
 const fs = require('fs');
+rmdir = require('rimraf');
 const path = require('path');
 const mime = require('mime');
 const dirTree = require('directory-tree');
@@ -57,12 +58,17 @@ class FileManager {
 	}
 
 	saveFile(file) {
+		if(fs.existsSync(file)) {
+			return true;
+		}
+
 		const model = this.editor.getModel();
 		fs.writeFile(file, model.getValue(), 'utf-8', function(err) {
 			if(err) {
 				throw err;
 			}
 		});
+		return false;
 	}
 
 	walkThroughFiles(children, listID) {
@@ -135,8 +141,13 @@ class FileManager {
 
 		let listID = filePath + '-' + dirName + '-' + wrapperName;
 
-		if(ele && (ele.parentNode.parentNode.children[0].matches("li.dir") ||
-		   ele.parentNode.parentNode.children[0].matches("div.dir"))) {
+		if(ele) {
+			console.log(ele);
+			console.log(ele.parentNode);
+			console.log(ele.parentNode.parentNode);
+		}
+
+		if(ele && (ele.matches("li.dir"))) {
 			listID = filePath + '-' + dirName + '-' + parentName;
 		}
 
@@ -168,7 +179,7 @@ class FileManager {
 
 	createFolder(filePath) {
 		if(fs.existsSync(filePath)) {
-			return false;
+			return true;
 		}
 
 		fs.mkdir(filePath, function(err) {
@@ -177,7 +188,15 @@ class FileManager {
 			}
 		});
 
-		return true;
+		return false;
+	}
+
+	deleteFolder(filePath) {
+		rmdir(filePath, function(err){
+			if(err) {
+				throw err;
+			}
+		});
 	}
 
 	removeFolder(filePath) {
@@ -188,7 +207,7 @@ class FileManager {
 	renameFile(oldPath, newPath) {
 		fs.rename(oldPath, newPath, function(err) {
 			if(err) {
-				throw err
+				throw err;
 			}
 		});
 	}

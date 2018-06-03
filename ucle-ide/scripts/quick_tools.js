@@ -270,13 +270,15 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				child.className = "dir-ico-opened";
 			}
 			fileManager.readFolder(e.target.title, false, e.target);
-		} else if(e.target.matches("i") && (e.target.parentNode.matches("li.dir") || e.target.parentNode.matches("div.dir"))) {
-			if(e.target.className == "dir-ico-opened") {
-				e.target.className = "dir-ico-closed";
+		} else if((e.target.matches("i") || e.target.matches("span")) && 
+			      (e.target.parentNode.matches("li.dir") || e.target.parentNode.matches("div.dir"))) {
+			var child = e.target.parentNode.children[0];
+			if(child.className == "dir-ico-opened") {
+				child.className = "dir-ico-closed";
 			} else {
-				e.target.className = "dir-ico-opened";
+				child.className = "dir-ico-opened";
 			}
-			fileManager.readFolder(e.target.parentNode.title, false, e.target);
+			fileManager.readFolder(e.target.parentNode.title, false, e.target.parentNode);
 		}
 
 		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir") 
@@ -306,11 +308,21 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	listedFiles.addEventListener("contextmenu", function(e) {
 		var template = null;
 		if(e.target.matches("div.dir")) {
-			template = require('./menus').contextWorkspace(fileManager, ucleTabs, e, clickedElement);
+			template = require('./menus').contextWorkspace(fileManager, ucleTabs, e.target, clickedElement);
+		} else if((e.target.matches("i") && e.target.parentNode.matches("div.dir"))) {
+			template = require('./menus').contextWorkspace(fileManager, ucleTabs, e.target.parentNode, clickedElement);			
 		} else if(e.target.matches("li.dir")) {
-			template = require('./menus').contextWorkspaceDir(fileManager, ucleTabs, e);
+			template = require('./menus').contextWorkspaceDir(fileManager, ucleTabs, e.target, clickedElement);
+		} else if((e.target.matches("i") ||
+			       e.target.matches("span")) && 
+			       e.target.parentNode.matches("li.dir")) {
+			template = require('./menus').contextWorkspaceDir(fileManager, ucleTabs, e.target.parentNode, clickedElement);
 		} else if(e.target.matches("li.file")) {
-			template = require('./menus').contextWorkspaceFiles(fileManager, ucleTabs, e);
+			template = require('./menus').contextWorkspaceFiles(fileManager, ucleTabs, e.target);
+		} else if((e.target.matches("i") ||
+			       e.target.matches("span")) && 
+			       e.target.parentNode.matches("li.file")) {
+			template = require('./menus').contextWorkspaceFiles(fileManager, ucleTabs, e.target.parentNode);			
 		} else {
 			template = require('./menus').contextListedFiles(fileManager);
 		}
@@ -320,11 +332,13 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 	listedFiles.addEventListener("dblclick", function(e) {
 		if(e.target && e.target.matches("li.file")) {
-			fileManager.openFile(e.target.id);
-			ucleTabs.addTab({title: ucleTabs.getFileName(e.target.id), fullPath: e.target.id},true);		
+			console.log(e.target.title);
+			fileManager.openFile(e.target.title);
+			ucleTabs.addTab({title: ucleTabs.getFileName(e.target.title), fullPath: e.target.title},true);	
 		} else if((e.target.matches("i") || e.target.matches("span")) && e.target.parentNode.matches("li.file")) {
-			fileManager.openFile(e.target.parentNode.id);
-			ucleTabs.addTab({title: ucleTabs.getFileName(e.target.parentNode.id), fullPath: e.target.parentNode.id},true);			
+			console.log(e.target.title);
+			fileManager.openFile(e.target.parentNode.title);
+			ucleTabs.addTab({title: ucleTabs.getFileName(e.target.parentNode.title), fullPath: e.target.parentNode.title},true);			
 		}
 	});
 
