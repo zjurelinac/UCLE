@@ -226,12 +226,15 @@ namespace detail {
         return opcode << 27 | reg << 23;
     }
 
-    static word_t parse_jmp_instr(const parse_details& instr, const label_table& labels)
+    static word_t parse_jmp_instr(const parse_details& instr, address32_t address, const label_table& labels)
     {
         word_t opcode = parse_opcode(instr["opcode"]);
         word_t condition = parse_condition(instr["condition"]);
         word_t fn = instr[2] != "gp_reg";
         word_t addr = fn ? parse_immediate(instr[2], labels) : parse_gp_reg(instr[2]) << 17;
+
+        if (instr["opcode"].contents == "JR")
+            addr -= address + 4;
 
         return opcode << 27 | fn << 26 | condition << 22 | (addr & 0xFFFFF);
     }
@@ -374,7 +377,7 @@ second_pass_result frisc_assembler::second_pass_(const std::vector<line_info>& l
             else if (instr == "stk_instr")
                 mcode[address] = detail::parse_stk_instr(instr, labels);
             else if (instr == "jmp_instr")
-                mcode[address] = detail::parse_jmp_instr(instr, labels);
+                mcode[address] = detail::parse_jmp_instr(instr, address, labels);
             else if (instr == "ret_instr")
                 mcode[address] = detail::parse_ret_instr(instr, labels);
         } catch (std::exception& e) {
