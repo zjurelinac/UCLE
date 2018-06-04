@@ -7,7 +7,7 @@
 namespace ucle::asr {
 
     class frisc_assembler {
-        using parse_info = parsley::parse_info;
+        using parse_details = parsley::parse_details;
         using cbu = util::const_bin_util<address32_t>;
 
         public:
@@ -18,10 +18,9 @@ namespace ucle::asr {
             void init_parser_();
 
             std::string read_file_(std::string filename);
-            std::vector<parse_info> parse_lines_(const std::string_view contents);
-            first_pass_result first_pass_(const std::vector<parse_info>& parsed_lines);
-
-            int parse_num_const_(parse_info num_const);
+            std::vector<parse_details> parse_lines_(const std::string_view contents);
+            first_pass_result first_pass_(const std::vector<parse_details>& parsed_lines);
+            second_pass_result second_pass_(const std::vector<line_info>& lines, const label_table& labels);
 
             parsley::parser_ptr parser_ { nullptr };
     };

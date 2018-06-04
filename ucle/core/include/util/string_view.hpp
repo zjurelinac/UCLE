@@ -1,6 +1,7 @@
 #ifndef _UCLE_CORE_UTIL_STRING_VIEW_HPP_
 #define _UCLE_CORE_UTIL_STRING_VIEW_HPP_
 
+#include <cctype>
 #include <cstring>
 #include <functional>
 #include <string_view>
@@ -11,7 +12,29 @@ namespace ucle::util {
     using char_predicate = std::function<bool(char)>;
     using view_predicate = std::function<bool(std::string_view)>;
 
-    auto neg(char_predicate p) { return [&p](char c){ return !p(c); }; }
+    // Comparators
+
+    bool iequals(const std::string_view& x, const std::string_view& y) {
+        if (x.length() != y.length())
+            return false;
+
+        for (auto i = 0u; i < x.length(); ++i)
+            if (tolower(x[i]) != tolower(y[i]))
+                return false;
+
+        return true;
+    }
+
+    bool iequals(const std::string_view& x, const char* y) {
+        if (x.length() != strlen(y))
+            return false;
+
+        for (auto i = 0u; i < x.length(); ++i)
+            if (tolower(x[i]) != tolower(y[i]))
+                return false;
+
+        return true;
+    }
 
     // Predicates
 
@@ -77,7 +100,67 @@ namespace ucle::util {
         return input.length() > 0 && input[input.length() - 1] == x;
     }
 
-    // TODO: Add istarts_with & iends_with
+    bool istarts_with(const std::string_view& input, const std::string_view& x)
+    {
+        auto len = input.length();
+        auto xlen = x.length();
+
+        if (len < xlen) return false;
+
+        auto i = 0u;
+        for (auto i = 0u; i < xlen && tolower(input[i]) == tolower(x[i]); ++i);
+
+        return i == xlen;
+    }
+
+    bool istarts_with(const std::string_view& input, const char* x)
+    {
+        auto len = input.length();
+        auto xlen = strlen(x);
+
+        if (len < xlen) return false;
+
+        auto i = 0u;
+        for (; i < xlen && tolower(input[i]) == tolower(x[i]); ++i);
+
+        return i == xlen;
+    }
+
+    bool istarts_with(const std::string_view& input, char x)
+    {
+        return input.length() > 0 && tolower(input[0]) == tolower(x);
+    }
+
+    bool iends_with(const std::string_view& input, const std::string_view& x)
+    {
+        auto len = input.length();
+        auto xlen = x.length();
+
+        if (len < xlen) return false;
+
+        auto i = 0u;
+        for (; i < xlen && tolower(input[len - i - 1]) == tolower(x[xlen - i - 1]); ++i);
+
+        return i == xlen;
+    }
+
+    bool iends_with(const std::string_view& input, const char* x)
+    {
+        auto len = input.length();
+        auto xlen = strlen(x);
+
+        if (len < xlen) return false;
+
+        auto i = 0u;
+        for (; i < xlen && tolower(input[len - i - 1]) == tolower(x[xlen - i - 1]); ++i);
+
+        return i == xlen;
+    }
+
+    bool iends_with(const std::string_view& input, char x)
+    {
+        return input.length() > 0 && tolower(input[input.length() - 1]) == tolower(x);
+    }
 
     // Selectors
 
@@ -171,10 +254,10 @@ namespace ucle::util {
         std::vector<std::string_view> parts;
 
         while (!input.empty()) {
-            auto part = take_while(input, neg(p));
+            auto part = take_while(input, std::not_fn(p));
             parts.push_back(part);
 
-            input = drop_while(input.substr(part.length()), p);
+            input = input.substr(part.length() + 1); // drop_while(input.substr(part.length()), p);
         }
 
         return parts;

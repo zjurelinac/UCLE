@@ -25,7 +25,7 @@
         STOREB  R5, (SP+14)
         LOADB   R5, (SP+14)     ; assert R5 == 0xBA
 
-        MOVE    0xFF, R6
+        MOVE    0FF, R6
         STOREB  R6, (NUM1)
         LOAD    R6, (NUM1)      ; assert R6 == 0xABCDCFF
         HALT

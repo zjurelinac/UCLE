@@ -2,26 +2,29 @@
 
 #include <libs/parsley/parsley.hpp>
 
+#include <map>
 #include <string_view>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 namespace ucle::asr {
 
-    template <typename AddressType = address32_t>
     struct line_info {
-        using address_type = AddressType;
-
-        parsley::parse_info parsed;
-        address_type        address { 0 };
+        address32_t address;
+        std::string_view contents;
+        parsley::parse_details instr;
+        bool is_instr;
     };
 
     using label_table = std::unordered_map<std::string_view, address32_t>;
 
-    using first_pass_result = std::pair<std::vector<line_info<>>, label_table>;
+    using first_pass_result = std::pair<std::vector<line_info>, label_table>;
+    using second_pass_result = std::unordered_map<address32_t, word_t>;
 
     class parse_error : public base_exception { using base_exception::base_exception; };
     class logical_error : public base_exception { using base_exception::base_exception; };
+    class semantic_error : public base_exception { using base_exception::base_exception; };
     class unimplemented_error : public base_exception { using base_exception::base_exception; };
 
     // class assembler {
