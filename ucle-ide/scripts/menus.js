@@ -56,13 +56,8 @@ function promptInputAndAdd(args) {
 			var newFileName = fileName.value;
 			var newFilePath = path + '/' + newFileName;
 
-			file.id = newFilePath;
-			file.title = newFilePath;
-
 			var child = document.createElement("span");
 			child.innerHTML = newFileName;
-
-			file.replaceChild(child, fileName);
 
 			if(fileType == "file") {
 				var alreadyCreated = fileManager.saveFile(newFilePath);
@@ -72,7 +67,6 @@ function promptInputAndAdd(args) {
 					var message = 'That file already exists!\nPlease choose a different name!';
 					var defaultId = 0;
 					remote.dialog.showMessageBox({message, questionType, buttons, defaultId});
-					file.replaceChild(fileName, child);
 					setTimeout(()=>{fileName.focus();},0);
 					return;
 				} else {
@@ -86,11 +80,10 @@ function promptInputAndAdd(args) {
 					var message = 'That directory already exists!\nPlease choose a different name!';
 					var defaultId = 0;
 					remote.dialog.showMessageBox({message, questionType, buttons, defaultId});
-					file.replaceChild(fileName, child);
 					setTimeout(()=>{fileName.focus();},0);
 					return;
 				} else {
-					let childListID = newFilePath + '-' + newFileName + '-list-' + newFilePath;
+					let childListID = newFilePath + '-list-' + newFilePath;
 					var fileList = document.createElement("ul");
 					fileList.id = childListID;
 					fileList.className = "hide";
@@ -98,6 +91,10 @@ function promptInputAndAdd(args) {
 					file.style.background = "white";
 				}
 			}
+			console.log(path);
+			file.id = newFilePath;
+			file.title = newFilePath;
+			file.replaceChild(child, fileName);
 		} else {
 			parent.parentNode.children[index].removeChild(file);
 		}
@@ -137,6 +134,86 @@ function deleteFile(file, ucleTabs, fileManager, type) {
 		}
 		file.parentNode.removeChild(file);
 	}
+}
+
+function renameAllChildren(files, ucleTabs, newPath) {
+	for(var i = 0; i < files.length; i++) {
+		if(files[i].matches("ul")) {
+			var index = Array.from(files[i].parentNode.children).indexOf(files[i]);
+			var parentDir = files[i].parentNode.children[index-1];
+			console.log(parentDir);
+			var newNameChildren = ucleTabs.getFileName(parentDir.title);
+			console.log(newNameChildren);
+			var newPathChildren = newPath + '/' + newNameChildren;
+			var newListId = newPathChildren + '-list-' + newPathChildren;
+			files[i].id = newListId;
+			renameAllChildren(files[i].children, ucleTabs, newPathChildren);
+		} else {
+			files[i].id = newPath + '/' + ucleTabs.getFileName(files[i].id);
+			files[i].title = files[i].id;
+		}
+	}
+}
+
+function promptInputAndRename(parent, child, type, ucleTabs, fileManager) {
+	var input = document.createElement("input");
+	input.value = child.innerHTML;
+
+	input.className = "file-display";
+	parent.replaceChild(input, child);
+
+	input.addEventListener('focus',function(e){
+		var splitInput = input.value.split(".");
+		if(splitInput.length > 1 && splitInput[0] != "") {
+			this.setSelectionRange(0, splitInput[0].length);
+		} else {
+			this.select();
+		}
+	});
+
+	input.focus();
+	input.addEventListener('keyup',function(e){
+		if(e.which == 13) this.blur();
+	});
+
+	input.addEventListener("blur", function(e) {
+		var newName = input.value;
+		var newPath = parent.title.replace(/[^\/]*$/, '') + newName;
+		var oldName = ucleTabs.getFileName(parent.title);
+		var oldPath = parent.title;
+
+		var alreadyRenamed = fileManager.renameFile(oldPath, newPath);
+
+		console.log(alreadyRenamed);
+
+		if(alreadyRenamed) {
+			var questionType = "warning";
+			var buttons = ['OK'];
+			var message = "'" + newName +"' already exists!\nPlease choose a different name!";
+			var defaultId = 0;
+			remote.dialog.showMessageBox({message, questionType, buttons, defaultId});
+			setTimeout(()=>{input.focus();},0);
+			return;
+		} else if(type == "dir") {
+			var index = Array.from(parent.parentNode.children).indexOf(parent);
+			var files = parent.parentNode.children[index+1];
+			files.id = newPath + '-list-' + newPath;
+			console.log(files.id);
+			renameAllChildren(files.children, ucleTabs, newPath);
+		} else if(ucleTabs.checkIfTabOpened(oldPath)) {
+			ucleTabs.updateTab(ucleTabs.getTabByPath(oldPath), {title: newName, fullPath: newPath});
+			ucleTabs.updateTabContent(ucleTabs.getTabByPath(oldPath));
+			var opened = document.getElementById("open-" + oldPath);
+			opened.id = "open-" + newPath;
+			opened.title = newPath;
+			opened.children[1].innerHTML = newName;
+		}
+		child.innerHTML = newName;
+		parent.id = newPath;
+		parent.title = newPath;
+		console.log("usao");
+		parent.replaceChild(child, input);
+	});
 }
 
 
@@ -402,6 +479,13 @@ module.exports = {
 					type: 'separator'
 				},
 				{
+					label: "Rename",
+					click() {
+						console.log(e);
+						promptInputAndRename(e, e.children[1], "dir", ucleTabs, fileManager);
+					}
+				},
+				{
 					label: "Delete folder",
 					click() {
 						deleteFile(e, ucleTabs, fileManager, "dir");
@@ -412,48 +496,11 @@ module.exports = {
 	contextWorkspaceFiles:
 		(fileManager, ucleTabs, e) => {
 
-			function promptInputAndRename(parent, child) {
-				var input = document.createElement("input");
-				input.value = child.innerHTML;
-				input.className = "file-display";
-				parent.replaceChild(input, child);
-				input.addEventListener('focus',function(e){
-					var splitInput = input.value.split(".");
-					if(splitInput.length > 1 && splitInput[0] != "") {
-						this.setSelectionRange(0, splitInput[0].length);
-					} else {
-						this.select();
-					}
-				});
-				input.focus();
-				input.addEventListener('keyup',function(e){
-					if(e.which == 13) this.blur();
-				});
-				input.addEventListener("blur", function(e) {
-					var newName = input.value;
-					var newPath = parent.title.replace(/[^\/]*$/, '') + newName;
-					var oldPath = parent.title;
-					child.innerHTML = newName;
-					parent.id = newPath;
-					parent.title = newPath;
-					parent.replaceChild(child, input);
-					fileManager.renameFile(oldPath, newPath);
-					if(ucleTabs.checkIfTabOpened(oldPath)) {
-						ucleTabs.updateTab(ucleTabs.getTabByPath(oldPath), {title: newName, fullPath: newPath});
-						ucleTabs.updateTabContent(ucleTabs.getTabByPath(oldPath));
-						var opened = document.getElementById("open-" + oldPath);
-						opened.id = "open-" + newPath;
-						opened.title = newPath;
-						opened.children[1].innerHTML = newName;
-					}
-				});
-			}
-
 			return [
 				{
 					label: "Rename",
 					click() {
-						promptInputAndRename(e, e.children[1], fileManager);
+						promptInputAndRename(e, e.children[1], "file", ucleTabs, fileManager);
 					}
 				},
 				{

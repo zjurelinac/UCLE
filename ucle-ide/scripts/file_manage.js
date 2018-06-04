@@ -75,7 +75,7 @@ class FileManager {
 
 		for (var i = 0, len = children.length; i < len; i++) {
 			var child = children[i];
-			let childListID = child.path + '-' + child.name + '-list-' + child.path;
+			let childListID = child.path + '-list-' + child.path;
 
 			if(child.type == 'directory') {
 				var dir = document.createElement("li");
@@ -86,7 +86,9 @@ class FileManager {
 				var ico = document.createElement("i");
 				ico.className = "dir-ico-closed";
 
-				var dirName = document.createTextNode(child.name);
+				var dirName = document.createElement("span");
+				dirName.innerHTML = child.name;
+
 				var fileList = document.createElement("ul");
 				fileList.id = childListID;
 				fileList.className = "hide";
@@ -138,10 +140,10 @@ class FileManager {
 		let wrapperName = "div-" + filePath;
 		let parentName = "list-" + filePath;
 
-		let listID = filePath + '-' + dirName + '-' + wrapperName;
+		let listID = filePath  + '-' + wrapperName;
 
 		if(ele && (ele.matches("li.dir"))) {
-			listID = filePath + '-' + dirName + '-' + parentName;
+			listID = filePath  + '-' + parentName;
 		}
 
 		var list = document.getElementById(listID);
@@ -209,11 +211,17 @@ class FileManager {
 	}
 
 	renameFile(oldPath, newPath) {
+		if(this.checkIfExists(newPath)) {
+			return true;
+		}
+
 		fs.rename(oldPath, newPath, function(err) {
 			if(err) {
 				throw err;
 			}
 		});
+
+		return false;
 	}
 
 	deleteFile(filePath) {
