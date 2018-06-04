@@ -103,7 +103,13 @@ loader().then((monaco) => {
 	});
 
 	el.addEventListener('tabClose', function(e) {
-		fileManager.saveFile(e.detail.tabEl.querySelector('.ucle-tab-file-path').textContent);
+		var currFileName = e.detail.tabEl.querySelector('.ucle-tab-title').textContent;
+		var currFilePath = e.detail.tabEl.querySelector('.ucle-tab-file-path').textContent;
+		if(currFileName.substring(0,8) == 'untitled') {
+			fileManager.saveAsFile();
+		} else {
+			fileManager.saveFile(currFilePath);
+		}
 	});
 
 	ipcRenderer.on('save-file', (e) => {

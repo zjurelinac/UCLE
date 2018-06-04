@@ -1,7 +1,6 @@
 const remote = require('electron').remote;
 const ipcRenderer = require('electron').ipcRenderer;
 const fs = require('fs');
-rmdir = require('rimraf');
 const path = require('path');
 const mime = require('mime');
 const dirTree = require('directory-tree');
@@ -58,7 +57,7 @@ class FileManager {
 	}
 
 	saveFile(file) {
-		if(fs.existsSync(file)) {
+		if(this.checkIfExists(file)) {
 			return true;
 		}
 
@@ -141,12 +140,6 @@ class FileManager {
 
 		let listID = filePath + '-' + dirName + '-' + wrapperName;
 
-		if(ele) {
-			console.log(ele);
-			console.log(ele.parentNode);
-			console.log(ele.parentNode.parentNode);
-		}
-
 		if(ele && (ele.matches("li.dir"))) {
 			listID = filePath + '-' + dirName + '-' + parentName;
 		}
@@ -177,8 +170,12 @@ class FileManager {
 		}
 	}
 
+	checkIfExists(filePath) {
+		return(fs.existsSync(filePath));
+	}
+
 	createFolder(filePath) {
-		if(fs.existsSync(filePath)) {
+		if(this.checkIfExists(filePath)) {
 			return true;
 		}
 
@@ -192,11 +189,18 @@ class FileManager {
 	}
 
 	deleteFolder(filePath) {
-		rmdir(filePath, function(err){
-			if(err) {
-				throw err;
-			}
-		});
+		if (this.checkIfExists(filePath)) {
+			var files = fs.readdirSync(filePath);
+			files.forEach(function (file, index) {
+				var currPath = path.join(filePath, file);
+				if (fs.statSync(currPath).isDirectory()) {
+					this.deleteFolder(currPath);
+				} else {
+					fs.unlinkSync(currPath);
+				}
+			},this);
+			fs.rmdirSync(filePath);
+		}
 	}
 
 	removeFolder(filePath) {

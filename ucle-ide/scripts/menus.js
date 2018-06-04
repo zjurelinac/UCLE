@@ -7,11 +7,7 @@ function promptInputAndAdd(args) {
 	const ucleTabs = args[2];
 	const index = args[3];
 	const path = args[4];
-	const clickedElement = args[5];
-	var fileType = args[6];
-
-	console.log(parent);
-	console.log(fileType);
+	var fileType = args[5];
 
 	var file = document.createElement("li");
 	file.className = fileType;
@@ -39,7 +35,11 @@ function promptInputAndAdd(args) {
 
 	if(parentNode && parentNode.firstChild.style) {
 		for(var i = 0; i < elements.length; i++) {
-			elements[i].getElementsByTagName("i")[0].style.marginLeft = parseInt(parentNode.firstChild.style.marginLeft, 10) + 15 + "px";
+			var ele = elements[i].getElementsByTagName("i")[0];
+			var value = parseInt(parentNode.firstChild.style.marginLeft, 10) + 15 + "px";
+			if(ele.style.marginLeft < value) {
+				ele.style.marginLeft = value;
+			}
 		}
 	}
 
@@ -105,6 +105,16 @@ function promptInputAndAdd(args) {
 	});
 }
 
+function closeOpenedFiles(ucleTabs, files) {
+	for(var i = 0; i < files.length; i++) {
+		if(files[i].matches("ul")) {
+			closeOpenedFiles(ucleTabs,files[i].children);
+		} else if(files[i].matches("li.file") && document.getElementById("open-" + files[i].title)) {
+			ucleTabs.removeTab(ucleTabs.getTabByPath(files[i].title));
+		}
+	}
+}
+
 function deleteFile(file, ucleTabs, fileManager, type) {
 	var questionType = "question";
 	var buttons = ['No','Yes'];
@@ -121,6 +131,8 @@ function deleteFile(file, ucleTabs, fileManager, type) {
 		} else {
 			fileManager.deleteFolder(file.title);
 			var index = Array.from(file.parentNode.children).indexOf(file);
+			var	files = file.parentNode.children[index+1];
+			closeOpenedFiles(ucleTabs, files.children);
 			file.parentNode.removeChild(file.parentNode.children[index+1]);
 		}
 		file.parentNode.removeChild(file);
@@ -287,7 +299,7 @@ module.exports = {
 			];
 		},
 	contextWorkspace:
-		(fileManager, ucleTabs, e, clickedElement) => {
+		(fileManager, ucleTabs, e) => {
 			function removeFolder(folder) {
 				fileManager.removeFolder(folder.title); 
 				if(!document.querySelector('[id^="div-"')) {
@@ -323,7 +335,6 @@ module.exports = {
 						args.push(ucleTabs);
 						args.push(1);
 						args.push(e.title);
-						args.push(clickedElement);
 						args.push("dir");
 						promptInputAndAdd(args);
 					},
@@ -342,7 +353,6 @@ module.exports = {
 						args.push(ucleTabs);
 						args.push(1);
 						args.push(e.title);
-						args.push(clickedElement);
 						args.push("file");
 						promptInputAndAdd(args);
 					},
@@ -351,7 +361,7 @@ module.exports = {
 			];
 		},
 	contextWorkspaceDir:
-		(fileManager, ucleTabs, e, clickedElement) => {
+		(fileManager, ucleTabs, e) => {
 			return [
 				{
 					click() {
@@ -364,7 +374,6 @@ module.exports = {
 						args.push(ucleTabs);
 						args.push(index+1);
 						args.push(e.title);
-						args.push(clickedElement);
 						args.push("dir");
 						promptInputAndAdd(args);
 					},
@@ -384,7 +393,6 @@ module.exports = {
 						args.push(ucleTabs);
 						args.push(index+1);
 						args.push(e.title);
-						args.push(clickedElement);
 						args.push("file");
 						promptInputAndAdd(args);
 					},
@@ -423,8 +431,8 @@ module.exports = {
 				});
 				input.addEventListener("blur", function(e) {
 					var newName = input.value;
-					var newPath = parent.id.replace(/[^\/]*$/, '') + newName;
-					var oldPath = parent.id;
+					var newPath = parent.title.replace(/[^\/]*$/, '') + newName;
+					var oldPath = parent.title;
 					child.innerHTML = newName;
 					parent.id = newPath;
 					parent.title = newPath;

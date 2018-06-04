@@ -97,7 +97,7 @@ class UCLETabs {
 
 	changeEditorLanguage(tabEl, fileName) {
 		if(!tabEl || !idModels.get(tabId.get(tabEl))) return;
-		this.monaco.editor.setModelLanguage(idModels.get(tabId.get(tabEl)),mime.getExtension(mime.getType(fileName)));
+		this.monaco.editor.setModelLanguage(idModels.get(tabId.get(tabEl)),this.getExtension(fileName));
 	}
 
 	closeTab(tabEl, changed = false) {
@@ -164,6 +164,10 @@ class UCLETabs {
 	getFileName(str) {
 		if(!str) return;
 		return str.split('\\').pop().split('/').pop();
+	}
+
+	getExtension(path) {
+		return mime.getExtension(mime.getType(path))
 	}
 
 	setCurrentTabByPath(path) {

@@ -283,40 +283,45 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir") 
 			|| e.target.matches("li.file"))) {
-			if(!clickedElement || (clickedElement == e.target)) {
-				clickedElement = e.target;
-				document.getElementById(e.target.id).style.backgroundColor = "#e6e6e6";
-			} else {
-				document.getElementById(clickedElement.id).style.backgroundColor = "white";
-				clickedElement = e.target;
-				document.getElementById(e.target.id).style.backgroundColor = "#e6e6e6";
+			var clicked = document.querySelector('[clicked-attr="click"]');
+			if(clicked) {
+				clicked.style.backgroundColor = "white";
+				clicked.setAttribute("clicked-attr","noclick");
 			}
+			e.target.style.backgroundColor = "#e6e6e6";
+			e.target.setAttribute("clicked-attr","click");
 		} else if((e.target.matches("i") || e.target.matches("span")) && 
 			(e.target.parentNode.matches("li.dir") || e.target.parentNode.matches("div.dir") 
 			|| e.target.parentNode.matches("li.file"))) {
-			if(!clickedElement || (clickedElement == e.target)) {
-				clickedElement = e.target.parentNode;
-				document.getElementById(e.target.parentNode.id).style.backgroundColor = "#e6e6e6";
-			} else {
-				document.getElementById(clickedElement.id).style.backgroundColor = "white";
-				clickedElement = e.target.parentNode;
-				document.getElementById(e.target.parentNode.id).style.backgroundColor = "#e6e6e6";
+			var clicked = document.querySelector('[clicked-attr="click"]');
+			if(clicked) {
+				clicked.style.backgroundColor = "white";
+				clicked.setAttribute("clicked-attr","noclick");
 			}
+			e.target.parentNode.style.backgroundColor = "#e6e6e6";
+			e.target.parentNode.setAttribute("clicked-attr","click");
 		}
 	});
 
 	listedFiles.addEventListener("contextmenu", function(e) {
 		var template = null;
-		if(e.target.matches("div.dir")) {
-			template = require('./menus').contextWorkspace(fileManager, ucleTabs, e.target, clickedElement);
+		if(simRunning) {
+			var type = "warning";
+			var buttons = ['OK'];
+			var message = "Simulation is running! Please stop the simulation and try again!";
+			var defaultId = 0;
+			remote.dialog.showMessageBox({message, type, buttons, defaultId});
+			return;
+		} else if(e.target.matches("div.dir")) {
+			template = require('./menus').contextWorkspace(fileManager, ucleTabs, e.target);
 		} else if((e.target.matches("i") && e.target.parentNode.matches("div.dir"))) {
-			template = require('./menus').contextWorkspace(fileManager, ucleTabs, e.target.parentNode, clickedElement);			
+			template = require('./menus').contextWorkspace(fileManager, ucleTabs, e.target.parentNode);			
 		} else if(e.target.matches("li.dir")) {
-			template = require('./menus').contextWorkspaceDir(fileManager, ucleTabs, e.target, clickedElement);
+			template = require('./menus').contextWorkspaceDir(fileManager, ucleTabs, e.target);
 		} else if((e.target.matches("i") ||
 			       e.target.matches("span")) && 
 			       e.target.parentNode.matches("li.dir")) {
-			template = require('./menus').contextWorkspaceDir(fileManager, ucleTabs, e.target.parentNode, clickedElement);
+			template = require('./menus').contextWorkspaceDir(fileManager, ucleTabs, e.target.parentNode);
 		} else if(e.target.matches("li.file")) {
 			template = require('./menus').contextWorkspaceFiles(fileManager, ucleTabs, e.target);
 		} else if((e.target.matches("i") ||
@@ -331,24 +336,44 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	});
 
 	listedFiles.addEventListener("dblclick", function(e) {
-		if(e.target && e.target.matches("li.file")) {
-			console.log(e.target.title);
+		if(simRunning) {
+			var type = "warning";
+			var buttons = ['OK'];
+			var message = "Simulation is running! Please stop the simulation and try again!";
+			var defaultId = 0;
+			remote.dialog.showMessageBox({message, type, buttons, defaultId});
+			return;
+		} else if(e.target && e.target.matches("li.file")) {
 			fileManager.openFile(e.target.title);
 			ucleTabs.addTab({title: ucleTabs.getFileName(e.target.title), fullPath: e.target.title},true);	
 		} else if((e.target.matches("i") || e.target.matches("span")) && e.target.parentNode.matches("li.file")) {
-			console.log(e.target.title);
 			fileManager.openFile(e.target.parentNode.title);
 			ucleTabs.addTab({title: ucleTabs.getFileName(e.target.parentNode.title), fullPath: e.target.parentNode.title},true);			
 		}
 	});
 
 	openedFiles.addEventListener("dblclick", function(e) {
-		if ((e.target.matches("div.file") || e.target.matches("span"))) {
+		if(simRunning) {
+			var type = "warning";
+			var buttons = ['OK'];
+			var message = "Simulation is running! Please stop the simulation and try again!";
+			var defaultId = 0;
+			remote.dialog.showMessageBox({message, type, buttons, defaultId});
+			return;
+		} else if ((e.target.matches("div.file") || e.target.matches("span"))) {
 			ucleTabs.setCurrentTabByPath(e.target.title);
 		}
 	});
 
 	openedFiles.addEventListener("contextmenu", function(e) {
+		if(simRunning) {
+			var type = "warning";
+			var buttons = ['OK'];
+			var message = "Simulation is running! Please stop the simulation and try again!";
+			var defaultId = 0;
+			remote.dialog.showMessageBox({message, type, buttons, defaultId});
+			return;
+		}
 		template = require('./menus').contextOpenedFiles(fileManager, ucleTabs, e);
 		const menu = Menu.buildFromTemplate(template);
 		menu.popup(remote.getCurrentWindow());
@@ -408,6 +433,16 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		if(e.target.className == "run-simulation") {
 			var currTabValue = ucleTabs.currentTabValue;
 			if(currTabValue) {
+				var filePath = ucleTabs.currentTab.querySelector('.ucle-tab-file-path').textContent;
+				if(ucleTabs.getExtension(filePath) != "s"){
+					var type = "warning";
+					var buttons = ['OK'];
+					var message = "Cannot run simulation on file without '.s' extension!";
+					var defaultId = 0;
+					remote.dialog.showMessageBox({message, type, buttons, defaultId});
+					return;
+				}
+
 				ucleTabs.hideTabs();
 				e.target.className = "stop-simulation";
 
@@ -418,9 +453,8 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				ucleTabs.simRunning= true;
 				fileManager.simRunning = true;
 				editor.updateOptions({readOnly: true, selectionHighlight: false});
-				var filePath = ucleTabs.currentTab.querySelector('.ucle-tab-file-path').textContent;
 
-				var data = ucleServer.runSim(filePath, ucleTabs.currentTabModel);
+				var data = ucleServer.getMachineCodeAndRun(filePath, ucleTabs.currentTabModel);
 				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 			} else {
 				var type = "warning";
@@ -455,8 +489,18 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		if(sim.className == "run-simulation") {
 			var currTabValue = ucleTabs.currentTabValue;
 			if(currTabValue) {
+				var filePath = ucleTabs.currentTab.querySelector('.ucle-tab-file-path').textContent;
+				if(ucleTabs.getExtension(filePath) != "s"){
+					var type = "warning";
+					var buttons = ['OK'];
+					var message = "Cannot run simulation on file without '.s' extension!";
+					var defaultId = 0;
+					remote.dialog.showMessageBox({message, type, buttons, defaultId});
+					return;
+				}
+
 				ucleTabs.hideTabs();
-				e.target.className = "stop-simulation";
+				sim.className = "stop-simulation";
 
 				addSimEvents();
 				calculateWidth(true);
@@ -468,21 +512,19 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 				ucleServer.addHighLight(ucleTabs.currentTabModel, new monaco.Range(1,1,1,1));
 
-				var filePath = ucleTabs.currentTab.querySelector('.ucle-tab-file-path').textContent;
-
 				editor.setPosition(new monaco.Position(1,1));
 
-				var data = ucleServer.runSim(filePath, ucleTabs.currentTabModel);
+				var data = ucleServer.getMachineCodeAndRun(filePath, ucleTabs.currentTabModel);
 				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 			} else {
 				var type = "warning";
 				var buttons = ['OK'];
 				var message = 'Cannot run simulation with an empty file!';
 				var defaultId = 0;
-				var response = remote.dialog.showMessageBox({message, type, buttons, defaultId});
+				remote.dialog.showMessageBox({message, type, buttons, defaultId});
 			}
 		} else {
-			e.target.className = "run-simulation";
+			sim.className = "run-simulation";
 			removeSimEvents();
 			calculateWidth(false);
 

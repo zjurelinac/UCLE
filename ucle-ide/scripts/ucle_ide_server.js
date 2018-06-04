@@ -2,9 +2,9 @@ const cp = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-var procSim = path.resolve("../ucle/build/core/debug/", './fnsim-cli');
+const procSim = path.resolve("../ucle/build/core/debug/", './fnsim-cli');
 
-//var procAssembler = path.resolve(...);
+const procAssembler = path.resolve("../ucle/build/core/debug/", './frisc-asm');
 
 var child;
 var infoInterval;
@@ -211,9 +211,7 @@ class UCLEServer {
 		for(var i = 1; i <= lineCount; i++) {
 			if(model.getLineContent(i).replace(/\s/g, '').length) {
 				var nextAddress = simFileModel.getLineContent(i).split(" ")[0];
-				console.log(parseInt(nextAddress,16) + " - " + address + " -> " + i);
 				if(parseInt(nextAddress,16) == address) {
-					console.log("line is " + i);
 					return i;
 				}
 			}
@@ -241,18 +239,23 @@ class UCLEServer {
 		return -1;
 	}
 
-	getMachineCode(filePath) {
-		/*child = cp.exec(procAssembler + " " + filePath, function(stderr) {
-			console.log(stderr);
+	getMachineCodeAndRun(filePath, model) {
+		var generatedPath = filePath.split('.')[0] + '.p';
+
+		var sim = this;
+
+		child = cp.exec(procAssembler + " " + filePath, function(stderr) {
+			if (stderr) {
+				console.log(stderr);
+				return;
+			} else {
+				var data = fs.readFileSync(generatedPath, 'utf-8');
+				simFileModel = sim.monaco.editor.createModel(data);
+				sim.runSim(generatedPath, model);
+			}
 		}); 
 
-		TODO with our assembler*/
-
-		var data = fs.readFileSync(filePath, 'utf-8');
-
-		simFileModel = this.monaco.editor.createModel(data);
-
-		return filePath;
+		return generatedPath;
 	}
 
 	resetPosition(model) {
@@ -262,11 +265,9 @@ class UCLEServer {
 	}
 
 	runSim(filePath, model) {
-		var simPath = this.getMachineCode(filePath);
-
 		this.resetPosition(model);
 
-		child = cp.execFile(procSim, ['FRISC', simPath, '-j']);
+		child = cp.execFile(procSim, ['FRISC', filePath, '-j']);
 
 		child.stdout.on('data', function(data) {
 			require('electron').remote.getCurrentWindow().webContents.send("sim-response", data);
