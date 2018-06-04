@@ -6,21 +6,21 @@
 #include <string_view>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 namespace ucle::asr {
 
-    template <typename AddressType = address32_t>
-    struct instr_info {
-        using address_type = AddressType;
-
-        address_type address { 0 };
+    struct line_info {
+        address32_t address;
+        std::string_view contents;
         parsley::parse_details instr;
+        bool is_instr;
     };
 
     using label_table = std::unordered_map<std::string_view, address32_t>;
 
-    using first_pass_result = std::pair<std::vector<instr_info<>>, label_table>;
-    using second_pass_result = std::map<address32_t, word_t>;
+    using first_pass_result = std::pair<std::vector<line_info>, label_table>;
+    using second_pass_result = std::unordered_map<address32_t, word_t>;
 
     class parse_error : public base_exception { using base_exception::base_exception; };
     class logical_error : public base_exception { using base_exception::base_exception; };

@@ -292,7 +292,7 @@ std::vector<parse_details> frisc_assembler::parse_lines_(std::string_view conten
 
 first_pass_result frisc_assembler::first_pass_(const std::vector<parse_details>& parsed_lines)
 {
-    std::vector<instr_info<>> instrs;
+    std::vector<line_info> results;
     label_table labels;
 
     address32_t current_addr = 0;
@@ -303,6 +303,8 @@ first_pass_result frisc_assembler::first_pass_(const std::vector<parse_details>&
         if (line_instr.empty()) {
             if (!line["line_label"].empty())
                 labels[line["line_label"].contents] = current_addr;
+
+            results.push_back({ current_addr, line.contents, {}, false });
             continue;
         }
 
@@ -310,6 +312,7 @@ first_pass_result frisc_assembler::first_pass_(const std::vector<parse_details>&
 
         if (instr_class[0] == "equ_instr") {
             labels[line["line_label"].contents] = detail::parse_num_const(instr_class[0]["signed_num_const"]);
+            results.push_back({ current_addr, line.contents, {}, false });
             continue;
         } else if (instr_class[0] == "org_instr") {
             address32_t new_addr = detail::parse_num_const(instr_class[0]["signed_num_const"]);
@@ -326,33 +329,35 @@ first_pass_result frisc_assembler::first_pass_(const std::vector<parse_details>&
         if (!line["line_label"].empty())
             labels[line["line_label"].contents] = current_addr;
 
+        results.push_back({ current_addr, line.contents, instr_class[0], (instr_class == "reg_instr" || instr_class[0] == "dat_instr") });
+
         if (instr_class == "reg_instr") {
-            instrs.push_back({ current_addr, instr_class[0] });
             current_addr += 4;
         } else if (instr_class[0] == "dsp_instr") {
             address32_t offset = detail::parse_num_const(instr_class[0]["signed_num_const"]);
             current_addr += offset;
         } else if (instr_class[0] == "dat_instr") {
-            instrs.push_back({ current_addr, instr_class[0] });
-
             auto& dat_instr = instr_class[0];
             auto& def_list = dat_instr["def_list"];
             auto data_size = detail::data_instr_size(dat_instr["opcode"].contents);
             auto data_count = def_list.children.size();
 
+            for (auto i = 4u; i < data_size * data_count; i += 4)
+                results.push_back({ current_addr + i, "", {}, true });
+
             current_addr += cbu::address_rounded(data_count * data_size + sizeof(word_t) - 1, sizeof(word_t));
-        } // else do nothing
+        }
     }
 
-    return { instrs, labels };
+    return { results, labels };
 }
 
-second_pass_result frisc_assembler::second_pass_(const std::vector<instr_info<>>& instrs, const label_table& labels)
+second_pass_result frisc_assembler::second_pass_(const std::vector<line_info>& lines, const label_table& labels)
 {
     second_pass_result mcode;
 
-    for (auto i = 0u; i < instrs.size(); ++i) {
-        const auto [address, instr] = instrs[i];
+    for (const auto [address, _, instr, is_instr] : lines) {
+        if (!is_instr || instr.empty()) continue;
 
         try {
             if (instr == "dat_instr")
@@ -381,18 +386,26 @@ second_pass_result frisc_assembler::second_pass_(const std::vector<instr_info<>>
 
 void frisc_assembler::assemble(std::string filename)
 {
+    // TODO: Nomenclature!
+
     try {
         auto contents = read_file_(filename);
         auto parsed_lines = parse_lines_(contents);
-        auto [instr_lines, labels] = first_pass_(parsed_lines);
-        auto assemble_results = second_pass_(instr_lines, labels);
+        auto [lines, labels] = first_pass_(parsed_lines);
+        auto mcodes = second_pass_(lines, labels);
 
-        for (const auto [address, mcode] : assemble_results)
-            fmt::print(
-                "{:08X}  {:02X} {:02X} {:02X} {:02X}  {}\n", address,
-                cbu::nth_byte_of(mcode, 0), cbu::nth_byte_of(mcode, 1), cbu::nth_byte_of(mcode, 2), cbu::nth_byte_of(mcode, 3),
-                "line_info"
-            );
+        for (const auto [address, contents, instr, is_instr] : lines) {
+            if (!is_instr) {
+                fmt::print("                       {}\n", contents);
+            } else {
+                auto mcode = mcodes[address];
+                fmt::print(
+                    "{:08X}  {:02X} {:02X} {:02X} {:02X}  {}\n", address,
+                    cbu::nth_byte_of(mcode, 0), cbu::nth_byte_of(mcode, 1), cbu::nth_byte_of(mcode, 2), cbu::nth_byte_of(mcode, 3),
+                    contents
+                );
+            }
+        }
 
     } catch (std::exception& e) {
         fmt::print_colored(stderr, fmt::RED, "{}\n", e.what());
