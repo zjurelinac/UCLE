@@ -257,7 +257,7 @@ namespace ucle::util {
             auto part = take_while(input, std::not_fn(p));
             parts.push_back(part);
 
-            input = drop_while(input.substr(part.length()), p);
+            input = input.substr(part.length() + 1); // drop_while(input.substr(part.length()), p);
         }
 
         return parts;
