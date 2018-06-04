@@ -4,6 +4,7 @@
 
 #include <libs/fmt/format.h>
 
+#include <util/filesystem.hpp>
 #include <util/string.hpp>
 #include <util/string_view.hpp>
 
@@ -387,6 +388,7 @@ second_pass_result frisc_assembler::second_pass_(const std::vector<line_info>& l
 void frisc_assembler::assemble(std::string filename)
 {
     // TODO: Nomenclature!
+    fmt::print("{} => {} => {}\n", filename, util::strip_extension(filename), util::change_extension(filename, "p"));
 
     try {
         auto contents = read_file_(filename);
@@ -394,18 +396,22 @@ void frisc_assembler::assemble(std::string filename)
         auto [lines, labels] = first_pass_(parsed_lines);
         auto mcodes = second_pass_(lines, labels);
 
+        auto outfile = util::open_file(util::change_extension(filename, "p").c_str(), "w+");
+
         for (const auto [address, contents, instr, is_instr] : lines) {
             if (!is_instr) {
-                fmt::print("                       {}\n", contents);
+                fmt::print(outfile, "                       {}\n", contents);
             } else {
                 auto mcode = mcodes[address];
-                fmt::print(
+                fmt::print(outfile,
                     "{:08X}  {:02X} {:02X} {:02X} {:02X}  {}\n", address,
                     cbu::nth_byte_of(mcode, 0), cbu::nth_byte_of(mcode, 1), cbu::nth_byte_of(mcode, 2), cbu::nth_byte_of(mcode, 3),
                     contents
                 );
             }
         }
+
+        util::close_file(outfile);
 
     } catch (std::exception& e) {
         fmt::print_colored(stderr, fmt::RED, "{}\n", e.what());
@@ -486,8 +492,8 @@ void frisc_assembler::init_parser_()
     auto cond_flag = ilit("ULE") / ilit("ULT") / ilit("UGE") / ilit("UGT") /
                      ilit("SLE") / ilit("SLT") / ilit("SGE") / ilit("SGT") /
                      ilit("NC")  / ilit("NV")  / ilit("NN")  / ilit("NZ")  /
-                     ilit("C")   / ilit("V")   / ilit("N")   / ilit("Z")   /
-                     ilit("M")   / ilit("P")   / ilit("EQ")  / ilit("NE");
+                     ilit("NE")  / ilit("C")   / ilit("V")   / ilit("N")   /
+                     ilit("Z")   / ilit("M")   / ilit("P")   / ilit("EQ");
 
     auto condition = opt(undersc >> cond_flag) >= "condition";
 
