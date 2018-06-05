@@ -253,19 +253,6 @@ i.file-ico {
 	box-sizing: border-box;
 }
 
-#search {
-	display: inline-block;
-	background:url(../icons/search-black.png);
-	background-repeat:no-repeat;
-	background-size: 100% 100%;
-	width:32px;
-	height:32px;
-	top:0;
-	bottom:0;
-	right:0;
-	left:0;
-}
-
 #file-explorer {
 	display: inline-block;
 	background:url(../icons/file-explorer-black.png);
@@ -473,11 +460,11 @@ li.dir, li.file, div.dir, div.file {
 	visibility: hidden;
 }
 
-#search:hover, #file-explorer:hover, #refresh:hover, #increase:hover, #decrease:hover, .run-simulation:hover, .stop-simulation:hover, .explorer:hover {
+#file-explorer:hover, #refresh:hover, #increase:hover, #decrease:hover, .run-simulation:hover, .stop-simulation:hover, .explorer:hover {
 	cursor: pointer;
 }
 
-#search:active, #file-explorer:active, #refresh:active, #increase:active, #decrease:active, #openbtn:active, .run-simulation:active, .stop-simulation:active {
+#file-explorer:active, #refresh:active, #increase:active, #decrease:active, #openbtn:active, .run-simulation:active, .stop-simulation:active {
 	transform: translateY(4px);
 }
 
