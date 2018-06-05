@@ -91,10 +91,9 @@ function promptInputAndAdd(args) {
 					file.style.background = "white";
 				}
 			}
-			console.log(path);
-			file.id = newFilePath;
 			file.title = newFilePath;
 			file.replaceChild(child, fileName);
+			fileManager.reloadListedFiles();
 		} else {
 			parent.parentNode.children[index].removeChild(file);
 		}
@@ -115,15 +114,15 @@ function closeOpenedFiles(ucleTabs, files) {
 function deleteFile(file, ucleTabs, fileManager, type) {
 	var questionType = "question";
 	var buttons = ['No','Yes'];
-	var message = "Are you sure you want to delete '" + ucleTabs.getFileName(file.id) + "'?";
+	var message = "Are you sure you want to delete '" + ucleTabs.getFileName(file.title) + "'?";
 	var defaultId = 0;
 	var response = remote.dialog.showMessageBox({message, questionType, buttons, defaultId});
 
 	if(response) {
 		if(type == "file") {
-			fileManager.deleteFile(file.id);
-			if(ucleTabs.checkIfTabOpened(file.id)) {
-				ucleTabs.removeTab(ucleTabs.getTabByPath(file.id));
+			fileManager.deleteFile(file.title);
+			if(ucleTabs.checkIfTabOpened(file.title)) {
+				ucleTabs.removeTab(ucleTabs.getTabByPath(file.title));
 			}
 		} else {
 			fileManager.deleteFolder(file.title);
@@ -131,27 +130,12 @@ function deleteFile(file, ucleTabs, fileManager, type) {
 			var	files = file.parentNode.children[index+1];
 			closeOpenedFiles(ucleTabs, files.children);
 			file.parentNode.removeChild(file.parentNode.children[index+1]);
+			var explorerListed = document.querySelector('[id="div-' + CSS.escape(file.title) + '"]');
+			if(explorerListed) {
+				document.getElementById("listed-files").removeChild(explorerListed);
+			}
 		}
 		file.parentNode.removeChild(file);
-	}
-}
-
-function renameAllChildren(files, ucleTabs, newPath) {
-	for(var i = 0; i < files.length; i++) {
-		if(files[i].matches("ul")) {
-			var index = Array.from(files[i].parentNode.children).indexOf(files[i]);
-			var parentDir = files[i].parentNode.children[index-1];
-			console.log(parentDir);
-			var newNameChildren = ucleTabs.getFileName(parentDir.title);
-			console.log(newNameChildren);
-			var newPathChildren = newPath + '/' + newNameChildren;
-			var newListId = newPathChildren + '-list-' + newPathChildren;
-			files[i].id = newListId;
-			renameAllChildren(files[i].children, ucleTabs, newPathChildren);
-		} else {
-			files[i].id = newPath + '/' + ucleTabs.getFileName(files[i].id);
-			files[i].title = files[i].id;
-		}
 	}
 }
 
@@ -184,8 +168,6 @@ function promptInputAndRename(parent, child, type, ucleTabs, fileManager) {
 
 		var alreadyRenamed = fileManager.renameFile(oldPath, newPath);
 
-		console.log(alreadyRenamed);
-
 		if(alreadyRenamed) {
 			var questionType = "warning";
 			var buttons = ['OK'];
@@ -198,8 +180,16 @@ function promptInputAndRename(parent, child, type, ucleTabs, fileManager) {
 			var index = Array.from(parent.parentNode.children).indexOf(parent);
 			var files = parent.parentNode.children[index+1];
 			files.id = newPath + '-list-' + newPath;
-			console.log(files.id);
-			renameAllChildren(files.children, ucleTabs, newPath);
+			var explorerListed = document.querySelector('[id="div-' + CSS.escape(oldPath) + '"]');
+			if(explorerListed) {
+				explorerListed.children[0].title = newPath;
+			}
+			var explorerOpened = document.querySelectorAll('[id*="open-' + CSS.escape(oldPath) + '"]');
+			for(var i = 0; i < explorerOpened.length; i++) {
+				var openedNewPath = newPath + '/' + ucleTabs.getFileName(explorerOpened[i].title);
+				explorerOpened[i].id = "open-" + openedNewPath;
+				explorerOpened[i].title = openedNewPath;
+			}
 		} else if(ucleTabs.checkIfTabOpened(oldPath)) {
 			ucleTabs.updateTab(ucleTabs.getTabByPath(oldPath), {title: newName, fullPath: newPath});
 			ucleTabs.updateTabContent(ucleTabs.getTabByPath(oldPath));
@@ -209,10 +199,9 @@ function promptInputAndRename(parent, child, type, ucleTabs, fileManager) {
 			opened.children[1].innerHTML = newName;
 		}
 		child.innerHTML = newName;
-		parent.id = newPath;
 		parent.title = newPath;
-		console.log("usao");
 		parent.replaceChild(child, input);
+		setTimeout(() => {fileManager.reloadListedFiles();}, 0);
 	});
 }
 
@@ -481,7 +470,6 @@ module.exports = {
 				{
 					label: "Rename",
 					click() {
-						console.log(e);
 						promptInputAndRename(e, e.children[1], "dir", ucleTabs, fileManager);
 					}
 				},

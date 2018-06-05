@@ -261,6 +261,10 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		listedFiles.style.height = listedFiles.style.height + (window.innerHeight - listedFiles.style.height);
 	});
 
+	document.getElementById("refresh").addEventListener("click", function(e) {
+		fileManager.reloadListedFiles();
+	});
+
 	listedFiles.addEventListener("click", function(e) {
 		if (e.target && (e.target.matches("li.dir") || e.target.matches("div.dir"))) {
 			var child = e.target.children[0];

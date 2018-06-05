@@ -79,7 +79,6 @@ class FileManager {
 
 			if(child.type == 'directory') {
 				var dir = document.createElement("li");
-				dir.id = child.path;
 				dir.title = child.path;
 				dir.className = "dir";
 
@@ -99,7 +98,6 @@ class FileManager {
 				list.appendChild(fileList);
 			} else {
 				var file = document.createElement("li");
-				file.id = child.path;
 				file.title = child.path;
 				file.className = "file";
 
@@ -162,13 +160,30 @@ class FileManager {
 			document.getElementById('workspace').children[0].className = "explorer-ico-opened";
 			document.getElementById('listed-files').innerHTML += '<div id="' + wrapperName + '" class="file-wrapper" ><div id="'
 															  + parentName + '" title="' + filePath  +
-															  '" class="dir"><i class="dir-ico-closed" style="margin-left:10px"></i>' + dirName + '</div><ul id="' + listID + 
-															  '"style="width:100%" class="hide"></ul></div>';
+															  '" class="dir"><i class="dir-ico-opened" style="margin-left:10px"></i>' + dirName + '</div><ul id="' + listID + 
+															  '"style="width:100%" class=""></ul></div>';
 		}
 
 		if(list == null || list.innerHTML == "") {
 			const tree = dirTree(filePath);
-			this.walkThroughFiles(tree.children, listID);
+			var manager = this;
+			setTimeout(()=>{manager.walkThroughFiles(tree.children, listID);}, 0);
+		}
+	}
+
+	reloadListedFiles() {
+		var listedFiles = document.getElementById('listed-files');
+		var children = listedFiles.children;
+		var paths = [];
+
+		var remove = document.querySelectorAll('[id^="div-"');
+		for(var i = 0; i < remove.length; i++) {
+			paths.push(remove[i].children[0].title);
+			listedFiles.removeChild(remove[i]);
+		}
+
+		for(var i = 0; i < paths.length; i++) {
+			this.readFolder(paths[i]);
 		}
 	}
 
