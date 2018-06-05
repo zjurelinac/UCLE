@@ -9,6 +9,7 @@ html, body {
 	font-size: 12px;
 	width:100%;
 	overflow: hidden;
+	background-color: #fafafa;
 }
 
 #font-size::-webkit-outer-spin-button,
@@ -33,7 +34,7 @@ html, body {
 #display-files {
 	list-style-type: none;
 	padding-left: 0;
-	padding-top: 5px;
+	padding-top: 0px;
 	padding-right: 20px;
 }
 
@@ -52,8 +53,6 @@ html, body {
 	transition: 0.5s;
 	position: relative;
 	font-size: 16px;
-	border-top: solid 2px rgba(0, 0, 0, .5);
-	border-right: solid 2px rgba(0, 0, 0, .5);
 	box-sizing: border-box;
 }
 
@@ -443,7 +442,7 @@ li.dir, li.file, div.dir, div.file {
 	width: 100%;
 	margin: 0 auto;
 	padding: 4px;
-	background-color: white;
+	background-color: #fafafa;
 	display: block;
 	overflow: hidden;
 	height: 20px;

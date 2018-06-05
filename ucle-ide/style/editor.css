@@ -1,7 +1,6 @@
 #container {
 	width: 80%;
 	height: 100%;
-	border:1px solid #ccc;
 	border-top: none;
 	padding: 0;
 	top:0;
@@ -11,6 +10,7 @@
 	margin: 0;
 	vertical-align:top;
 	display: inline-block;
+	position: relative;
 }
 
 #editor {
@@ -21,13 +21,14 @@
 }
 
 #line-tab {
-	background-color: white;
 	padding: 0;
 	margin: 0;
 	height: 30px;
 	width: 100%;
 	bottom: 0;
+	font-size: 16px;
 	position: absolute;
+	box-sizing: border-box;
 }
 
 #show-sim {

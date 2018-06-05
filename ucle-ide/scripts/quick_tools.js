@@ -289,7 +289,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			|| e.target.matches("li.file"))) {
 			var clicked = document.querySelector('[clicked-attr="click"]');
 			if(clicked) {
-				clicked.style.backgroundColor = "white";
+				clicked.style.backgroundColor = "#fafafa";
 				clicked.setAttribute("clicked-attr","noclick");
 			}
 			e.target.style.backgroundColor = "#e6e6e6";
@@ -299,7 +299,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			|| e.target.parentNode.matches("li.file"))) {
 			var clicked = document.querySelector('[clicked-attr="click"]');
 			if(clicked) {
-				clicked.style.backgroundColor = "white";
+				clicked.style.backgroundColor = "#fafafa";
 				clicked.setAttribute("clicked-attr","noclick");
 			}
 			e.target.parentNode.style.backgroundColor = "#e6e6e6";
