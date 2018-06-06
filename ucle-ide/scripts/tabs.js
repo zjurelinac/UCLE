@@ -385,6 +385,18 @@ class UCLETabs {
 			fileStartContent.set(idFile.get(tabId.get(tabEl)), "");			
 		}
 
+		var tabs = this;
+
+		idModels.get(tabId.get(tabEl)).onDidChangeContent(function(e) {
+			if(tabs.checkIfValueChanged(tabEl)) {
+				if(tabEl.querySelector(".ucle-tab-close")) {
+					tabEl.querySelector(".ucle-tab-close").className = 'ucle-tab-content-changed';
+				}
+			} else {
+				tabEl.querySelector(".ucle-tab-content-changed").className = 'ucle-tab-close';
+			}
+		});
+
 		this.changeEditorLanguage(tabEl, tabProperties.title);
 
 		idView.set(id, this.editor.saveViewState());

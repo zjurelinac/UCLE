@@ -78,22 +78,22 @@
 }
 @-moz-keyframes ucle-tab-just-added {
   to {
-    top: 0;
+	top: 0;
   }
 }
 @-webkit-keyframes ucle-tab-just-added {
   to {
-    top: 0;
+	top: 0;
   }
 }
 @-o-keyframes ucle-tab-just-added {
   to {
-    top: 0;
+	top: 0;
   }
 }
 @keyframes ucle-tab-just-added {
   to {
-    top: 0;
+	top: 0;
   }
 }
 .ucle-tabs.ucle-tabs-sorting .ucle-tab:not(.ucle-tab-currently-dragged),
@@ -126,14 +126,25 @@
   max-width: calc(100% - 5em);
   pointer-events: none;
 }
+.ucle-tabs .ucle-tab-content-changed {
+	position: absolute;
+	width: 0.8em;
+	height: 0.8em;
+	border-radius: 50%;
+	z-index: 2;
+	right: 1.6em;
+	top: 1em;
+	background: gray;
+}
+
 .ucle-tabs .ucle-tab-close {
-  position: absolute;
-  width: 1.4em;
-  height: 1.4em;
-  border-radius: 50%;
-  z-index: 2;
-  right: 1.4em;
-  top: 0.7em;
+	position: absolute;
+	width: 1.4em;
+	height: 1.4em;
+	border-radius: 50%;
+	z-index: 2;
+	right: 1.4em;
+	top: 0.7em;
 }
 .ucle-tabs .ucle-tab-close::before {
   content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'><path stroke='#5a5a5a' stroke-linecap='round' stroke-width='1.125' d='M4 4 L10 10 M10 4 L4 10'></path></svg>");
