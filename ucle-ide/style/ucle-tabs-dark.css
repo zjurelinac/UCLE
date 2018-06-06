@@ -1,0 +1,24 @@
+.ucle-tabs.ucle-tabs-dark {
+  background: linear-gradient(#1b1d1f, #1d1f21);
+  box-shadow: 0 0.05em #282828;
+}
+.ucle-tabs.ucle-tabs-dark .ucle-tabs-bottom-bar {
+  background: #0f1419;
+  box-shadow: 0 -0.05em rgba(0,0,0,0.5);
+}
+.ucle-tabs.ucle-tabs-dark .ucle-tab .ucle-tab-background > svg .ucle-tab-shadow {
+  stroke: rgba(0,0,0,0.5);
+}
+.ucle-tabs.ucle-tabs-dark .ucle-tab .ucle-tab-background > svg .ucle-tab-background {
+  fill: #373737;
+}
+.ucle-tabs.ucle-tabs-dark .ucle-tab.ucle-tab-current .ucle-tab-background > svg .ucle-tab-background {
+  fill: #0f1419;
+}
+.ucle-tabs.ucle-tabs-dark .ucle-tab .ucle-tab-title {
+  -webkit-font-smoothing: antialiased;
+  color: #fff;
+}
+.ucle-tabs.ucle-tabs-dark .ucle-tab .ucle-tab-close:not(:hover)::before {
+  content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'><path stroke='#cfcfcf' stroke-linecap='round' stroke-width='1.125' d='M4 4 L10 10 M10 4 L4 10'></path></svg>");
+}

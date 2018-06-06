@@ -458,7 +458,6 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				editor.updateOptions({readOnly: true, selectionHighlight: false});
 
 				var data = ucleServer.getMachineCodeAndRun(filePath, ucleTabs.currentTabModel);
-				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 			} else {
 				var type = "warning";
 				var buttons = ['OK'];
@@ -496,7 +495,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				if(ucleTabs.getExtension(filePath) != "s"){
 					var type = "warning";
 					var buttons = ['OK'];
-					var message = "Cannot run simulation on file without '.s' extension!";
+					var message = "Cannot run simulation on this file!";
 					var defaultId = 0;
 					remote.dialog.showMessageBox({message, type, buttons, defaultId});
 					return;
@@ -518,7 +517,6 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				editor.setPosition(new monaco.Position(1,1));
 
 				var data = ucleServer.getMachineCodeAndRun(filePath, ucleTabs.currentTabModel);
-				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
 			} else {
 				var type = "warning";
 				var buttons = ['OK'];
@@ -546,6 +544,28 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			ucleTabs.showAllTabs();
 		}	
 	});
+
+	setInterval(function() {
+		if(simRunning && ucleServer.error) {
+			var sim = document.getElementById("run-sim");
+			sim.className = "run-simulation";
+			removeSimEvents();
+			calculateWidth(false);
+
+			simRunning = false;
+			ucleTabs.simRunning= false;
+			fileManager.simRunning = false;
+
+			line = 1;
+			address = 0;
+
+			editor.updateOptions({readOnly: false});
+			clearRegisterInfo();
+			ucleServer.removeHighLight(ucleTabs.currentTabModel);
+			ucleTabs.showAllTabs();
+			console.log(error);
+		}
+	}, 500);
 
 	ipcRenderer.on('sim-response', (e, data) => {
 		var dataArray = data.split("\n");

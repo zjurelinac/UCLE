@@ -1,6 +1,7 @@
 const cp = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const ipcRenderer = require('electron').ipcRenderer;
 
 const procSim = path.resolve("../ucle/build/core/debug/", './fnsim-cli');
 
@@ -130,6 +131,7 @@ class UCLEServer {
 			this.removeHoverBreakPoint(model);
 		},this);
 
+		this.error = null;
 	}
 
 	checkIfBreakPoint(model,line) {
@@ -229,8 +231,6 @@ class UCLEServer {
 		for(var i = 1; i <= lineCount; i++) {
 			if(this.checkIfBreakPoint(model, i)) {
 				var nextAddress = simFileModel.getLineContent(i).split(" ")[0];
-				console.log(parseInt(nextAddress,16));
-				console.log(address);
 				if(parseInt(nextAddress,16) >= address) {
 					return i;
 				}
@@ -244,14 +244,15 @@ class UCLEServer {
 
 		var sim = this;
 
-		child = cp.exec(procAssembler + " " + filePath, function(stderr) {
-			if (stderr) {
-				console.log(stderr);
+		child = cp.exec(procAssembler + " " + filePath, function(error, stderr) {
+			if (error) {
+				sim.error = error;
 				return;
 			} else {
 				var data = fs.readFileSync(generatedPath, 'utf-8');
 				simFileModel = sim.monaco.editor.createModel(data);
 				sim.runSim(generatedPath, model);
+				sim.registerBreakPoints(model);
 			}
 		}); 
 

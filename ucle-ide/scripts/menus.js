@@ -311,6 +311,28 @@ module.exports = {
 					]
 				},
 				{
+					label: 'Tools',
+					submenu: [
+						{
+							label: 'Themes',
+							submenu: [
+								{
+									label: "Light theme (default)",
+									click () {
+										webContents.send("light-theme-change");
+									}
+								},
+								{
+									label: "Dark theme",
+									click () {
+										webContents.send("dark-theme-change")
+									}
+								}
+							]
+						}
+					]
+				},
+				{
 					label: 'View',
 					submenu: [
 						{

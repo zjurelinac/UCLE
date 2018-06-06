@@ -12,38 +12,12 @@ loader().then((monaco) => {
 	var el = document.querySelector('.ucle-tabs');
 	var model = monaco.editor.createModel("");
 
-	friscAssembly = require("./scripts/frisc_language")(monaco);
+	const friscAssembly = require("./scripts/frisc_language")(monaco);
+	const lightTheme = require("./scripts/themes").lightTheme;
+	const darkTheme = require("./scripts/themes").darkTheme;
 
-	monaco.editor.defineTheme('lightTheme', {
-		base: 'vs',
-		inherit: true,
-		rules: [{ background: 'fafafa' }],
-		colors: {
-			"foreground": "#85888c",
-			"scrollbar.shadow": "#7e848c11",
-			"selection.background": "#f0eee4fd",
-			"editor.background": "#fafafa",
-			"editor.foreground": "#5c6066",
-			"editor.selectionBackground": "#f0eee4",
-			"editor.findMatchBackground": "#ff6a0033",
-			"editor.findMatchHighlightBackground": "#ff6a0033",
-			"editor.findRangeHighlightBackground": "#ff6a0033",
-			"editor.lineHighlightBackground": "#f2f2f2",
-			"editor.rangeHighlightBackground": "#f2f2f2",
-			"editor.wordHighlightBackground": "#ff6a0033",
-			"editor.wordHighlightStrongBackground": "#ff6a0033",
-			"editorCursor.foreground": "#ff6a00",
-			"editorWhitespace.foreground": "#d9d8d7",
-			"editorIndentGuide.background": "#d9d8d7",
-			"editorLineNumber.foreground": "#b20000",
-			"editorSuggestWidget.background": "#ffffff",
-			"editorSuggestWidget.border": "#e2e4e7",
-			"editorSuggestWidget.selectedBackground": "#f5f5f5",
-			"editorSuggestWidget.highlightForeground": "#ff6a00",
-			"editorRuler.foreground": "#e2e4e7",
-			"editorOverviewRuler.border": "#e2e4e7"
-		}
-	});
+	monaco.editor.defineTheme('lightTheme', lightTheme);	
+	monaco.editor.defineTheme('darkTheme', darkTheme);
 
 	monaco.editor.setTheme('lightTheme');
 
@@ -158,6 +132,24 @@ loader().then((monaco) => {
 			}
 			ucleTabs.updateTabContent(currTab);
 		}
+	});
+
+	ipcRenderer.on("dark-theme-change", (e) => {
+		el.classList.add('ucle-tabs-dark');
+		document.documentElement.classList.add('ucle-dark');
+		document.body.classList.add('ucle-dark');
+		document.getElementById("quick-tools-theme").href = "./style/quick-tools-dark.css";
+		document.getElementById("editor-theme").href = "./style/editor-dark.css";
+		monaco.editor.setTheme('darkTheme');
+	});
+
+	ipcRenderer.on("light-theme-change", (e) => {
+		el.classList.remove('ucle-tabs-dark');
+		document.documentElement.classList.remove('ucle-dark');
+		document.body.classList.remove('ucle-dark');
+		document.getElementById("quick-tools-theme").href = "./style/quick-tools.css";
+		document.getElementById("editor-theme").href = "./style/editor.css";		
+		monaco.editor.setTheme('lightTheme');
 	});
 	
 	editor.focus();
