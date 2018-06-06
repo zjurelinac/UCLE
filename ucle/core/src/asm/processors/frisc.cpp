@@ -8,6 +8,7 @@
 #include <util/string.hpp>
 #include <util/string_view.hpp>
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
@@ -390,9 +391,6 @@ second_pass_result frisc_assembler::second_pass_(const std::vector<line_info>& l
 
 void frisc_assembler::assemble(std::string filename)
 {
-    // TODO: Nomenclature!
-    fmt::print("{} => {} => {}\n", filename, util::strip_extension(filename), util::change_extension(filename, "p"));
-
     try {
         auto contents = read_file_(filename);
         auto parsed_lines = parse_lines_(contents);
@@ -418,6 +416,7 @@ void frisc_assembler::assemble(std::string filename)
 
     } catch (std::exception& e) {
         fmt::print_colored(stderr, fmt::RED, "{}\n", e.what());
+        std::exit(1);
     }
 }
 
