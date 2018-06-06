@@ -500,6 +500,9 @@ class UCLETabs {
 
 	updateTabContent(tabEl) {
 		fileStartContent.set(idFile.get(tabId.get(tabEl)),this.editor.getModel().getValue());
+		if(tabEl.querySelector(".ucle-tab-content-changed")) {
+			tabEl.querySelector(".ucle-tab-content-changed").className = "ucle-tab-close";
+		}
 	}
 
 	cleanUpPreviouslyDraggedTabs() {
