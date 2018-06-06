@@ -57,17 +57,8 @@ class FileManager {
 	}
 
 	saveFile(file) {
-		if(this.checkIfExists(file)) {
-			return true;
-		}
-
 		const model = this.editor.getModel();
-		fs.writeFile(file, model.getValue(), 'utf-8', function(err) {
-			if(err) {
-				throw err;
-			}
-		});
-		return false;
+		fs.writeFileSync(file, model.getValue(), 'utf-8');
 	}
 
 	walkThroughFiles(children, listID) {

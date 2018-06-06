@@ -432,6 +432,37 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	// ------------- Handle the simulation start and response --------------------------
 	// ---------------------------------------------------------------------------------
 
+	function stopSimulation(target) {
+		target.className = "run-simulation";
+		removeSimEvents();
+		calculateWidth(false);
+
+		simRunning = false;
+		ucleTabs.simRunning= false;
+		fileManager.simRunning = false;
+
+		line = 1;
+		address = 0;
+
+		editor.updateOptions({readOnly: false, selectionHighlight: true});
+		clearRegisterInfo();
+		ucleServer.removeHighLight(ucleTabs.currentTabModel);
+
+		ucleTabs.showAllTabs();
+	}
+
+	function startSimulation(filePath, target) {
+		var error = ucleServer.getMachineCodeAndRun(filePath, ucleTabs.currentTabModel);
+
+		if(error) {
+			var type = "warning";
+			var buttons = ['OK'];
+			var message = 'Error in getting the machine code!\nPlease check your code for errors!';
+			var defaultId = 0;
+			remote.dialog.showMessageBox({message, type, buttons, defaultId});
+			stopSimulation(target);
+		}
+	}
 	document.getElementById("run-sim").addEventListener("click", function(e) {
 		if(e.target.className == "run-simulation") {
 			var currTabValue = ucleTabs.currentTabValue;
@@ -457,32 +488,23 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				fileManager.simRunning = true;
 				editor.updateOptions({readOnly: true, selectionHighlight: false});
 
-				var data = ucleServer.getMachineCodeAndRun(filePath, ucleTabs.currentTabModel);
+				var changed = ucleTabs.currentTab.querySelector(".ucle-tab-content-changed");
+				if(changed) {
+					fileManager.saveFile(filePath);
+					ucleTabs.updateTabContent(ucleTabs.currentTab);
+				}
+
+				startSimulation(filePath, e.target);
 			} else {
 				var type = "warning";
 				var buttons = ['OK'];
 				var message = 'Cannot run simulation with an empty file!';
 				var defaultId = 0;
-				var response = remote.dialog.showMessageBox({message, type, buttons, defaultId});
+				remote.dialog.showMessageBox({message, type, buttons, defaultId});
 			}
 		} else {
-			e.target.className = "run-simulation";
-			removeSimEvents();
-			calculateWidth(false);
-
-			simRunning = false;
-			ucleTabs.simRunning= false;
-			fileManager.simRunning = false;
-
-			line = 1;
-			address = 0;
-
-			editor.updateOptions({readOnly: false, selectionHighlight: true});
-			clearRegisterInfo();
+			stopSimulation(e.target);
 			ucleServer.stopSim(ucleTabs.currentTabModel);
-			ucleServer.removeHighLight(ucleTabs.currentTabModel);
-
-			ucleTabs.showAllTabs();
 		}	
 	});
 
@@ -510,13 +532,15 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				simRunning = true;
 				ucleTabs.simRunning= true;
 				fileManager.simRunning = true;
-				editor.updateOptions({readOnly: true});
-				ucleServer.registerBreakPoints(ucleTabs.currentTabModel);
-				ucleServer.addHighLight(ucleTabs.currentTabModel, new monaco.Range(1,1,1,1));
+				editor.updateOptions({readOnly: true, selectionHighlight: false});
 
-				editor.setPosition(new monaco.Position(1,1));
+				var changed = ucleTabs.currentTab.querySelector(".ucle-tab-content-changed");
+				if(changed) {
+					fileManager.saveFile(filePath);
+					ucleTabs.updateTabContent(ucleTabs.currentTab);
+				}
 
-				var data = ucleServer.getMachineCodeAndRun(filePath, ucleTabs.currentTabModel);
+				startSimulation(filePath, e.target);
 			} else {
 				var type = "warning";
 				var buttons = ['OK'];
@@ -525,47 +549,10 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				remote.dialog.showMessageBox({message, type, buttons, defaultId});
 			}
 		} else {
-			sim.className = "run-simulation";
-			removeSimEvents();
-			calculateWidth(false);
-
-			simRunning = false;
-			ucleTabs.simRunning= false;
-			fileManager.simRunning = false;
-
-			line = 1;
-			address = 0;
-
-			editor.updateOptions({readOnly: false});
-			clearRegisterInfo();
+			stopSimulation(sim);
 			ucleServer.stopSim(ucleTabs.currentTabModel);
-			ucleServer.removeHighLight(ucleTabs.currentTabModel);
-
-			ucleTabs.showAllTabs();
 		}	
 	});
-
-	setInterval(function() {
-		if(simRunning && ucleServer.error) {
-			var sim = document.getElementById("run-sim");
-			sim.className = "run-simulation";
-			removeSimEvents();
-			calculateWidth(false);
-
-			simRunning = false;
-			ucleTabs.simRunning= false;
-			fileManager.simRunning = false;
-
-			line = 1;
-			address = 0;
-
-			editor.updateOptions({readOnly: false});
-			clearRegisterInfo();
-			ucleServer.removeHighLight(ucleTabs.currentTabModel);
-			ucleTabs.showAllTabs();
-			console.log(error);
-		}
-	}, 500);
 
 	ipcRenderer.on('sim-response', (e, data) => {
 		var dataArray = data.split("\n");

@@ -403,6 +403,18 @@ class UCLETabs {
 			}
 		});
 
+		tabEl.children[4].addEventListener("mouseover", function(e) {
+			if(e.target.matches("div.ucle-tab-content-changed")) {
+				e.target.className = 'ucle-tab-close';
+			}
+		});
+
+		tabEl.children[4].addEventListener("mouseout", function(e) {
+			if(e.target.matches("div.ucle-tab-close") && tabs.checkIfValueChanged(tabEl)) {
+				e.target.className = 'ucle-tab-content-changed';
+			}
+		});
+
 		this.changeEditorLanguage(tabEl, tabProperties.title);
 
 		idView.set(id, this.editor.saveViewState());

@@ -242,24 +242,22 @@ class UCLEServer {
 	getMachineCodeAndRun(filePath, model) {
 		var generatedPath = filePath.split('.')[0] + '.p';
 
-		var sim = this;
+		try {
+			cp.execSync(procAssembler + " " + filePath, {timeout: 3000});
+		} catch(err) {
+			return err;
+		}
 
-		child = cp.exec(procAssembler + " " + filePath, function(error, stderr) {
-			if (error) {
-				sim.error = error;
-				return;
-			} else {
-				var data = fs.readFileSync(generatedPath, 'utf-8');
-				simFileModel = sim.monaco.editor.createModel(data);
-				sim.runSim(generatedPath, model);
-				sim.registerBreakPoints(model);
-			}
-		}); 
-
-		return generatedPath;
+		var data = fs.readFileSync(generatedPath, 'utf-8');
+		simFileModel = this.monaco.editor.createModel(data);
+		this.runSim(generatedPath, model);
+		this.registerBreakPoints(model);
+	
+		return null;
 	}
 
 	resetPosition(model) {
+		console.log(model);
 		var startingLine = this.findFirstNonEmpty(model, 1, 0);
 		this.addHighLight(model, new monaco.Range(startingLine,1,startingLine,1));
 		this.editor.setPosition(new this.monaco.Position(startingLine,1));

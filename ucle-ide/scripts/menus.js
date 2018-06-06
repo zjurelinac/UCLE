@@ -60,7 +60,7 @@ function promptInputAndAdd(args) {
 			child.innerHTML = newFileName;
 
 			if(fileType == "file") {
-				var alreadyCreated = fileManager.saveFile(newFilePath);
+				var alreadyCreated = fileManager.checkIfExists(newFilePath);
 				if(alreadyCreated) {
 					var questionType = "warning";
 					var buttons = ['OK'];
@@ -70,6 +70,7 @@ function promptInputAndAdd(args) {
 					setTimeout(()=>{fileName.focus();},0);
 					return;
 				} else {
+					fileManager.saveFile(newFilePath);
 					ucleTabs.addTab({title: newFileName, fullPath: newFilePath});
 				}
 			} else {
