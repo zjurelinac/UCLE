@@ -383,15 +383,18 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		var tools = document.getElementById("quick-tools");
 		var style = window.getComputedStyle(tools , null);
 		var sim = document.getElementById("show-sim");
+		var lineCount = document.getElementById("line-column-count");
 
 		editor.focus();
 
 		if(style.display == "none") {
 			tools.style.display = "inline-block";
 			tools.style.width = "18%";
+			lineCount.style.left = "19%";
 		} else {
 			tools.style.display = "none";
 			tools.style.width = "0%";
+			lineCount.style.left = "1%";
 		}
 
 		calculateWidth(simRunning);

@@ -47,7 +47,7 @@ module.exports = (monaco) => {
     ];
 
 	monaco.languages.register({
-		id: 's',
+		id: 'frisc-assembly',
 		extensions: [
 			'.s',
 		]
@@ -82,7 +82,7 @@ module.exports = (monaco) => {
 		return (textUntilPosition.charAt(textUntilPosition.length-1) == '_');
 	}
 
-	monaco.languages.registerCompletionItemProvider('s', {
+	monaco.languages.registerCompletionItemProvider('frisc-assembly', {
 		triggerCharacters:[' ', '_'],
 		provideCompletionItems: function (model, position) {
 				let textUntilPosition = model.getValueInRange({startLineNumber: position.lineNumber, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
@@ -378,7 +378,7 @@ module.exports = (monaco) => {
 		}
 	);
 
-	monaco.languages.setMonarchTokensProvider('s', {
+	monaco.languages.setMonarchTokensProvider('frisc-assembly', {
 		keywords: keywords,
 
 		typeKeywords: [
@@ -424,21 +424,4 @@ module.exports = (monaco) => {
 			]
 		}
 	});
-
-	function changeFolding() {
-		/*monaco.languages.registerFoldingRangeProvider("s", {
-			provideFoldingRanges: function(model, context, token) {
-				return folding;
-			}
-		});*/
-	}
-
-	function addFolding(fold) {
-		/*folding.push(fold);
-		changeFolding();*/
-	}
-
-	function removeFolding(fold) {
-
-	}
 }

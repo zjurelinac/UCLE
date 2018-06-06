@@ -5,7 +5,7 @@ html, body {
 	-moz-user-select: -moz-none;
 	-ms-user-select: none;
 	user-select: none;
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Optima', sans-serif;
 	font-size: 12px;
 	width:100%;
 	overflow: hidden;
@@ -205,7 +205,13 @@ i.file-ico {
 
 #workspace-text {
 	text-align: justify;
-	word-break: break-all;
+	word-break: break-word;
+}
+
+#line-column-count {
+	position: relative;
+	left: 19%;
+	font-size: 14px;
 }
 
 .explorer {

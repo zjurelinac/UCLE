@@ -69,17 +69,17 @@ loader().then((monaco) => {
 	editor.onDidChangeModelContent(function(e) {
 		if(!initType && !ucleTabs.currentTab) {
 			ucleTabs.addTab(null, false);
-			ucleTabs.changeEditorLanguage(ucleTabs.currentTab, ".s");
+			ucleTabs.changeEditorLanguage(ucleTabs.currentTab, "");
 			initType = true;
 		}
 	});
 
 	editor.onDidFocusEditor(function(e) {
-		document.getElementById('line-tab').innerHTML = "Line: " + editor.getPosition().lineNumber + " | Column: " + editor.getPosition().column;
+		document.getElementById('line-column-count').innerHTML = "Line: " + editor.getPosition().lineNumber + " | Column: " + editor.getPosition().column;
 	});
 
 	editor.onDidChangeCursorPosition(function(e) {
-		document.getElementById('line-tab').innerHTML = "Line: " + editor.getPosition().lineNumber + " | Column: " + editor.getPosition().column;
+		document.getElementById('line-column-count').innerHTML = "Line: " + editor.getPosition().lineNumber + " | Column: " + editor.getPosition().column;
 	});
 
 	el.addEventListener('tabRemove', function(e) {

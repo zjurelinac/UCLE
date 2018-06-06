@@ -97,7 +97,13 @@ class UCLETabs {
 
 	changeEditorLanguage(tabEl, fileName) {
 		if(!tabEl || !idModels.get(tabId.get(tabEl))) return;
-		this.monaco.editor.setModelLanguage(idModels.get(tabId.get(tabEl)),this.getExtension(fileName));
+		var languageName = this.getExtension(fileName);
+		if(languageName == "js") {
+			languageName = "javascript";
+		} else if(languageName == "s") {
+			languageName = "frisc-assembly";
+		}
+		this.monaco.editor.setModelLanguage(idModels.get(tabId.get(tabEl)),languageName);
 	}
 
 	closeTab(tabEl, changed = false) {
