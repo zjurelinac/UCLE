@@ -1,21 +1,26 @@
 #container {
 	width: 80%;
-	height: 100%;
+	height: 91%;
 	border-top: none;
-	padding: 0;
+	padding-top: 5px;
 	top:0;
 	bottom:0;
 	right:0;
 	left:0;
-	margin: 0;
+	float:left;
 	vertical-align:top;
 	display: inline-block;
 	position: relative;
+	border-left: 2px solid #D0D0D0;
+	border-top: 2px solid #D0D0D0;
+	border-right: 2px solid #D0D0D0;
+	box-sizing: border-box;
+	padding-left: 5px;
 }
 
 #editor {
 	width: 100%;
-	height: 95%;
+	height: 100%;
 	margin: 0;
 	padding: 0;
 }
@@ -27,26 +32,25 @@
 	width: 100%;
 	bottom: 0;
 	font-size: 16px;
-	position: absolute;
 	box-sizing: border-box;
+	clear: both;
 }
 
-#show-sim {
+#show-sim.show {
 	width: 0%;
-	height: 100%;
-	border:1px solid #ccc;
+	height: 50%;
 	padding: 0;
-	top:0;
-	bottom:0;
-	left:0;
+	top:60px;
 	margin: 0;
-	vertical-align:top;
+	right: 20px;
+	position: absolute;
 	display: inline-block;
-	transition:right 0.5s ease;
+	transition:right 0.2s ease;
 }
 
-#show-sim.hide, #workspace.hide {
-	right:-300px;
+#show-sim.hide, #workspace.hide, #registers.hide {
+	right:-9999px;
+	position: absolute;
 	visibility: hidden;
 }
 

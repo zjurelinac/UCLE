@@ -94,8 +94,8 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 		if(style.display == "none") {
 			if(running) {
-				document.getElementById("show-sim").classList.remove("hide");			
-				document.getElementById("show-sim").style.width = "20%";
+				document.getElementById("show-sim").className = "show";			
+				document.getElementById("show-sim").style.width = "19%";
 				document.getElementById("container").style.width = "79%";
 			} else {
 				document.getElementById("show-sim").className = "hide";			
@@ -103,7 +103,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			}
 		} else {
 			if(running) {
-				document.getElementById("show-sim").classList.remove("hide");			
+				document.getElementById("show-sim").className = "show";			
 				document.getElementById("show-sim").style.width = "20%";
 				document.getElementById("container").style.width = "60%";
 			} else {
@@ -255,10 +255,6 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 	ipcRenderer.on('open-dir', (e) => {
 		fileManager.openDirectory();
-	});
-
-	window.addEventListener("resize", function(e) {
-		listedFiles.style.height = listedFiles.style.height + (window.innerHeight - listedFiles.style.height);
 	});
 
 	document.getElementById("refresh").addEventListener("click", function(e) {

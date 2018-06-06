@@ -93,12 +93,13 @@ loader().then((monaco) => {
 		
 		var listedFiles = document.getElementById("listed-files");
 		var styleAdded = window.getComputedStyle(folder , null);
-		listedFiles.style.height = parseInt(listedFiles.style.height, 10) + parseInt(styleAdded.height, 10) + 9 + "px";
+		listedFiles.style.height = parseInt(listedFiles.style.height, 10) + parseInt(styleAdded.height, 10) + 7 + "px";
 
 		folder.parentNode.removeChild(folder);
 
 		if(!document.querySelector('[id^="open-"')) {
 			explorer.children[0].className = "explorer-ico-closed";
+			listedFiles.style.height = "86%";
 		}
 	});
 
@@ -115,8 +116,8 @@ loader().then((monaco) => {
 		var listedFiles = document.getElementById("listed-files");
 		var addedFile = document.getElementById("open-" + addedFilePath);
 		var styleAdded = window.getComputedStyle(addedFile , null);
-
-		listedFiles.style.height = Math.ceil(parseInt(listedFiles.style.height, 10) - parseInt(styleAdded.height, 10) - 9) + "px";
+		var styleListed = window.getComputedStyle(listedFiles , null);
+		listedFiles.style.height = Math.ceil(parseInt(styleListed.height, 10) - parseInt(styleAdded.height, 10)) - 7 + "px";
 	});
 
 	el.addEventListener('tabClose', function(e) {
