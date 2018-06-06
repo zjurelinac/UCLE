@@ -78,8 +78,16 @@ loader().then((monaco) => {
 		document.getElementById('line-column-count').innerHTML = "Line: " + editor.getPosition().lineNumber + " | Column: " + editor.getPosition().column;
 	});
 
-	editor.onDidChangeCursorPosition(function(e) {
-		document.getElementById('line-column-count').innerHTML = "Line: " + editor.getPosition().lineNumber + " | Column: " + editor.getPosition().column;
+	editor.onDidChangeCursorSelection(function(e) {
+		if(e.selection.startLineNumber == e.selection.endLineNumber && e.selection.startColumn == e.selection.endColumn) {
+			document.getElementById('line-column-count').innerHTML = "Line: " + e.selection.startLineNumber + " | Column: " + e.selection.startColumn;
+		} else if((e.selection.startLineNumber == e.selection.endLineNumber) && (e.selection.startColumn != e.selection.endColumn)) {
+			document.getElementById('line-column-count').innerHTML = (e.selection.endColumn - e.selection.startColumn) + " characters selected";
+																	 (e.selection.endLineNumber - e.selection.startLineNumber) + " characters selected";
+		} else {
+			document.getElementById('line-column-count').innerHTML = (e.selection.endLineNumber - e.selection.startLineNumber + 1) + " lines selected | " +
+																	 editor.getModel().getValueLength() + " characters selected";
+		}
 	});
 
 	el.addEventListener('tabRemove', function(e) {
