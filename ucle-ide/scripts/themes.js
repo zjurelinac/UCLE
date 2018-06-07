@@ -46,7 +46,7 @@ module.exports = {
 			"editorCursor.foreground": "#f29718",
 			"editorWhitespace.foreground": "#35404c",
 			"editorIndentGuide.background": "#35404c",
-			"editorLineNumber.foreground": "#fafafa",
+			"editorLineNumber.foreground": "#c0c0c0",
 			"editorSuggestWidget.background": "#14191f",
 			"editorSuggestWidget.border": "#1d242c",
 			"editorSuggestWidget.selectedBackground": "#191f26",

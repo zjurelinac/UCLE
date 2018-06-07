@@ -10,7 +10,7 @@ html, body {
 	width:100%;
 	overflow: hidden;
 	background-color: #0f1419;
-	color: white;
+	color: silver;
 }
 
 #font-size::-webkit-outer-spin-button,
@@ -55,8 +55,8 @@ html, body {
 	display: inline-block;
 	font-size: 16px;
 	box-sizing: border-box;
-	border-right: 2px solid gray;
-	border-top: 2px solid gray;
+	border-right: 2px solid #303030;
+	border-top: 2px solid #303030;
 }
 
 ul {
@@ -123,6 +123,13 @@ i.dir-ico-closed {
 	position: relative;
 	text-align: center;
 	width:35px;
+	background-color: #373737;
+	color: silver;
+	outline: 0;
+	outline-color: transparent;
+	outline-style: none;
+	border-width: thin;	
+	border-color: silver;
 }
 
 #button-wrapper {
@@ -218,7 +225,7 @@ i.file-ico {
 .explorer {
 	display: block;
 	overflow: hidden;
-	background-color: #d7d7d7;
+	background: linear-gradient(#1b1d1f, #1d1f21);
 	text-align: left;
 	font-size: 14px;
 	padding: 10px 10px 10px 0px;
@@ -226,7 +233,7 @@ i.file-ico {
 }
 
 .tools {
-	border-right: solid 2px rgba(0, 0, 0, .5);
+	border-right: solid 3px rgba(48, 48, 48, .5);
 	border-collapse: collapse;
 	padding-left: 5px;
 }
@@ -278,7 +285,7 @@ i.file-ico {
 
 #refresh {
 	display: inline-block;
-	background:url(../icons/refresh-dark.png);	
+	background:url(../icons/refresh.png);	
 	background-repeat:no-repeat;
 	background-size: 100% 100%;
 	width:32px;
@@ -440,11 +447,11 @@ i.file-ico {
 	margin: 20px auto;
 	font-size: 16px;
 	padding: 15px 25px;
-	background-color: gray;
+	background: #1b1d1f;
 	outline: none;
 	border: none;
 	border-radius: 15px;
-	color: white;
+	color: silver;
 }
 
 #openbtn:hover {
@@ -457,7 +464,7 @@ li.dir, li.file, div.dir, div.file {
 	width: 100%;
 	margin: 0 auto;
 	padding: 4px;
-	background-color: #fafafa;
+	background-color: #0f1419;
 	display: block;
 	overflow: hidden;
 	height: 20px;
@@ -486,8 +493,8 @@ input.file-display {
 	-ms-box-sizing: border-box;
 	box-sizing: border-box;    
 	border: none;
-	background-color: #373737;
-	color: white;
+	background-color: #606060;
+	color: silver;
 }
 
 input.file-display:focus {
@@ -498,10 +505,33 @@ input.file-display:focus {
 
 ::selection {
 	background: gray; /* WebKit/Blink Browsers */
-	color: white;
+	color: silver;
 }
 
 li.dir:hover, div.dir:hover, li.file:hover, div.file:hover {
-	background-color: gray!important;
+	background-color: #474747!important;
 	cursor: pointer;
+}
+
+.file.highlight-input {
+	background-color: #404040;
+}
+
+.breakpoint {
+	background:url(../icons/breakpoint.png);
+	background-repeat:no-repeat;
+	background-position: center; 
+	background-size: 70% 70%;
+}
+
+.breakpoint-hover {
+	background:url(../icons/breakpoint.png);
+	background-repeat:no-repeat;
+	background-position: center; 
+	background-size: 70% 70%;
+	opacity:0.4;
+}
+
+.highlight {
+	background: #383838;
 }

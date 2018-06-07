@@ -29,7 +29,6 @@ class UCLEServer {
 		this.editor.onMouseDown(function(e) {
 			if(e.target.type == 2) {
 				var model = this.editor.getModel();
-				console.log(model.getLineContent(e.target.position.lineNumber));
 				if(model == null || model == undefined) return;
 
 				var line = e.target.position.lineNumber;
@@ -84,8 +83,6 @@ class UCLEServer {
 
 				var address = simFileModel.getLineContent(line).split(" ")[0];
 
-				console.log(address);
-
 				this.sendCommand("break", ["add", parseInt(address, 16)]);
 
 				decorations.push(newDecorations[0]);
@@ -130,8 +127,6 @@ class UCLEServer {
 			if(model == null || model == undefined) return;
 			this.removeHoverBreakPoint(model);
 		},this);
-
-		this.error = null;
 	}
 
 	checkIfBreakPoint(model,line) {
@@ -208,7 +203,7 @@ class UCLEServer {
 		var nextLine = line + 1;
 		var lineCount = model.getLineCount();
 
-		if((nextLine > lineCount) || !nextLine) return -1;
+		if((nextLine > lineCount) || !nextLine || this.haltReached) return -1;
 
 		for(var i = 1; i <= lineCount; i++) {
 			if(model.getLineContent(i).replace(/\s/g, '').length) {
@@ -257,7 +252,6 @@ class UCLEServer {
 	}
 
 	resetPosition(model) {
-		console.log(model);
 		var startingLine = this.findFirstNonEmpty(model, 1, 0);
 		this.addHighLight(model, new monaco.Range(startingLine,1,startingLine,1));
 		this.editor.setPosition(new this.monaco.Position(startingLine,1));

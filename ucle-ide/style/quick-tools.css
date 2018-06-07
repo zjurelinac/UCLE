@@ -122,6 +122,9 @@ i.dir-ico-closed {
 	position: relative;
 	text-align: center;
 	width:35px;
+	outline: 0;
+	outline-color: transparent;
+	outline-style: none;	
 }
 
 #button-wrapper {
@@ -225,7 +228,7 @@ i.file-ico {
 }
 
 .tools {
-	border-right: solid 2px rgba(0, 0, 0, .5);
+	border-right: solid 3px rgba(0, 0, 0, .5);
 	border-collapse: collapse;
 	padding-left: 5px;
 }
@@ -503,4 +506,27 @@ input.file-display:focus {
 li.dir:hover, div.dir:hover, li.file:hover, div.file:hover {
 	background-color: #d9d9d9!important;
 	cursor: pointer;
+}
+
+.file.highlight-input {
+	background-color: #A9A9A9;
+}
+
+.breakpoint {
+	background:url(../icons/breakpoint.png);
+	background-repeat:no-repeat;
+	background-position: center; 
+	background-size: 70% 70%;
+}
+
+.breakpoint-hover {
+	background:url(../icons/breakpoint.png);
+	background-repeat:no-repeat;
+	background-position: center; 
+	background-size: 70% 70%;
+	opacity:0.4;
+}
+
+.highlight {
+	background: lightblue;
 }

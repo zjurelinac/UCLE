@@ -11,11 +11,10 @@
 	vertical-align:top;
 	display: inline-block;
 	position: relative;
-	border-left: 2px solid gray;
-	border-top: 2px solid gray;
-	border-right: 2px solid gray;
 	box-sizing: border-box;
 	padding-left: 5px;
+	border-left: 2px solid #303030;
+	border-top: 2px solid #303030;
 }
 
 #editor {
@@ -65,12 +64,33 @@
     padding: 8px;
 }
 
-#registers tr:hover {background-color: #ddd;}
+#registers tr:hover { 
+	background-color: #303030;
+}
 
 #registers th {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #282828;
+    color: silver;
+}
+
+.breakpoint {
+	background:url(../icons/breakpoint.png);
+	background-repeat:no-repeat;
+	background-position: center; 
+	background-size: 70% 70%;
+}
+
+.breakpoint-hover {
+	background:url(../icons/breakpoint.png);
+	background-repeat:no-repeat;
+	background-position: center; 
+	background-size: 70% 70%;
+	opacity:0.4;
+}
+
+.highlight {
+	background: #383838;
 }

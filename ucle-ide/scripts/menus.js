@@ -11,8 +11,7 @@ function promptInputAndAdd(args) {
 
 	var file = document.createElement("li");
 	file.className = fileType;
-
-	file.style.background = "#A9A9A9";
+	file.classList.add("highlight-input");
 
 	var fileName = document.createElement("input");
 	fileName.className = "file-display";
@@ -98,7 +97,7 @@ function promptInputAndAdd(args) {
 		} else {
 			parent.parentNode.children[index].removeChild(file);
 		}
-		file.style.background = "white";
+		file.classList.remove("highlight-input");
 	});
 }
 

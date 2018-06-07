@@ -9,6 +9,11 @@ var address = 0;
 const minFontSize = 8;
 const maxFontSize = 32;
 
+var themeRegChangeColor = "rgb(189, 189, 189)";
+var themeRegColor = "rgb(225, 225, 225)";
+var clickedElementColor = "#e6e6e6";
+
+var haltReached = false;
 var registersFlags = [
 	{
 		name: "IIF",
@@ -170,6 +175,10 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				return;
 			}
 			ucleServer.addHighLight(model, new monaco.Range(line,1,line,1));
+
+			if(haltReached) {
+				line = -1;
+			}
 		}, 100);
 	}
 
@@ -185,8 +194,12 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				document.getElementById("step").removeEventListener("click", stepSim);
 				document.getElementById("continue").className = "wait-simulation";
 				document.getElementById("continue").removeEventListener("click", continueSim);
-			} else {
-				ucleServer.addHighLight(model, new monaco.Range(line,1,line,1));
+				return;
+			} 
+			ucleServer.addHighLight(model, new monaco.Range(line,1,line,1));
+			
+			if(haltReached) {
+				line = -1;
 			}
 		}, 100);
 	}
@@ -206,6 +219,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		addSimEvents();
 		ucleServer.sendCommand("start",[]);
 		ucleServer.resetPosition(model);
+		haltReached = false;
 	}
 
 	// ---------------------------------------------------------------------------------
@@ -285,20 +299,20 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			|| e.target.matches("li.file"))) {
 			var clicked = document.querySelector('[clicked-attr="click"]');
 			if(clicked) {
-				clicked.style.backgroundColor = "#fafafa";
+				clicked.style.backgroundColor = "initial";
 				clicked.setAttribute("clicked-attr","noclick");
 			}
-			e.target.style.backgroundColor = "#e6e6e6";
+			e.target.style.backgroundColor = clickedElementColor;
 			e.target.setAttribute("clicked-attr","click");
 		} else if((e.target.matches("i") || e.target.matches("span")) && 
 			(e.target.parentNode.matches("li.dir") || e.target.parentNode.matches("div.dir") 
 			|| e.target.parentNode.matches("li.file"))) {
 			var clicked = document.querySelector('[clicked-attr="click"]');
 			if(clicked) {
-				clicked.style.backgroundColor = "#fafafa";
+				clicked.style.backgroundColor = "initial";
 				clicked.setAttribute("clicked-attr","noclick");
 			}
-			e.target.parentNode.style.backgroundColor = "#e6e6e6";
+			e.target.parentNode.style.backgroundColor = clickedElementColor;
 			e.target.parentNode.setAttribute("clicked-attr","click");
 		}
 	});
@@ -429,6 +443,58 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	});
 
 	// ---------------------------------------------------------------------------------
+	// --------------- Init the register state and change flag value--------------------
+	// ---------------------------------------------------------------------------------
+
+
+	function addFlagValue(registerJSON) {
+		var srRegVal;
+		var length = registerJSON.length;
+
+		for(var i = 0; i < length; i++) {
+			if(registerJSON[i][0] == "R7") {
+				registerJSON.splice(i,1);
+			} else if(registerJSON[i][0] == "SR") {
+				srRegVal = registerJSON[i][1];
+				break;
+			}
+		}
+		var binary = ("00000000" + srRegVal.toString(2)).substr(-8);
+
+		for (var i = 3; i < binary.length; i++) {
+			var flagName = registersFlags[registersFlags.length-binary.length+i].name;
+			registerJSON.push([flagName, binary.charAt(i)]);
+		}
+	}
+
+	function initRegs() {
+		var regTable = document.getElementById("registers");
+
+		var i = 1;
+
+		var byteValue;
+
+		for(; i <= registersFlags.length; i++) {
+			var row = regTable.insertRow(i);
+
+			var regName = row.insertCell(0);
+			var regValue = row.insertCell(1);
+
+			var regFlag = registersFlags[i-1];
+			regName.innerHTML = regFlag.name;
+			if(regFlag.title != "") {
+				regName.setAttribute("title", regFlag.title);
+			}
+
+			if(regFlag.name == "IIF") {
+				regValue.innerHTML = "true";
+			} else {
+				regValue.innerHTML = "0";
+			}
+		}
+	}
+
+	// ---------------------------------------------------------------------------------
 	// ------------- Handle the simulation start and response --------------------------
 	// ---------------------------------------------------------------------------------
 
@@ -440,6 +506,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		simRunning = false;
 		ucleTabs.simRunning= false;
 		fileManager.simRunning = false;
+		haltReached = false;
 
 		line = 1;
 		address = 0;
@@ -476,7 +543,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 					remote.dialog.showMessageBox({message, type, buttons, defaultId});
 					return;
 				}
-
+				initRegs();
 				ucleTabs.hideTabs();
 				e.target.className = "stop-simulation";
 
@@ -522,7 +589,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 					remote.dialog.showMessageBox({message, type, buttons, defaultId});
 					return;
 				}
-
+				initRegs();
 				ucleTabs.hideTabs();
 				sim.className = "stop-simulation";
 
@@ -565,6 +632,11 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				address = json.location;
 			}
 
+			if(json.state == "stopped" && json.annotation.startsWith("HALT")) {
+				haltReached = true;
+				return;
+			}
+
 			if(json.type == "register_info") {
 				var registerJSON = Object.keys(json.registers).map(function(key) {
 					return [String(key), json.registers[key]];
@@ -578,16 +650,17 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 					var regValue = row.cells[1];
 
 					var highlight = regValue.style.backgroundColor;
+					var readData = registerJSON[i-1][1].toString();
+					if(regValue.innerHTML != readData) {
+						regValue.style.backgroundColor = themeRegChangeColor;
+						regValue.innerHTML = readData;
 
-					if(regValue.innerHTML != registerJSON[i-1][1].toString()) {
-						regValue.style.backgroundColor = "#bdbdbd";
-						regValue.innerHTML = registerJSON[i-1][1].toString();
-						setTimeout(function() {		
+						setTimeout(function() {	
 							for(var i = 1; i <= registersFlags.length; i++) {
 								var row = registerTable[i];
 								var regValue = row.cells[1];
-								if(regValue.style.backgroundColor == "rgb(189, 189, 189)") {
-									regValue.style.backgroundColor = "initial";
+								if(regValue.style.backgroundColor == themeRegChangeColor) {
+									regValue.style.backgroundColor = themeRegColor;
 									return;
 								}
 							}
@@ -598,53 +671,22 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		})
 	});
 
+
 	// ---------------------------------------------------------------------------------
-	// --------------- Init the register state and change flag value--------------------
+	// ------------------------- Handle the theme change -------------------------------
 	// ---------------------------------------------------------------------------------
 
 
-	function addFlagValue(registerJSON) {
-		var srRegVal;
-		var length = registerJSON.length;
+	ipcRenderer.on("light-theme-change", (e) => {
+		themeRegChangeColor = "rgb(189, 189, 189)";
+		themeRegColor = "rgb(225, 225, 225)";
+		clickedElementColor = "#e6e6e6";
+	});
 
-		for(var i = 0; i < length; i++) {
-			if(registerJSON[i][0] == "R7") {
-				registerJSON.splice(i,1);
-			} else if(registerJSON[i][0] == "SR") {
-				srRegVal = registerJSON[i][1];
-				break;
-			}
-		}
-		var binary = ("00000000" + srRegVal.toString(2)).substr(-8);
+	ipcRenderer.on("dark-theme-change", (e) => {
+		themeRegChangeColor = "rgb(60, 60, 60)";
+		themeRegColor = "rgb(100, 100, 100)";
+		clickedElementColor = "#606060";
+	});
 
-		for (var i = 3; i < binary.length; i++) {
-			var flagName = registersFlags[registersFlags.length-binary.length+i].name;
-			registerJSON.push([flagName, binary.charAt(i)]);
-		}
-	}
-
-	var regTable = document.getElementById("registers");
-
-	var i = 1;
-
-	var byteValue;
-
-	for(; i <= registersFlags.length; i++) {
-		var row = regTable.insertRow(i);
-
-		var regName = row.insertCell(0);
-		var regValue = row.insertCell(1);
-
-		var regFlag = registersFlags[i-1];
-		regName.innerHTML = regFlag.name;
-		if(regFlag.title != "") {
-			regName.setAttribute("title", regFlag.title);
-		}
-
-		if(regFlag.name == "IIF") {
-			regValue.innerHTML = "false";
-		} else {
-			regValue = "0";
-		}
-	}
 };
