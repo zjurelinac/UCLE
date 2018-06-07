@@ -638,7 +638,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		var regFlag = registersFlags[i-1];
 		regName.innerHTML = regFlag.name;
 		if(regFlag.title != "") {
-			regName.setAttribute("title", "Interrupt flag");
+			regName.setAttribute("title", regFlag.title);
 		}
 
 		if(regFlag.name == "IIF") {
