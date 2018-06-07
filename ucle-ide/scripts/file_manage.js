@@ -157,6 +157,9 @@ class FileManager {
 
 		if(list == null || list.innerHTML == "") {
 			const tree = dirTree(filePath);
+			console.log(tree.children.sort(function(e1,e2) {
+				return (e1.type.localeCompare(e2.type) || e1.name.toLowerCase().localeCompare(e2.name.toLowerCase()));
+			}));
 			var manager = this;
 			setTimeout(()=>{manager.walkThroughFiles(tree.children, listID);}, 0);
 		}
