@@ -400,7 +400,7 @@ module.exports = (monaco) => {
 		tokenizer: {
 			root: [
 				//[/[A-Z]*[a-z]_*/,'white'],
-				[/[A-Z]\w*/, { 
+				[/\_*[a-zA-Z]\w*/, { 
 					cases: { 
 						'@typeKeywords': 'keyword',
 

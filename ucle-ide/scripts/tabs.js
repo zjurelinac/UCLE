@@ -100,7 +100,7 @@ class UCLETabs {
 		var languageName = this.getExtension(fileName);
 		if(languageName == "js") {
 			languageName = "javascript";
-		} else if(languageName == "s") {
+		} else if(languageName == "s" || !languageName) {
 			languageName = "frisc-assembly";
 		}
 		this.monaco.editor.setModelLanguage(idModels.get(tabId.get(tabEl)),languageName);
