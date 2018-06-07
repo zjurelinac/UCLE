@@ -187,13 +187,17 @@ function promptInputAndRename(parent, child, type, ucleTabs, fileManager) {
 			}
 			var explorerOpened = document.querySelectorAll('[id*="open-' + CSS.escape(oldPath) + '"]');
 			for(var i = 0; i < explorerOpened.length; i++) {
-				var openedNewPath = newPath + '/' + ucleTabs.getFileName(explorerOpened[i].title);
+				var openedFileName = ucleTabs.getFileName(explorerOpened[i].title);
+				var openedNewPath = newPath + '/' + openedFileName;
+				ucleTabs.updateTab(ucleTabs.getTabByPath(oldPath+ '/' + openedFileName), {title: openedFileName, fullPath: openedNewPath});			
+				ucleTabs.updateTabContent(ucleTabs.getTabByPath(openedNewPath));
 				explorerOpened[i].id = "open-" + openedNewPath;
 				explorerOpened[i].title = openedNewPath;
 			}
 		} else if(ucleTabs.checkIfTabOpened(oldPath)) {
-			ucleTabs.updateTab(ucleTabs.getTabByPath(oldPath), {title: newName, fullPath: newPath});
 			ucleTabs.updateTabContent(ucleTabs.getTabByPath(oldPath));
+			console.log(oldPath);
+			ucleTabs.updateTab(ucleTabs.getTabByPath(oldPath), {title: newName, fullPath: newPath});
 			var opened = document.getElementById("open-" + oldPath);
 			opened.id = "open-" + newPath;
 			opened.title = newPath;
