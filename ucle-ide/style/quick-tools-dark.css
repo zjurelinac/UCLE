@@ -75,29 +75,31 @@ li.tools {
 }
 
 i.dir-ico-opened {
-	background:url(../icons/dir-opened.png);
+	background:url(../icons/dir-opened-light.png);
 	background-repeat:no-repeat;
-	background-position: bottom; 
+	background-position: bottom;
+	background-size: 100% 100%;	 
 	display: inline-block;
 	position:relative;
 	bottom: 0;
 	right: 0;
-	width: 20px;
-	height: 15px;
+	width: 15px;
+	height: 20px;
 	margin-left:10px;
 	padding-right: 5px;
 }
 
 i.dir-ico-closed {
-	background:url(../icons/dir-closed.png);
+	background:url(../icons/dir-closed-light.png);
 	background-repeat:no-repeat;
-	background-position: bottom; 
+	background-position: bottom;
+	background-size: 100% 100%;	
 	display: inline-block;
 	position: relative;
 	bottom: 0;
 	right: 0;	
-	width: 20px;
-	height: 15px;
+	width: 15px;
+	height: 20px;
 	margin-left:10px;
 	padding-right: 5px;
 }
@@ -140,11 +142,11 @@ i.dir-ico-closed {
 
 #increase {
 	display: inline-block;
-	background:url(../icons/increase.png);	
+	background:url(../icons/increase-light.png);
 	background-repeat:no-repeat;
 	background-size: 100% 100%;
-	width:16px;
-	height:16px;
+	width:18px;
+	height:18px;
 	padding:0;
 	top:0;
 	bottom:0;
@@ -154,11 +156,11 @@ i.dir-ico-closed {
 
 #decrease {
 	display: inline-block;
-	background:url(../icons/decrease.png);	
+	background:url(../icons/decrease-light.png);	
 	background-repeat:no-repeat;
 	background-size: 100% 100%;
-	width:16px;
-	height:16px;
+	width:18px;
+	height:18px;
 	padding:0;
 	top:0;
 	bottom:0;
@@ -167,7 +169,7 @@ i.dir-ico-closed {
 }
 
 i.explorer-ico-closed {
-	background:url(../icons/explorer-closed.png);
+	background:url(../icons/explorer-closed-light.png);
 	background-repeat:no-repeat;
 	background-position: bottom; 
 	background-size: 100% 100%;
@@ -175,12 +177,14 @@ i.explorer-ico-closed {
 	position: relative;
 	bottom: 0;
 	right: 0;	
-	width: 20px;
+	width: 15px;
 	height: 15px;
+	margin-right: 10px;
+	margin-left: 10px;
 }
 
 i.explorer-ico-opened {
-	background:url(../icons/explorer-opened.png);
+	background:url(../icons/explorer-opened-light.png);
 	background-repeat:no-repeat;
 	background-position: bottom;
 	background-size: 100% 100%;	
@@ -188,8 +192,10 @@ i.explorer-ico-opened {
 	position: relative;
 	bottom: 0;
 	right: 0;	
-	width: 20px;
+	width: 15px;
 	height: 15px;
+	margin-right: 10px;
+	margin-left: 10px;
 }
 
 i {
@@ -198,7 +204,7 @@ i {
 }
 
 i.file-ico {
-	background:url(../icons/file.png);
+	background:url(../icons/file-light.png);
 	background-repeat:no-repeat;
 	background-position: bottom; 
 	background-size: 15px 15px;
@@ -270,7 +276,7 @@ i.file-ico {
 
 #file-explorer {
 	display: inline-block;
-	background:url(../icons/file-explorer-black.png);
+	background:url(../icons/file-explorer-light.png);
 	background-repeat:no-repeat;
 	background-size: 100% 100%;
 	width:32px;
@@ -285,7 +291,7 @@ i.file-ico {
 
 #refresh {
 	display: inline-block;
-	background:url(../icons/refresh.png);	
+	background:url(../icons/refresh-light.png);	
 	background-repeat:no-repeat;
 	background-size: 100% 100%;
 	width:32px;
@@ -299,7 +305,7 @@ i.file-ico {
 
 #step.run-simulation {
 	display: inline-block;
-	background:url(../icons/step.png);	
+	background:url(../icons/step-sim.png);	
 	background-repeat:no-repeat;
 	background-size: 100% 100%;
 	width:32px;
@@ -313,7 +319,7 @@ i.file-ico {
 
 #step.wait-simulation {
 	display: inline-block;
-	background:url(../icons/step.png);
+	background:url(../icons/step-sim.png);
 	opacity: 0.5;
 	background-repeat:no-repeat;
 	background-size: 100% 100%;
@@ -416,7 +422,7 @@ i.file-ico {
 
 #run-sim.run-simulation {
 	display: inline-block;
-	background:url(../icons/run-simulation.png);	
+	background:url(../icons/start-sim.png);	
 	background-repeat:no-repeat;
 	background-size: 100% 100%;
 	width:32px;
@@ -430,7 +436,7 @@ i.file-ico {
 
 #run-sim.stop-simulation {
 	display: inline-block;
-	background:url(../icons/stop-simulation.png);	
+	background:url(../icons/stop-sim.png);	
 	background-repeat:no-repeat;
 	background-size: 100% 100%;
 	width:32px;
@@ -515,23 +521,4 @@ li.dir:hover, div.dir:hover, li.file:hover, div.file:hover {
 
 .file.highlight-input {
 	background-color: #404040;
-}
-
-.breakpoint {
-	background:url(../icons/breakpoint.png);
-	background-repeat:no-repeat;
-	background-position: center; 
-	background-size: 70% 70%;
-}
-
-.breakpoint-hover {
-	background:url(../icons/breakpoint.png);
-	background-repeat:no-repeat;
-	background-position: center; 
-	background-size: 70% 70%;
-	opacity:0.4;
-}
-
-.highlight {
-	background: #383838;
 }

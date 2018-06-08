@@ -60,12 +60,12 @@
 }
 
 #registers td, #registers th {
-    border: 1px solid black;
+    border: 1px solid silver;
     padding: 8px;
 }
 
 #registers tr:hover { 
-	background-color: #303030;
+	background-color: #343434;
 }
 
 #registers th {

@@ -498,6 +498,8 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	// ------------- Handle the simulation start and response --------------------------
 	// ---------------------------------------------------------------------------------
 
+	initRegs();
+
 	function stopSimulation(target) {
 		target.className = "run-simulation";
 		removeSimEvents();
@@ -543,7 +545,6 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 					remote.dialog.showMessageBox({message, type, buttons, defaultId});
 					return;
 				}
-				initRegs();
 				ucleTabs.hideTabs();
 				e.target.className = "stop-simulation";
 
@@ -589,7 +590,6 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 					remote.dialog.showMessageBox({message, type, buttons, defaultId});
 					return;
 				}
-				initRegs();
 				ucleTabs.hideTabs();
 				sim.className = "stop-simulation";
 
@@ -649,7 +649,6 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 					var row = registerTable[i];
 					var regValue = row.cells[1];
 
-					var highlight = regValue.style.backgroundColor;
 					var readData = registerJSON[i-1][1].toString();
 					if(regValue.innerHTML != readData) {
 						regValue.style.backgroundColor = themeRegChangeColor;
@@ -676,17 +675,36 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 	// ------------------------- Handle the theme change -------------------------------
 	// ---------------------------------------------------------------------------------
 
+	function changeRegColors(oldThemeRegChangeColor, oldThemeRegColor) {
+		var registerTable = document.getElementById("registers").rows;
+	
+		for(var i = 1; i <= registersFlags.length; i++) {
+			var row = registerTable[i];
+			var regValue = row.cells[1];
+			if(regValue.style.backgroundColor == oldThemeRegChangeColor) {
+				regValue.style.backgroundColor = themeRegChangeColor;
+			} else if(regValue.style.backgroundColor == oldThemeRegColor) {
+				regValue.style.backgroundColor = themeRegColor;
+			}
+		}
+	}
 
 	ipcRenderer.on("light-theme-change", (e) => {
+		var oldThemeRegChangeColor = themeRegChangeColor;
+		var oldThemeRegColor = themeRegColor;		
 		themeRegChangeColor = "rgb(189, 189, 189)";
 		themeRegColor = "rgb(225, 225, 225)";
 		clickedElementColor = "#e6e6e6";
+		changeRegColors(oldThemeRegChangeColor, oldThemeRegColor);
 	});
 
 	ipcRenderer.on("dark-theme-change", (e) => {
-		themeRegChangeColor = "rgb(60, 60, 60)";
-		themeRegColor = "rgb(100, 100, 100)";
+		var oldThemeRegChangeColor = themeRegChangeColor;
+		var oldThemeRegColor = themeRegColor;
+		themeRegChangeColor = "rgb(100, 100, 100)";	
+		themeRegColor = "rgb(60, 60, 60)";
 		clickedElementColor = "#606060";
+		changeRegColors(oldThemeRegChangeColor, oldThemeRegColor);
 	});
 
 };
