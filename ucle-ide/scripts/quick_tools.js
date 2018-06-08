@@ -175,7 +175,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				return;
 			}
 			ucleServer.addHighLight(model, new monaco.Range(line,1,line,1));
-
+			editor.revealLine(line);
 			if(haltReached) {
 				line = -1;
 			}
@@ -197,7 +197,8 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				return;
 			} 
 			ucleServer.addHighLight(model, new monaco.Range(line,1,line,1));
-			
+			editor.revealLine(line);
+
 			if(haltReached) {
 				line = -1;
 			}
@@ -211,10 +212,11 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 	function resetProcessor() {
 		var model = ucleTabs.currentTabModel;
-
 		ucleServer.sendCommand("reset",[]);
 		line = 1;
 		address = 0;
+		editor.revealLine(line);
+
 		removeSimEvents();
 		addSimEvents();
 		ucleServer.sendCommand("start",[]);
@@ -512,6 +514,7 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 
 		line = 1;
 		address = 0;
+		editor.revealLine(line);
 
 		editor.updateOptions({readOnly: false, selectionHighlight: true});
 		clearRegisterInfo();

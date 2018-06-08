@@ -137,11 +137,11 @@ i.dir-ico-closed {
 
 #increase {
 	display: inline-block;
-	background:url(../icons/increase-dark.png);	
+	background:url(../icons/increase-dark.png);
 	background-repeat:no-repeat;
 	background-size: 100% 100%;
-	width:16px;
-	height:16px;
+	width:18px;
+	height:18px;
 	padding:0;
 	top:0;
 	bottom:0;
@@ -154,8 +154,8 @@ i.dir-ico-closed {
 	background:url(../icons/decrease-dark.png);	
 	background-repeat:no-repeat;
 	background-size: 100% 100%;
-	width:16px;
-	height:16px;
+	width:18px;
+	height:18px;
 	padding:0;
 	top:0;
 	bottom:0;
