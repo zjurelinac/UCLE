@@ -65,7 +65,8 @@ function promptInputAndAdd(args) {
 					var buttons = ['OK'];
 					var message = 'That file already exists!\nPlease choose a different name!';
 					var defaultId = 0;
-					remote.dialog.showMessageBox({message, questionType, buttons, defaultId});
+					var title = "Warning";					
+					remote.dialog.showMessageBox({message, questionType, buttons, defaultId, title});
 					setTimeout(()=>{fileName.focus();},0);
 					return;
 				} else {
@@ -79,7 +80,8 @@ function promptInputAndAdd(args) {
 					var buttons = ['OK'];
 					var message = 'That directory already exists!\nPlease choose a different name!';
 					var defaultId = 0;
-					remote.dialog.showMessageBox({message, questionType, buttons, defaultId});
+					var title = "Warning";
+					remote.dialog.showMessageBox({message, questionType, buttons, defaultId, title});
 					setTimeout(()=>{fileName.focus();},0);
 					return;
 				} else {
@@ -116,7 +118,8 @@ function deleteFile(file, ucleTabs, fileManager, type) {
 	var buttons = ['No','Yes'];
 	var message = "Are you sure you want to delete '" + ucleTabs.getFileName(file.title) + "'?";
 	var defaultId = 0;
-	var response = remote.dialog.showMessageBox({message, questionType, buttons, defaultId});
+	var title = "Question";
+	var response = remote.dialog.showMessageBox({message, questionType, buttons, defaultId, title});
 
 	if(response) {
 		if(type == "file") {
@@ -173,7 +176,8 @@ function promptInputAndRename(parent, child, type, ucleTabs, fileManager) {
 			var buttons = ['OK'];
 			var message = "'" + newName +"' already exists!\nPlease choose a different name!";
 			var defaultId = 0;
-			remote.dialog.showMessageBox({message, questionType, buttons, defaultId});
+			var title = "Warning";
+			remote.dialog.showMessageBox({message, questionType, buttons, defaultId, title});
 			setTimeout(()=>{input.focus();},0);
 			return;
 		} else if(type == "dir") {
@@ -232,7 +236,7 @@ module.exports = {
 							label: 'Open file',
 							accelerator: 'CmdOrCtrl+O',				
 							click () { 	
-								dialog.showOpenDialog({properties: ['openFile']}, function(filename) { 
+								dialog.showOpenDialog({title:"Open a file", properties: ['openFile']}, function(filename) { 
 									if(filename !== undefined) webContents.send('open-file', filename.toString());
 								}); 
 							}

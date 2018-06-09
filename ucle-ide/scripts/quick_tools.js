@@ -590,7 +590,8 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 					var buttons = ['OK'];
 					var message = "Cannot run simulation on this file!";
 					var defaultId = 0;
-					remote.dialog.showMessageBox({message, type, buttons, defaultId});
+					var title = "Warning";
+					remote.dialog.showMessageBox({message, type, buttons, defaultId, title});
 					return;
 				}
 				ucleTabs.hideTabs();
@@ -616,7 +617,8 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 				var buttons = ['OK'];
 				var message = 'Cannot run simulation with an empty file!';
 				var defaultId = 0;
-				remote.dialog.showMessageBox({message, type, buttons, defaultId});
+				var title = "Warning";
+				remote.dialog.showMessageBox({message, type, buttons, defaultId, title});
 			}
 		} else {
 			stopSimulation(sim);

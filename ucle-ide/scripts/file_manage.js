@@ -10,7 +10,6 @@ class FileManager {
 	constructor({ editor, monaco }) {
 		this.editor = editor;
 		this.monaco = monaco;
-		this.startPath = './';
 		this.simRunning = false;
 
 		ipcRenderer.on('open-file', (e, file) => this.openFile(file));
@@ -32,14 +31,14 @@ class FileManager {
 	}
 
 	openDirectory() {
-		var filename = remote.dialog.showOpenDialog({ properties: ['openDirectory']});
+		var filename = remote.dialog.showOpenDialog({title:"Open a directory", properties: ['openDirectory']});
 		if(!filename || document.getElementById("div-" + filename.toString())) return false;
 		this.readFolder(filename.toString());
 		return true;
 	}
 
 	saveAsFile() {
-		var filename = remote.dialog.showSaveDialog();
+		var filename = remote.dialog.showSaveDialog({title:"Save file"});
 
 		if(!filename) {
 			return;
@@ -118,9 +117,9 @@ class FileManager {
 	readFolder(filePath, init = true, ele = null) {
 		if(filePath === null || filePath === undefined) { 
 			if(process.platform == "win32") {
-				filePath: "C:\\";
+				filePath = "C:\\";
 			} else {
-				filePath: "/";
+				filePath = "/";
 			}
 		}
 

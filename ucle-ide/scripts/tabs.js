@@ -112,7 +112,8 @@ class UCLETabs {
 			var buttons = ['OK'];
 			var message = 'Cannot close file while simulation is running!';
 			var defaultId = 0;
-			remote.dialog.showMessageBox({message, type, buttons, defaultId});
+			var title = "Warning"
+			remote.dialog.showMessageBox({message, type, buttons, defaultId, title});
 			return;
 		} else if(tabEl) {
 			if(changed) {
@@ -120,7 +121,8 @@ class UCLETabs {
 				var buttons = ['Cancel','Close file without saving','Save'];
 				var message = 'Save changes before closing?';
 				var defaultId = 2;
-				var response = remote.dialog.showMessageBox({message, type, buttons, defaultId});
+				var title = "Warning"
+				var response = remote.dialog.showMessageBox({message, type, buttons, defaultId, title});
 
 				if(response == 2) {
 					this.emit('tabClose', { tabEl });
