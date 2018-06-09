@@ -39,11 +39,11 @@ namespace ucle::fnsim::frisc {
         reg<32>& SP = R[7];
         reg<32> PC;
         status_reg SR;
-        bool IIF = 0;
+        bool IIF = true;
 
         void clear() override
         {
-            IIF = 0;
+            IIF = true;
             PC = 0; SR = 0;
             for (auto i = 0u; i < R.size(); ++i)
                 R[i] = 0;
@@ -65,7 +65,6 @@ namespace ucle::fnsim::frisc {
         public:
             frisc_simulator(processor_config_type cfg) : parent::functional_processor_simulator_impl(cfg)
             {
-                regs_.IIF = true;
                 enable_interrupt_(frisc_nmi);
             }
 
