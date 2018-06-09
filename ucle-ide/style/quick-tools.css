@@ -10,6 +10,7 @@ html, body {
 	width:100%;
 	overflow: hidden;
 	background-color: #fafafa;
+	zoom: 1;
 }
 
 #font-size::-webkit-outer-spin-button,

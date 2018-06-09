@@ -3,9 +3,9 @@ const path = require('path');
 const fs = require('fs');
 const ipcRenderer = require('electron').ipcRenderer;
 
-const procSim = path.resolve("../ucle/build/core/debug/", './fnsim-cli');
+const procSim = path.resolve(__dirname, "../bin/fnsim-cli");
 
-const procAssembler = path.resolve("../ucle/build/core/debug/", './frisc-asm');
+const procAssembler = path.resolve(__dirname, "../bin/frisc-asm");
 
 var child;
 var infoInterval;
