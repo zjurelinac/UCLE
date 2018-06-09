@@ -154,10 +154,11 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 			var regName = row.cells[0];
 			var regValue = row.cells[1];
 			if(regName.innerHTML == "IIF") {
-				regValue.innerHTML = "false";
+				regValue.innerHTML = "true";
 			} else {
 				regValue.innerHTML = "0";
 			}
+			regValue.style.backgroundColor = "initial";
 		}
 	}
 
@@ -473,8 +474,6 @@ module.exports = (editor, fileManager, ucleTabs, ucleServer) => {
 		var regTable = document.getElementById("registers");
 
 		var i = 1;
-
-		var byteValue;
 
 		for(; i <= registersFlags.length; i++) {
 			var row = regTable.insertRow(i);
