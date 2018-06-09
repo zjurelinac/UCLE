@@ -22,8 +22,6 @@ function createWindow () {
 		mainWindow = null;
 	});
 
-	mainWindow.webContents.openDevTools();
-
 	template = require('./scripts/menus').contextMain(mainWindow);
 
 	const menu = Menu.buildFromTemplate(template);

@@ -384,11 +384,7 @@ module.exports = {
 					submenu: [
 						{
 							label: 'Learn More',
-							click () { require('electron').shell.openExternal('http://electron.atom.io'); }
-						},
-						{
-							label: 'About',
-							click () { console.log('Link will be here.'); }
+							click () { require('electron').shell.openExternal('https://github.com/zjurelinac/UCLE'); }
 						}
 					]
 				}
