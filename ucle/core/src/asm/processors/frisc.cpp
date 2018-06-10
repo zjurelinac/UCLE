@@ -316,6 +316,9 @@ first_pass_result frisc_assembler::first_pass_(const std::vector<parse_details>&
         auto& instr_class = line_instr[0];
 
         if (instr_class[0] == "equ_instr") {
+            if (line["line_label"].empty())
+                throw logical_error("EQU instruction must be preceeded with a label.");
+
             labels[line["line_label"].contents] = detail::parse_num_const(instr_class[0]["signed_num_const"]);
             results.push_back({ current_addr, line.contents, {}, false });
             continue;
