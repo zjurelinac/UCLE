@@ -77,6 +77,14 @@ namespace ucle::fnsim::frisc {
             void process_interrupt_(priority_t int_prio) override;
             void clear_internals_() override { regs_.clear(); }
 
+        private:
+            status execute_move_(word_t opcode, bool fn, const reg<32>& IR);
+            status execute_alu_(word_t opcode, bool fn, const reg<32>& IR);
+            status execute_mem_(word_t opcode, bool fn, const reg<32>& IR);
+            status execute_ctrl_(word_t opcode, bool fn, const reg<32>& IR);
+
+            constexpr bool eval_cond_(word_t cond) const;
+
             void push_to_stack_(word_t value)
             {
                 regs_.SP -= 4;
@@ -89,14 +97,6 @@ namespace ucle::fnsim::frisc {
                 regs_.SP += 4;
                 return value;
             }
-
-        private:
-            status execute_move_(word_t opcode, bool fn, const reg<32>& IR);
-            status execute_alu_(word_t opcode, bool fn, const reg<32>& IR);
-            status execute_mem_(word_t opcode, bool fn, const reg<32>& IR);
-            status execute_ctrl_(word_t opcode, bool fn, const reg<32>& IR);
-
-            constexpr bool eval_cond_(word_t cond) const;
 
             register_file regs_;
     };
