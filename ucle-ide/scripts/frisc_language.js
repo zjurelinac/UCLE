@@ -39,13 +39,6 @@ module.exports = (monaco) => {
 			'HALT_SGT', 'HALT_SLT', 'HALT_SGE'
 	];
 
-	var folding = [            
-		{
-            start: 1,
-            end: 5,
-        }
-    ];
-
 	monaco.languages.register({
 		id: 'frisc-assembly',
 		extensions: [
@@ -83,7 +76,7 @@ module.exports = (monaco) => {
 	}
 
 	monaco.languages.registerCompletionItemProvider('frisc-assembly', {
-		triggerCharacters:[' ', '_'],
+		triggerCharacters:['_'],
 		provideCompletionItems: function (model, position) {
 				let textUntilPosition = model.getValueInRange({startLineNumber: position.lineNumber, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column});
 				let info = getAreaInfo(textUntilPosition);
@@ -382,11 +375,11 @@ module.exports = (monaco) => {
 		keywords: keywords,
 
 		typeKeywords: [
-			'EQU', 'DW', 'DH', 'DB', 'DS'
+			'ORG', 'EQU', 'DW', 'DH', 'DB', 'DS'
 		],
 
 		types: [
-			'R0','R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7'
+			'R0','R1', 'R2', 'R3', 'R4', 'R5', 'R6'
 		],
 
 		brackets: [
@@ -394,7 +387,7 @@ module.exports = (monaco) => {
 		],
 
 		builtins: [
-			'SP', 'SR', 'PC'
+			'R7', 'SP', 'SR', 'PC'
 		],
 
 		tokenizer: {
