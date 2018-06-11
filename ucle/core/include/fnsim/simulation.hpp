@@ -199,7 +199,7 @@ namespace ucle::fnsim {
 
             // Program loading
 
-            status load_pfile(std::string filename, address_type start_location = 0) noexcept;   // TODO: Start location? What if code not PIC?
+            status load_pfile(std::string filename, address_type start_location = 0) noexcept;
 
             // Memory
             auto get_memory_contents(address_type location, size_t amount)
