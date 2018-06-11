@@ -83,8 +83,8 @@ i.dir-ico-opened {
 	position:relative;
 	bottom: 0;
 	right: 0;
-	width: 15px;
-	height: 20px;
+	width: 18px;
+	height: 22px;
 	margin-left:10px;
 	padding-right: 5px;
 }
@@ -99,7 +99,7 @@ i.dir-ico-closed {
 	bottom: 0;
 	right: 0;	
 	width: 15px;
-	height: 15px;
+	height: 20px;
 	margin-left:10px;
 	padding-right: 5px;
 }
@@ -508,6 +508,10 @@ input.file-display:focus {
 ::selection {
 	background: black;
 	color: white;
+}
+
+li.dir {
+	margin-left: 3px;
 }
 
 li.dir:hover, div.dir:hover, li.file:hover, div.file:hover {

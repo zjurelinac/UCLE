@@ -43,6 +43,7 @@ module.exports = (monaco) => {
 		id: 'frisc-assembly',
 		extensions: [
 			'.s',
+			'.asm'
 		]
 	});
 
