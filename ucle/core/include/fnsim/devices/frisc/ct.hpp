@@ -1,5 +1,5 @@
-#ifndef _UCLE_CORE_FNSIM_DEVICES_RTC_HPP_
-#define _UCLE_CORE_FNSIM_DEVICES_RTC_HPP_
+#ifndef _UCLE_CORE_FNSIM_DEVICES_FRISC_CT_HPP_
+#define _UCLE_CORE_FNSIM_DEVICES_FRISC_CT_HPP_
 
 #include <fnsim/base.hpp>
 #include <fnsim/device.hpp>
@@ -158,4 +158,4 @@ namespace ucle::fnsim::frisc {
 
 }
 
-#endif  /* _UCLE_CORE_FNSIM_DEVICES_RTC_HPP_ */
+#endif  /* _UCLE_CORE_FNSIM_DEVICES_FRISC_CT_HPP_ */
