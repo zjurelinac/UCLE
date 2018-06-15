@@ -1,7 +1,7 @@
 #include <fnsim/device.hpp>
 #include <fnsim/simulation.hpp>
 #include <fnsim/processors/frisc.hpp>
-#include <fnsim/devices/frisc_ct.hpp>
+#include <fnsim/devices/frisc/ct.hpp>
 
 #include <memory>
 
