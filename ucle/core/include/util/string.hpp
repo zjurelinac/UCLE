@@ -37,8 +37,22 @@ namespace ucle::util {
         unsigned long long parse_int<unsigned long long>::parse(const std::string& str, std::size_t* idx, int base) { return std::stoull(str, idx, base); }
     }
 
+    // convert to lowercase
+    inline auto lowercase(std::string s)
+    {
+        std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+        return s;
+    }
+
+    // convert to uppercase
+    inline auto uppercase(std::string s)
+    {
+        std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+        return s;
+    }
+
     // trim from start (in place)
-    inline void ltrim(std::string &s)
+    inline void ltrim(std::string& s)
     {
         s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
             return !std::isspace(ch);
@@ -46,7 +60,7 @@ namespace ucle::util {
     }
 
     // trim from end (in place)
-    inline void rtrim(std::string &s)
+    inline void rtrim(std::string& s)
     {
         s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
             return !std::isspace(ch);
@@ -54,7 +68,7 @@ namespace ucle::util {
     }
 
     // trim from both ends (in place)
-    inline void trim(std::string &s)
+    inline void trim(std::string& s)
     {
         ltrim(s);
         rtrim(s);
