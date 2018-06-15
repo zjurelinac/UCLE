@@ -1,3 +1,5 @@
+DEBUG = False
+
 libraries 		= []
 library_paths 	= ''
 cpp_defines 	= {}
@@ -27,7 +29,7 @@ common.Append(CPPDEFINES 	= cpp_defines)
 common.Append(CPPFLAGS 		= cpp_flags)
 common.Append(CXXFLAGS 		= cxx_flags)
 
-# fmt: C++ modern formatting library
+# fmt: Modern C++ formatting library
 common.Library('fmt', ['debug/libs/fmt/format.cc'], CPPFLAGS=[])
 
 # release = common.Clone()
@@ -36,7 +38,7 @@ common.Library('fmt', ['debug/libs/fmt/format.cc'], CPPFLAGS=[])
 # release.VariantDir('../build/release/test', 'test', duplicate=0)
 
 debug = common.Clone()
-debug.Append(CPPDEFINES=['DEBUG'], CPPFLAGS=['-O3', '-march=native'])
+debug.Append(CPPDEFINES=['DEBUG'], CPPFLAGS=(['-g'] if DEBUG else ['-O3', '-march=native']))
 debug.VariantDir('debug', 'src', duplicate=0)
 debug.VariantDir('debug/tests', 'tests', duplicate=0)
 
@@ -54,6 +56,29 @@ debug.Program(
 debug.Program(
     'debug/frisc-asm',
     [] + arch_assemblers,
+    LIBS=['fmt'],
+    LIBPATH='.'
+)
+
+# Tests
+
+debug.Program(
+    'debug/tests/frisc/frisc_ct',
+    ['debug/tests/fnsim/frisc/test_ct.cpp', 'debug/fnsim/processors/frisc.cpp'],
+    LIBS=['fmt'],
+    LIBPATH='.'
+)
+
+debug.Program(
+    'debug/tests/frisc/frisc_dma',
+    ['debug/tests/fnsim/frisc/test_dma.cpp', 'debug/fnsim/processors/frisc.cpp'],
+    LIBS=['fmt'],
+    LIBPATH='.'
+)
+
+debug.Program(
+    'debug/tests/frisc/frisc_gpio',
+    ['debug/tests/fnsim/frisc/test_gpio.cpp', 'debug/fnsim/processors/frisc.cpp'],
     LIBS=['fmt'],
     LIBPATH='.'
 )

@@ -10,9 +10,9 @@ namespace ucle::fnsim::frisc {
 
     class base_io_device {
         public:
-            virtual bool ready()             { return false; }
-            virtual byte_t read()            { return 0; }
-            virtual void write(byte_t value) {}
+            virtual bool ready()       { return false; }
+            virtual byte_t read()      { return 0; }
+            virtual void write(byte_t) {}
     };
 
     class gpio : public register_set_device<0, 32, byte_order::little_endian, address32_t>{
@@ -115,9 +115,9 @@ namespace ucle::fnsim::frisc {
                     case DR:
                         switch (mode_()) {
                             case mode_bitset:
-                                io_dev_->write(DR_ = value);
                             case mode_output:
                                 io_dev_->write(DR_ = value);
+                                break;
                             case mode_input:
                             case mode_bittest:
                             default:
@@ -144,7 +144,7 @@ namespace ucle::fnsim::frisc {
             bool test_bits_()
             {
                 auto val = DR_ ^ ~mask_active_bits_();
-                return aor_() ? (val == mask_()) : (val & mask_() != 0);
+                return aor_() ? (val == mask_()) : ((val & mask_()) != 0);
             }
 
             reg<32> CR_ { 0 };

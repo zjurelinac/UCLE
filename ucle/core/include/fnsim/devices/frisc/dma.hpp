@@ -126,6 +126,6 @@ namespace ucle::fnsim::frisc {
             processor_ptr_type proc_ptr_;
     };
 
-};
+}
 
 #endif  /* _UCLE_CORE_FNSIM_DEVICES_FRISC_DMA_HPP_ */
