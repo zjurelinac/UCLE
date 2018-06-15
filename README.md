@@ -1,15 +1,12 @@
 # UCLE
 ## _Ultimate Computer Learning Environment_
 
-- Ever wanted to design **your own processor architecture**?
-- Or to **play around** with an **existing one**?
+- Ever wanted to design **your own processor architecture** or **play around** with an **existing one**?
 - Ever wondered how the computer **really thinks** and **does** it's **job**?
-- Or wanted to make him **do some other job**?
-- Did you perhaps wish one day to make **your own operating system**?
-- Or a **programming language**?
-- Perhaps you once tried to understand how does the **compiler actually work**, but couldn't because it was too complex?
+- Did you perhaps wish one day to make **your own operating system** or a **programming language**?
+- Maybe you even tried to understand how does the **compiler actually work**, but couldn't because it was way too complex?
 
-*Look no further!* - **UCLE is meant to answer all of that.**
+*Don't loose hope and look no further!* - **UCLE is meant to answer all of that.**
 
 ## Idea
 The idea of **UCLE** is precisely this - to allow you, whoever you might be (a student, a programmer, a computer engineer, a professor, or just someone interested in computers), to **understand** and **experience first-hand** the depths of **how it all works together** inside of a computer:
@@ -59,22 +56,11 @@ UCLE project offers you several CLI tools for various use-cases.
 and it supports various modes of simulation execution.
 
 #### Basic mode
-TODO
-
 #### Interactive mode
-TODO
-
 #### JSON-controlled mode
-TODO
-
 #### Execution-tracking mode
-TODO
-
-#### Checker mode
-TODO
-
+#### Checker 
 #### Generic option flags
-TODO
 
 ### ASM
 
