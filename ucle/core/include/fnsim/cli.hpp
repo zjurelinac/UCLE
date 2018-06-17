@@ -87,32 +87,17 @@ namespace ucle::fnsim::cli {
         }
     }
 
-    void run_basic(std::string program_path, nlohmann::json config)
-    {
-        run_simple<exec_mode::basic>(program_path, config);
-    }
-
-    void run_stats(std::string program_path, nlohmann::json config)
-    {
-        run_simple<exec_mode::stats>(program_path, config);
-    }
-
-    void run_testing(std::string program_path, nlohmann::json config)
-    {
-        run_simple<exec_mode::testing>(program_path, config);
-    }
-
     // void run_interactive_text(std::string program_path, nlohmann::json config) {}
     // void run_interactive_json(std::string program_path, nlohmann::json config) {}
 
     using runner_type = std::function<void(std::string, nlohmann::json)>;
 
     std::unordered_map<std::string, runner_type> runners = {
-        { "basic", &run_basic },
+        { "basic", &run_simple<exec_mode::basic> },
         // { "interactive", &run_interactive_text },
         // { "interactive_json", &run_interactive_json },
-        { "stats", &run_stats },
-        { "testing", &run_testing }
+        { "stats", &run_simple<exec_mode::stats> },
+        { "testing", &run_simple<exec_mode::testing> }
     };
 }
 
