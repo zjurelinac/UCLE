@@ -182,6 +182,8 @@ namespace ucle::fnsim {
             using device_config_type = device_config<address_type>;
             using state_info_type = state_info<address_type>;
 
+            constexpr static unsigned arch_width = N;
+
             functional_simulation() = delete;
             functional_simulation(functional_processor_simulator_ptr_type fnsim_ptr)
                 : fnsim_{std::move(fnsim_ptr)}, exec_{fnsim_.get()} {}
