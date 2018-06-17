@@ -68,6 +68,9 @@ int main(int argc, char* argv[]) {
 
         std::string simulation_type = util::get(config, "simulation_type");
 
+        if (!runners.count(simulation_type))
+            throw incorrect_call(fmt::format("Unknown simulation type '{}'", simulation_type));
+
         runners[simulation_type](program_path, config);
 
     } catch (std::exception& e) {
