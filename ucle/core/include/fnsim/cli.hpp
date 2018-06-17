@@ -50,7 +50,7 @@ namespace ucle::fnsim::cli {
         return FunctionalSimulation { proc_factory<FunctionalSimulation::arch_width>[arch](parse_config(config)) };
     }
 
-    enum class exec_mode { basic, stats, testing };
+    enum class exec_mode { basic, stats, testing, interactive, interactive_json };
 
     template <unsigned N, exec_mode mode>
     inline void run_simple_helper(std::string program_path, nlohmann::json config)
@@ -70,6 +70,8 @@ namespace ucle::fnsim::cli {
             checker chk { fnsim, program_path, util::get(sim_options, "verbosity", 0) };
             auto checks = util::get(sim_options, "checks", std::vector<std::string> {} );
             chk.run(checks);
+        } else {
+            throw design_error("This function should not be called with this particular exec_mode.");
         }
     }
 

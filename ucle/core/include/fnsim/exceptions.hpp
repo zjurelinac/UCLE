@@ -22,6 +22,8 @@ namespace ucle::fnsim {
     class impossible_value      : public base_exception { using base_exception::base_exception; };
 
     class runtime_error         : public base_exception { using base_exception::base_exception; };
+
+    class design_error          : public base_exception { using base_exception::base_exception; };
 }
 
 #endif /* _UCLE_CORE_FNSIM_EXCEPTIONS_HPP_ */
