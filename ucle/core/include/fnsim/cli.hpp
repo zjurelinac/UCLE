@@ -50,43 +50,62 @@ namespace ucle::fnsim::cli {
         return FunctionalSimulation { proc_factory<FunctionalSimulation::arch_width>[arch](parse_config(config)) };
     }
 
-    template <unsigned N>
-    inline void run_basic_helper(std::string program_path, nlohmann::json config)
+    enum class exec_mode { basic, stats, testing };
+
+    template <unsigned N, exec_mode mode>
+    inline void run_simple_helper(std::string program_path, nlohmann::json config)
     {
-        auto sim_options = util::get(config, "simulation_options");
-        auto fnsim = build_fnsim<functional_simulation<N, false, false, false, true>>(config);
+        auto fnsim = build_fnsim<functional_simulation<N, false, false, false, (mode == exec_mode::stats)>>(config);
         fnsim.load_pfile(program_path);
         fnsim.run();
 
-        if (util::get(sim_options, "print_registers", false))
-            print_reg_info(fnsim.get_reg_info());
+        auto sim_options = util::get(config, "simulation_options");
+
+        if constexpr (mode == exec_mode::basic) {
+            if (util::get(sim_options, "print_registers", false))
+                print_reg_info(fnsim.get_reg_info());
+        } else if constexpr (mode == exec_mode::stats) {
+            print_exec_info(fnsim.get_exec_info());
+        } else if constexpr (mode == exec_mode::testing) {
+
+        }
     }
 
-    void run_basic(std::string program_path, nlohmann::json config)
+    template <exec_mode mode>
+    inline void run_simple(std::string program_path, nlohmann::json config)
     {
         int width = util::get(config, "width", 32);
         switch (width) {
             case 32:
-                return run_basic_helper<32>(program_path, config);
+                return run_simple_helper<32, mode>(program_path, config);
             case 64:
-                return run_basic_helper<64>(program_path, config);
+                return run_simple_helper<64, mode>(program_path, config);
             default:
                 throw incorrect_call(fmt::format("Architecture width of {} is not supported.", width));
         }
     }
 
+    void run_basic(std::string program_path, nlohmann::json config)
+    {
+        run_simple<exec_mode::basic>(program_path, config);
+    }
+
+    void run_stats(std::string program_path, nlohmann::json config)
+    {
+        run_simple<exec_mode::stats>(program_path, config);
+    }
+
     // void run_interactive_text(std::string program_path, nlohmann::json config) {}
     // void run_interactive_json(std::string program_path, nlohmann::json config) {}
-    // void run_statistics(std::string program_path, nlohmann::json config) {}
     // void run_testing(std::string program_path, nlohmann::json config) {}
 
     using runner_type = std::function<void(std::string, nlohmann::json)>;
 
     std::unordered_map<std::string, runner_type> runners = {
-        { "basic", &run_basic }
+        { "basic", &run_basic },
         // { "interactive", &run_interactive_text },
         // { "interactive_json", &run_interactive_json },
-        // { "statistics", &run_statistics },
+        { "stats", &run_stats },
         // { "testing", &run_testing }
     };
 }
