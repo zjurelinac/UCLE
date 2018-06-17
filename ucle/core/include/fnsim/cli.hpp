@@ -67,7 +67,9 @@ namespace ucle::fnsim::cli {
         } else if constexpr (mode == exec_mode::stats) {
             print_exec_info(fnsim.get_exec_info());
         } else if constexpr (mode == exec_mode::testing) {
-
+            checker chk { fnsim, program_path, util::get(sim_options, "verbosity", 0) };
+            auto checks = util::get(sim_options, "checks", std::vector<std::string> {} );
+            chk.run(checks);
         }
     }
 
@@ -95,9 +97,13 @@ namespace ucle::fnsim::cli {
         run_simple<exec_mode::stats>(program_path, config);
     }
 
+    void run_testing(std::string program_path, nlohmann::json config)
+    {
+        run_simple<exec_mode::testing>(program_path, config);
+    }
+
     // void run_interactive_text(std::string program_path, nlohmann::json config) {}
     // void run_interactive_json(std::string program_path, nlohmann::json config) {}
-    // void run_testing(std::string program_path, nlohmann::json config) {}
 
     using runner_type = std::function<void(std::string, nlohmann::json)>;
 
@@ -106,7 +112,7 @@ namespace ucle::fnsim::cli {
         // { "interactive", &run_interactive_text },
         // { "interactive_json", &run_interactive_json },
         { "stats", &run_stats },
-        // { "testing", &run_testing }
+        { "testing", &run_testing }
     };
 }
 

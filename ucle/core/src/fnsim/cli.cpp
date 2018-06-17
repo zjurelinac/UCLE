@@ -90,19 +90,5 @@ int main(int argc, char* argv[]) {
     //     functional_simulation<> sim {factory_32[cfg.simulator_name](proc_cfg)};
     //     run_interactive_json_simulation(sim, cfg);
     // } else {
-    //     functional_simulation<false, false, false, true> sim {factory_32[cfg.simulator_name](proc_cfg)};
-    //     sim.load_pfile(cfg.pfile);
-    //     sim.run();
-
-    //     if (cfg.print_reg_info)
-    //         print_reg_info(sim.get_reg_info());
-
-    //     if (cfg.print_exec_info)
-    //         print_exec_info(sim.get_exec_info());
-
-    //     if (cfg.run_checker) {
-    //         checker chk {sim, cfg.pfile, cfg.verbosity};
-    //         chk.run(cfg.checks);
-    //     }
     // }
 }
