@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_PROCESSORS_ARMV7_HPP_
-#define _UCLE_CORE_FNSIM_PROCESSORS_ARMV7_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 #include <fnsim/address_space.hpp>
@@ -35,7 +34,7 @@ namespace ucle::fnsim::armv7 {
 
         reg_type CPSR;
 
-        auto& R(unsigned idx) 
+        auto& R(unsigned idx)
         {
             if (idx < 13) return R[idx];
             return usrR134[idx - 13];
@@ -63,7 +62,7 @@ namespace ucle::fnsim::armv7 {
 
         private:
             std::array<reg_type> R_[13];
-            
+
             std::array<reg_type> usrR134_[2];
             std::array<reg_type> svcR134_[2];
             std::array<reg_type> abtR134_[2];
@@ -122,5 +121,3 @@ namespace ucle::fnsim::armv7 {
 
     functional_processor_simulator_ptr<32> make_armv7_simulator(processor_config cfg);
 };
-
-#endif  /* _UCLE_CORE_FNSIM_PROCESSORS_ARMV7_HPP_ */

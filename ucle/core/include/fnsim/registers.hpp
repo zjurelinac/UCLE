@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_REGISTERS_HPP_
-#define _UCLE_CORE_FNSIM_REGISTERS_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 
@@ -108,5 +107,3 @@ namespace ucle::fnsim {
             virtual void clear() = 0;
     };
 }
-
-#endif  /* _UCLE_CORE_FNSIM_REGISTERS_HPP_ */

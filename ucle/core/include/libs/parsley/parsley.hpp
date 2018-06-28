@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_LIBS_PARSLEY_PARSLEY_HPP_
-#define _UCLE_CORE_LIBS_PARSLEY_PARSLEY_HPP_
+#pragma once
 
 #include <common/types.hpp>
 
@@ -477,5 +476,3 @@ namespace ucle::parsley {
     // };
 
 }
-
-#endif  /* _UCLE_CORE_LIBS_PARSLEY_PARSLEY_HPP_ */

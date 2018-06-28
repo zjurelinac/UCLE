@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_UTIL_STRING_VIEW_HPP_
-#define _UCLE_CORE_UTIL_STRING_VIEW_HPP_
+#pragma once
 
 #include <cctype>
 #include <cstring>
@@ -266,5 +265,3 @@ namespace ucle::util {
         return parts;
     }
 }
-
-#endif  /* _UCLE_CORE_UTIL_STRING_VIEW_HPP_ */

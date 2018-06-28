@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_PROCESSOR_IMPL_HPP_
-#define _UCLE_CORE_FNSIM_PROCESSOR_IMPL_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 
@@ -238,5 +237,3 @@ namespace ucle::fnsim {
     };
 
 }
-
-#endif  /* _UCLE_CORE_FNSIM_PROCESSOR_IMPL_HPP_ */

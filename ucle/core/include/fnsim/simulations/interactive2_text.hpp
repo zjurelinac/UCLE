@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_SIMULATIONS_INTERACTIVE_TEXT_HPP_
-#define _UCLE_CORE_FNSIM_SIMULATIONS_INTERACTIVE_TEXT_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 
@@ -17,5 +16,3 @@ namespace ucle::fnsim::cli {
         using interactive_simulation<FunctionalSimulation>::interactive_simulation;
     }
 }
-
-#endif  /* _UCLE_CORE_FNSIM_SIMULATIONS_INTERACTIVE_TEXT_HPP_ */

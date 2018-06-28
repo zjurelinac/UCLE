@@ -1,3 +1,5 @@
+#pragma once
+
 #include <asm/assembler.hpp>
 
 #include <util/const_bin_util.hpp>

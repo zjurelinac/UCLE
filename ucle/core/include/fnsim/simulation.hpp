@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_SIMULATION_HPP_
-#define _UCLE_CORE_FNSIM_SIMULATION_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 
@@ -473,5 +472,3 @@ namespace ucle::fnsim {
             ei.instruction_cnt, ei.duration_ns, 1e3 / ei.duration_ns * ei.instruction_cnt );
     }
 }
-
-#endif  /* _UCLE_CORE_FNSIM_SIMULATION_HPP_ */

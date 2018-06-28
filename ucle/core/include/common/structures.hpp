@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_COMMON_STRUCTURES_HPP_
-#define _UCLE_CORE_COMMON_STRUCTURES_HPP_
+#pragma once
 
 #include <common/types.hpp>
 #include <common/meta.hpp>
@@ -175,5 +174,3 @@ namespace ucle {
     using small_byte_vector = small_vector<byte_t, 8>;
 
 }
-
-#endif  /* _UCLE_CORE_COMMON_STRUCTURES_HPP_ */

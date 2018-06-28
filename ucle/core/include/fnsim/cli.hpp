@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_CLI_HPP_
-#define _UCLE_CORE_FNSIM_CLI_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 
@@ -102,5 +101,3 @@ namespace ucle::fnsim::cli {
         { "testing", &run_simple<exec_mode::testing> }
     };
 }
-
-#endif  /* _UCLE_CORE_FNSIM_CLI_HPP_ */

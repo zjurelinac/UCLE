@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_CHECKER_HPP_
-#define _UCLE_CORE_FNSIM_CHECKER_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 
@@ -197,5 +196,3 @@ namespace ucle::fnsim {
     }
 
 }
-
-#endif  /* _UCLE_CORE_FNSIM_CHECKER_HPP_ */

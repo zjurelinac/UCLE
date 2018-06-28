@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_DEVICES_FRISC_GPIO_HPP_
-#define _UCLE_CORE_FNSIM_DEVICES_FRISC_GPIO_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 #include <fnsim/device.hpp>
@@ -157,5 +156,3 @@ namespace ucle::fnsim::frisc {
             base_io_device* io_dev_;
     };
 }
-
-#endif  /* _UCLE_CORE_FNSIM_DEVICES_FRISC_GPIO_HPP_ */

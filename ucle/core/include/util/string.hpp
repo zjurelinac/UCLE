@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_UTIL_STRING_HPP_
-#define _UCLE_CORE_UTIL_STRING_HPP_
+#pragma once
 
 #include <common/meta.hpp>
 
@@ -123,5 +122,3 @@ namespace ucle::util {
     }
 
 }
-
-#endif  /* _UCLE_CORE_UTIL_STRING_HPP_ */

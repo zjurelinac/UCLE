@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_SIMULATIONS_INTERACTIVE_HPP_
-#define _UCLE_CORE_FNSIM_SIMULATIONS_INTERACTIVE_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 #include <fnsim/cli.hpp>
@@ -260,5 +259,3 @@ namespace ucle::fnsim::cli {
     }
 
 }
-
-#endif  /* _UCLE_CORE_FNSIM_SIMULATIONS_INTERACTIVE_HPP_ */

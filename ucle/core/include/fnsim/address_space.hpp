@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_ADDRESS_SPACE_HPP_
-#define _UCLE_CORE_FNSIM_ADDRESS_SPACE_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 
@@ -89,5 +88,3 @@ namespace ucle::fnsim {
             std::vector<mapped_device_info> devices_ = {};
     };
 }
-
-#endif  /* _UCLE_CORE_FNSIM_ADDRESS_SPACE_HPP_ */

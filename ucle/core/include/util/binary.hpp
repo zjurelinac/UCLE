@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_UTIL_BINARY_HPP_
-#define _UCLE_CORE_UTIL_BINARY_HPP_
+#pragma once
 
 #include <common/types.hpp>
 #include <common/structures.hpp>
@@ -149,5 +148,3 @@ namespace ucle::util {
         // Additional binary AL operations, if required -> bitset, bitclear...
     };
 }
-
-#endif  // _UCLE_CORE_UTIL_BINARY_HPP_

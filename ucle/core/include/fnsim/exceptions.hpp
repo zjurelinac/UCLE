@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_EXCEPTIONS_HPP_
-#define _UCLE_CORE_FNSIM_EXCEPTIONS_HPP_
+#pragma once
 
 #include <common/types.hpp>
 
@@ -25,5 +24,3 @@ namespace ucle::fnsim {
 
     class design_error          : public base_exception { using base_exception::base_exception; };
 }
-
-#endif /* _UCLE_CORE_FNSIM_EXCEPTIONS_HPP_ */

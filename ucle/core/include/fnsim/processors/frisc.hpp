@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_PROCESSORS_FRISC_HPP_
-#define _UCLE_CORE_FNSIM_PROCESSORS_FRISC_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 #include <fnsim/address_space.hpp>
@@ -96,5 +95,3 @@ namespace ucle::fnsim::frisc {
     functional_processor_simulator_ptr<32> make_frisc_simulator(processor_config cfg);
 
 }
-
-#endif  /* _UCLE_CORE_FNSIM_PROCESSORS_FRISC_HPP_ */

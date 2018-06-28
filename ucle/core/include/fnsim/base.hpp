@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_BASE_HPP_
-#define _UCLE_CORE_FNSIM_BASE_HPP_
+#pragma once
 
 #include <common/meta.hpp>
 #include <common/structures.hpp>
@@ -215,5 +214,3 @@ namespace ucle::fnsim {
         int64_t duration_ns;
     };
 }
-
-#endif  /* _UCLE_CORE_FNSIM_BASE_HPP_ */

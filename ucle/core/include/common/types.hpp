@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_COMMON_TYPES_HPP_
-#define _UCLE_CORE_COMMON_TYPES_HPP_
+#pragma once
 
 #include <bitset>
 #include <cstdint>
@@ -97,6 +96,3 @@ namespace ucle {
 
     class fatal_error : public base_exception { using base_exception::base_exception; };
 }
-
-
-#endif  /* _UCLE_CORE_COMMON_TYPES_HPP_ */

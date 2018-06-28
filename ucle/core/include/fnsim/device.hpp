@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_DEVICE_HPP_
-#define _UCLE_CORE_FNSIM_DEVICE_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 
@@ -215,5 +214,3 @@ namespace ucle::fnsim {
             std::array<register_type, reg_num> regs_;
     };
 }
-
-#endif  /* _UCLE_CORE_FNSIM_DEVICE_HPP_ */

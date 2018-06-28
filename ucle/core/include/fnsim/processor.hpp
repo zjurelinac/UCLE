@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_PROCESSOR_HPP_
-#define _UCLE_CORE_FNSIM_PROCESSOR_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 
@@ -51,5 +50,3 @@ namespace ucle::fnsim {
     using functional_processor_simulator_ptr = std::unique_ptr<functional_processor_simulator<N>>;
 
 }
-
-#endif  /* _UCLE_CORE_FNSIM_PROCESSOR_HPP_ */

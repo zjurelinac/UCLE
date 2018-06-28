@@ -1,3 +1,5 @@
+#pragma once
+
 #include <common/types.hpp>
 
 #include <libs/parsley/parsley.hpp>

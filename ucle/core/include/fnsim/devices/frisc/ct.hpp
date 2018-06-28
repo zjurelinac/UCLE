@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_FNSIM_DEVICES_FRISC_CT_HPP_
-#define _UCLE_CORE_FNSIM_DEVICES_FRISC_CT_HPP_
+#pragma once
 
 #include <fnsim/base.hpp>
 #include <fnsim/device.hpp>
@@ -157,5 +156,3 @@ namespace ucle::fnsim::frisc {
     };
 
 }
-
-#endif  /* _UCLE_CORE_FNSIM_DEVICES_FRISC_CT_HPP_ */

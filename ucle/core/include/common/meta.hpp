@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_COMMON_META_HPP_
-#define _UCLE_CORE_COMMON_META_HPP_
+#pragma once
 
 #include <common/types.hpp>
 
@@ -53,5 +52,3 @@ namespace ucle::meta {
     template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 }
-
-#endif  /* _UCLE_CORE_COMMON_META_HPP_ */

@@ -1,5 +1,4 @@
-#ifndef _UCLE_CORE_UTIL_CONST_BIN_UTIL_HPP_
-#define _UCLE_CORE_UTIL_CONST_BIN_UTIL_HPP_
+#pragma once
 
 #include <common/types.hpp>
 
@@ -53,5 +52,3 @@ namespace ucle::util {
     };
 
 }
-
-#endif  /* _UCLE_CORE_UTIL_CONST_BIN_UTIL_HPP_ */
